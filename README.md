@@ -2,12 +2,16 @@
 
 A GDExtension plugin that provides AccelByte backend services to Godot 4.x games. Supports **Windows (native)** and **Web (GDScript HTTP)** platforms.
 
+## Disclaimer
+
+This project is still in **alpha** version, some feature might be added or removed in the future update.
+
 ## Features
 
-- **47 service APIs** auto-generated from AccelByte OpenAPI specifications
-- **Cross-platform**: Native C++ on desktop, GDScript HTTP on web
-- **Zero configuration routing**: `AccelByteSDKWrapper` automatically selects the right implementation
-- **Full async support**: All API calls use `await` for cross-platform compatibility
+- **Identity & Access**: Secure OAuth2 authentication.
+- **Progression & Persistence**: Cloud saves, player statistics, leaderboards, achievements, and more.
+- **Economy & Commerce**: Manage virtual currencies, storefronts, entitlements, and cross-platform inventory sync.
+- **Seamless Scalability**: Built on a microservices architecture to handle everything from playtests to millions of concurrent users.
 
 ## Installation
 
