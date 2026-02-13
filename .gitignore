@@ -1,0 +1,69 @@
+# =========================================================
+# Godot engine generated files
+# =========================================================
+.import/
+.export/
+export_presets.cfg
+.godot/
+
+# =========================================================
+# Build artifacts (NOT the addon binaries)
+# =========================================================
+# Root-level build dirs (if any)
+/bin/
+/build/
+/out/
+
+# Build byproducts (these are NOT distributed)
+*.pdb
+*.exp
+*.lib
+*.o
+*.obj
+*.a
+
+# SCons
+.sconsign.dblite
+.sconsign*
+
+# =========================================================
+# Platform-specific junk
+# =========================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================================================
+# IDE / editor files
+# =========================================================
+.vscode/
+.idea/
+*.user
+*.log
+*.swp
+
+# =========================================================
+# C/C++ build systems
+# =========================================================
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# =========================================================
+# Python / tooling
+# =========================================================
+__pycache__/
+*.pyc
+
+# =========================================================
+# Godot export templates
+# =========================================================
+*.pck
+*.zip
+
+# =========================================================
+# NOTE: DLLs, .so, .dylib, .wasm inside addons/accelbyte_sdk/bin/
+# are INTENTIONALLY TRACKED — they are the distributed binaries.
+# Do NOT add *.dll, *.so, *.wasm, etc. as global ignores here.
+# =========================================================
