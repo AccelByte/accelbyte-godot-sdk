@@ -5,6 +5,7 @@
 .export/
 export_presets.cfg
 .godot/
+*.uid
 
 # =========================================================
 # Build artifacts (NOT the addon binaries)
