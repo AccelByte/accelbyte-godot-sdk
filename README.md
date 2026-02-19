@@ -51,28 +51,37 @@ client_secret=""
 ```gdscript
 var sdk: AccelByteSDKWrapper
 
-func _ready():
-    sdk = AccelByteSDKWrapper.new()
-    add_child(sdk)
+func _ready() -> void:
+	sdk = AccelByteSDKWrapper.new()
+	sdk.initialize(self)
 
-    sdk.set_server_url("https://your-environment.accelbyte.io")
-    sdk.set_client_credentials("your-client-id", "")
-    sdk.set_namespace("your-namespace")
+	# Configure SDK from project settings
+	var base_url = ProjectSettings.get_setting("accelbyte/base_url", "")
+	var namespace_ = ProjectSettings.get_setting("accelbyte/namespace", "")
+	var client_id = ProjectSettings.get_setting("accelbyte/client_id", "")
+	var client_secret = ProjectSettings.get_setting("accelbyte/client_secret", "")
 
-    # Device login
-    var iam = sdk.get_iam_service()
-    var device_id = OS.get_unique_id()
-    var result = await iam.platform_token_grant_v4("device", "", "", true, device_id)
+	sdk.set_server_url(base_url)
+	sdk.set_client_credentials(client_id, client_secret)
+	sdk.set_namespace(namespace_)
 
-    if result.get("success", false):
-        var data = result.get("data", {})
-        sdk.set_auth_tokens(
-            data.get("access_token", ""),
-            data.get("refresh_token", ""),
-            data.get("user_id", ""),
-            data.get("expires_in", 0)
-        )
-        print("Logged in as: ", sdk.get_user_id())
+	# Perform device login
+	var iam = sdk.get_iam_service()
+
+	# Generate a unique device ID (or use OS-specific ID)
+	var device_id = OS.get_unique_id()
+	if device_id.is_empty():
+		device_id = str(Time.get_unix_time_from_system()).md5_text()
+
+	print("Logging in with device ID: ", device_id)
+
+	var result = await iam.platform_token_grant_v4("device", "", "", true, device_id)
+
+	if result.get("success", false):
+		# Tokens are automatically stored by the SDK
+		print("Login successful! User ID: ", sdk.get_user_id())
+	else:
+		print("Login failed: ", result.get("error_message", "Unknown error"))
 ```
 
 See the `accelbyte-sdk-examples/` directory for more usage patterns.
