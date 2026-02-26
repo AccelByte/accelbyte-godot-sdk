@@ -29,7 +29,7 @@ func _ready() -> void:
 	var client_id = ProjectSettings.get_setting("accelbyte/client_id", "")
 	var client_secret = ProjectSettings.get_setting("accelbyte/client_secret", "")
 
-	sdk.set_server_url(base_url)
+	sdk.set_base_url(base_url)
 	sdk.set_client_credentials(client_id, client_secret)
 	sdk.set_namespace(namespace_)
 
@@ -37,7 +37,7 @@ func _ready() -> void:
 	await _login_with_device()
 
 func _login_with_device() -> void:
-	var iam = sdk.get_iam_service()
+	var iam = sdk.get_service(IamService)
 
 	# Generate a unique device ID (or use OS-specific ID)
 	var device_id = OS.get_unique_id()
@@ -52,4 +52,4 @@ func _login_with_device() -> void:
 		# Tokens are automatically stored by the SDK
 		print("Login successful! User ID: ", sdk.get_user_id())
 	else:
-		print("Login failed: ", result.get("error_message", "Unknown error"))
+		print("Login failed: ", result.get("error", "Unknown error"))

@@ -16,7 +16,7 @@ var sdk: AccelByteSDKWrapper
 ## [br][br]
 ## [param score] The score value to submit
 func submit_score(score: int) -> bool:
-	var social = sdk.get_social_service()
+	var social = sdk.get_service(SocialService)
 	var user_id = sdk.get_user_id()
 	var namespace_ = ProjectSettings.get_setting("accelbyte/namespace", "")
 
@@ -33,7 +33,7 @@ func submit_score(score: int) -> bool:
 		print("Score submitted: ", score)
 		return true
 	else:
-		print("Failed to submit score: ", result.get("error_message", ""))
+		print("Failed to submit score: ", result.get("error", ""))
 		return false
 
 ## Retrieve the top rankings from a leaderboard.
@@ -41,7 +41,7 @@ func submit_score(score: int) -> bool:
 ## [param leaderboard_code] The leaderboard code from Admin Portal
 ## [param limit] Number of entries to retrieve (default: 10)
 func get_rankings(leaderboard_code: String, limit: int = 10) -> Array:
-	var leaderboard = sdk.get_leaderboard_service()
+	var leaderboard = sdk.get_service(LeaderboardService)
 	var namespace_ = ProjectSettings.get_setting("accelbyte/namespace", "")
 
 	var result = await leaderboard.get_all_time_leaderboard_ranking_public_v1(
@@ -58,5 +58,5 @@ func get_rankings(leaderboard_code: String, limit: int = 10) -> Array:
 			])
 		return data
 	else:
-		print("Failed to get rankings: ", result.get("error_message", ""))
+		print("Failed to get rankings: ", result.get("error", ""))
 		return []

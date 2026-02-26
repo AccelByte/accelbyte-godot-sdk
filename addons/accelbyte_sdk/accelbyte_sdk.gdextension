@@ -2,12 +2,12 @@
 
 entry_symbol = "accelbyte_sdk_init"
 compatibility_minimum = "4.5"
+reloadable = false
 
 [libraries]
-; Relative paths ensure that our GDExtension can be placed anywhere in the project directory.
 
-windows.x86_64.single.debug = "bin/windows/accelbyte-sdk.windows.template_debug.x86_64.dll"
-windows.x86_64.single.release = "bin/windows/accelbyte-sdk.windows.template_release.x86_64.dll"
+windows.debug.x86_64   = "bin/windows/accelbyte-sdk.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "bin/windows/accelbyte-sdk.windows.template_release.x86_64.dll"
 
 web.wasm32.single.debug = "bin/web/libaccelbyte-sdk.web.template_debug.wasm32.nothreads.wasm"
 web.wasm32.single.release = "bin/web/libaccelbyte-sdk.web.template_release.wasm32.nothreads.wasm"
