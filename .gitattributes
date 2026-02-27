@@ -5,3 +5,4 @@
 /**        export-ignore
 /addons    !export-ignore
 /addons/** !export-ignore
+/accelbyte-sdk-examples/** !export-ignore
