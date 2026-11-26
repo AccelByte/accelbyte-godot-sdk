@@ -54,6 +54,10 @@ var _lobby_ws_service: LobbyWsService
 ## Value: service instance (RefCounted).
 var _service_registry: Dictionary = {}
 
+## Generated WebSocket services (DSHub, AMS watchdog, Chat). Kept apart from the REST registry,
+## whose services receive set_base_url(), set_auth_token() and the other REST settings.
+var _ws_service_registry: Dictionary = {}
+
 ## Emitted when the lobby WebSocket connection is established.
 signal lobby_connected(data: Dictionary)
 
@@ -101,10 +105,10 @@ const _REFRESH_BACKOFF_MAX_MS: int = 3600000
 ## Poll node that drives the token refresh background check.
 var _refresh_poll_node: Node
 
-
 # =============================================================================
 # Initialization
 # =============================================================================
+
 
 ## Initialize the SDK.
 ## Pass a Node (e.g. self) so the SDK can create HTTPRequest children.
@@ -112,6 +116,7 @@ func initialize(scene_root: Node = null) -> void:
 	_scene_root = scene_root
 
 	# Create shared utilities
+	AccelbyteHttp.sdk_version = get_sdk_version()
 	_http = AccelbyteHttp.new()
 	if _scene_root:
 		_http.initialize(_scene_root)
@@ -137,6 +142,43 @@ func initialize(scene_root: Node = null) -> void:
 	# Start the background token refresh poller
 	_start_token_refresh_poller()
 
+	# Project Settings (accelbyte/*) with launch argument overrides (-ab_*), see AccelByteConfig.
+	# Values set afterwards with the setters below take precedence.
+	load_config()
+
+
+## Load the configuration from Project Settings (accelbyte/base_url, namespace, client_id, client_secret,
+## redirect_uri, log_level) and let launch arguments override it (-ab_base_url, -ab_namespace, -ab_client_id,
+## -ab_client_secret, -ab_redirect_uri, -ab_log_level; see AccelByteConfig for the aliases).
+## initialize() calls this once; call it again after changing the settings at runtime.
+## Pass use_launch_args = false to read the Project Settings only, or `args` to parse another argument list.
+## Returns the loaded values (the client secret is not included).
+func load_config(
+	use_launch_args: bool = true, args: PackedStringArray = PackedStringArray()
+) -> Dictionary:
+	var config := AccelByteConfig.load_config(args, use_launch_args)
+	if config.has("base_url"):
+		set_base_url(str(config["base_url"]))
+	if config.has("namespace"):
+		set_namespace(str(config["namespace"]))
+	if config.has("client_id"):
+		set_client_id(str(config["client_id"]))
+	if config.has("client_secret"):
+		set_client_secret(str(config["client_secret"]))
+	if config.has("redirect_uri"):
+		_settings.redirect_uri = str(config["redirect_uri"])
+	if config.has("log_level"):
+		var logging := AccelByteConfig.http_logging_for_level(str(config["log_level"]))
+		if logging >= 0:
+			_settings.enable_http_logging = logging == 1
+	config.erase("client_secret")
+	return config
+
+
+## OAuth redirect URI from the configuration (accelbyte/redirect_uri or -ab_redirect_uri).
+func get_redirect_uri() -> String:
+	return _settings.redirect_uri
+
 
 # =============================================================================
 # Service Registry
@@ -149,12 +191,30 @@ func initialize(scene_root: Node = null) -> void:
 #   var result = await sdk.get_service(CustomIamService).my_endpoint(...)
 # =============================================================================
 
+
+## Create (once) a generated WebSocket service with a transport of its own, wired to
+## this SDK's scene root and token lifetime callback.
+func _get_ws_service(service_class) -> RefCounted:
+	var key: String = service_class.resource_path
+	if not _ws_service_registry.has(key):
+		var transport := AccelByteWsTransport.new()
+		if _scene_root:
+			transport.initialize(_scene_root)
+		transport.set_token_lifetime_callback(Callable(_tokens, "get_remaining_lifetime_seconds"))
+		_ws_service_registry[key] = service_class.new(transport)
+	return _ws_service_registry[key]
+
+
 ## Get or create a service instance by its script class.
 ## The service is lazy-created on first call and cached thereafter.
 func get_service(service_class) -> RefCounted:
 	# Special case: LobbyWsService is pre-created and uses WebSocket transport
 	if service_class.resource_path.get_file().begins_with("lobby_ws_service"):
 		return _lobby_ws_service
+
+	# Other WebSocket services (DSHub, AMS watchdog, ...) each get their own transport
+	if service_class.resource_path.get_file().ends_with("_ws_service.gd"):
+		return _get_ws_service(service_class)
 
 	var key: String = service_class.resource_path
 	# Fallback for runtime-created classes with empty resource_path
@@ -171,7 +231,9 @@ func get_service(service_class) -> RefCounted:
 		# To override manually (higher priority), call set_service_url() after get_service():
 		#   sdk.get_service(GuildService).set_service_url("https://my-studio.accelbyte.io/guild-app")
 		var _stem: String = key.get_file().get_basename().trim_suffix("_service")
-		var _extend_url: String = ProjectSettings.get_setting("accelbyte/extend/" + _stem + "_url", "")
+		var _extend_url: String = ProjectSettings.get_setting(
+			"accelbyte/extend/" + _stem + "_url", ""
+		)
 		svc.set_service_url(_extend_url if not _extend_url.is_empty() else _settings.base_url)
 		svc.set_namespace(_settings.game_namespace)
 		svc.set_auth_token(_tokens.access_token)
@@ -185,6 +247,7 @@ func get_service(service_class) -> RefCounted:
 # =============================================================================
 # Configuration - Setters
 # =============================================================================
+
 
 func set_base_url(url: String) -> void:
 	_settings.base_url = url
@@ -250,6 +313,7 @@ func set_namespace(ns: String) -> void:
 # Configuration - Getters
 # =============================================================================
 
+
 func get_base_url() -> String:
 	return _settings.base_url
 
@@ -269,7 +333,9 @@ func get_client_id() -> String:
 ## DEPRECATED: Removed for security reasons. Client secrets should not be exposed via public API.
 ## Use set_client_credentials() for write-only access.
 func get_client_secret() -> String:
-	push_error("[AccelByteSDK] SECURITY: get_client_secret() is deprecated and will be removed. Client secrets should not be readable at runtime.")
+	push_error(
+		"[AccelByteSDK] SECURITY: get_client_secret() is deprecated and will be removed. Client secrets should not be readable at runtime."
+	)
 	return ""
 
 
@@ -280,7 +346,9 @@ func get_publisher_id() -> String:
 ## DEPRECATED: Removed for security reasons. Publisher secrets should not be exposed via public API.
 ## Use set_publisher_credentials() for write-only access.
 func get_publisher_secret() -> String:
-	push_error("[AccelByteSDK] SECURITY: get_publisher_secret() is deprecated and will be removed. Publisher secrets should not be readable at runtime.")
+	push_error(
+		"[AccelByteSDK] SECURITY: get_publisher_secret() is deprecated and will be removed. Publisher secrets should not be readable at runtime."
+	)
 	return ""
 
 
@@ -293,15 +361,22 @@ func get_namespace() -> String:
 
 
 func get_sdk_version() -> String:
-	return "0.0.28"
+	return "0.2.0"
 
 
 # =============================================================================
 # Authentication State
 # =============================================================================
 
+
 ## Manually set auth tokens (rarely needed — tokens are auto-managed).
-func set_auth_tokens(access_token: String, refresh_token: String, user_id: String, expires_in: int = 3600, endpoint_url: String = "") -> void:
+func set_auth_tokens(
+	access_token: String,
+	refresh_token: String,
+	user_id: String,
+	expires_in: int = 3600,
+	endpoint_url: String = ""
+) -> void:
 	_tokens.set_tokens(access_token, refresh_token, user_id, expires_in, endpoint_url)
 	_propagate_auth()
 	# Update WebSocket transport for future reconnections
@@ -312,7 +387,6 @@ func set_auth_tokens(access_token: String, refresh_token: String, user_id: Strin
 ## Get current access token
 func get_access_token() -> String:
 	return _tokens.access_token
-
 
 
 ## Get current user ID
@@ -351,121 +425,151 @@ func is_http_logging_enabled() -> bool:
 func get_achievement_service() -> AchievementService:
 	return get_service(AchievementService) as AchievementService
 
+
 ## @deprecated Use sdk.get_service(AmsService) instead.
 func get_ams_service() -> AmsService:
 	return get_service(AmsService) as AmsService
+
 
 ## @deprecated Use sdk.get_service(BasicService) instead.
 func get_basic_service() -> BasicService:
 	return get_service(BasicService) as BasicService
 
+
 ## @deprecated Use sdk.get_service(BuildinfoService) instead.
 func get_buildinfo_service() -> BuildinfoService:
 	return get_service(BuildinfoService) as BuildinfoService
+
 
 ## @deprecated Use sdk.get_service(ChallengeService) instead.
 func get_challenge_service() -> ChallengeService:
 	return get_service(ChallengeService) as ChallengeService
 
+
 ## @deprecated Use sdk.get_service(ChatService) instead.
 func get_chat_service() -> ChatService:
 	return get_service(ChatService) as ChatService
+
 
 ## @deprecated Use sdk.get_service(CloudsaveService) instead.
 func get_cloudsave_service() -> CloudsaveService:
 	return get_service(CloudsaveService) as CloudsaveService
 
+
 ## @deprecated Use sdk.get_service(CsmService) instead.
 func get_csm_service() -> CsmService:
 	return get_service(CsmService) as CsmService
+
 
 ## @deprecated Use sdk.get_service(DifferService) instead.
 func get_differ_service() -> DifferService:
 	return get_service(DifferService) as DifferService
 
+
 ## @deprecated Use sdk.get_service(EventlogService) instead.
 func get_eventlog_service() -> EventlogService:
 	return get_service(EventlogService) as EventlogService
+
 
 ## @deprecated Use sdk.get_service(GametelemetryService) instead.
 func get_gametelemetry_service() -> GametelemetryService:
 	return get_service(GametelemetryService) as GametelemetryService
 
+
 ## @deprecated Use sdk.get_service(GdprService) instead.
 func get_gdpr_service() -> GdprService:
 	return get_service(GdprService) as GdprService
+
 
 ## @deprecated Use sdk.get_service(GroupService) instead.
 func get_group_service() -> GroupService:
 	return get_service(GroupService) as GroupService
 
+
 ## @deprecated Use sdk.get_service(IamService) instead.
 func get_iam_service() -> IamService:
 	return get_service(IamService) as IamService
+
 
 ## @deprecated Use sdk.get_service(InventoryService) instead.
 func get_inventory_service() -> InventoryService:
 	return get_service(InventoryService) as InventoryService
 
+
 ## @deprecated Use sdk.get_service(LeaderboardService) instead.
 func get_leaderboard_service() -> LeaderboardService:
 	return get_service(LeaderboardService) as LeaderboardService
+
 
 ## @deprecated Use sdk.get_service(LegalService) instead.
 func get_legal_service() -> LegalService:
 	return get_service(LegalService) as LegalService
 
+
 ## @deprecated Use sdk.get_service(LobbyService) instead.
 func get_lobby_service() -> LobbyService:
 	return get_service(LobbyService) as LobbyService
+
 
 ## @deprecated Use sdk.get_service(LoginqueueService) instead.
 func get_loginqueue_service() -> LoginqueueService:
 	return get_service(LoginqueueService) as LoginqueueService
 
+
 ## @deprecated Use sdk.get_service(Match2Service) instead.
 func get_match2_service() -> Match2Service:
 	return get_service(Match2Service) as Match2Service
+
 
 ## @deprecated Use sdk.get_service(MatchmakingService) instead.
 func get_matchmaking_service() -> MatchmakingService:
 	return get_service(MatchmakingService) as MatchmakingService
 
+
 ## @deprecated Use sdk.get_service(PlatformService) instead.
 func get_platform_service() -> PlatformService:
 	return get_service(PlatformService) as PlatformService
+
 
 ## @deprecated Use sdk.get_service(ReportingService) instead.
 func get_reporting_service() -> ReportingService:
 	return get_service(ReportingService) as ReportingService
 
+
 ## @deprecated Use sdk.get_service(SeasonpassService) instead.
 func get_seasonpass_service() -> SeasonpassService:
 	return get_service(SeasonpassService) as SeasonpassService
+
 
 ## @deprecated Use sdk.get_service(SessionService) instead.
 func get_session_service() -> SessionService:
 	return get_service(SessionService) as SessionService
 
+
 ## @deprecated Use sdk.get_service(SessionbrowserService) instead.
 func get_sessionbrowser_service() -> SessionbrowserService:
 	return get_service(SessionbrowserService) as SessionbrowserService
+
 
 ## @deprecated Use sdk.get_service(SessionhistoryService) instead.
 func get_sessionhistory_service() -> SessionhistoryService:
 	return get_service(SessionhistoryService) as SessionhistoryService
 
+
 ## @deprecated Use sdk.get_service(SocialService) instead.
 func get_social_service() -> SocialService:
 	return get_service(SocialService) as SocialService
+
+
+## @deprecated Use sdk.get_service(UgcService) instead.
+func get_ugc_service() -> UgcService:
+	return get_service(UgcService) as UgcService
+
 
 ## @deprecated Use sdk.get_service(TurnManagerService) instead.
 func get_turn_manager_service() -> TurnManagerService:
 	return get_service(TurnManagerService) as TurnManagerService
 
-## @deprecated Use sdk.get_service(UgcService) instead.
-func get_ugc_service() -> UgcService:
-	return get_service(UgcService) as UgcService
 
 ## Get the lobby WebSocket service (typed methods for friends, party, matchmaking, etc.)
 func get_lobby_ws_service() -> LobbyWsService:
@@ -475,6 +579,7 @@ func get_lobby_ws_service() -> LobbyWsService:
 # =============================================================================
 # Lobby WebSocket
 # =============================================================================
+
 
 ## Connect to the lobby WebSocket server.
 ## Returns "" on success, or an error message.
@@ -505,6 +610,7 @@ func is_lobby_connected() -> bool:
 # Internal
 # =============================================================================
 
+
 func _propagate_settings() -> void:
 	for key in _service_registry:
 		var svc = _service_registry[key]
@@ -515,7 +621,9 @@ func _propagate_settings() -> void:
 
 		# Check for Extend service URL override first
 		var stem: String = key.get_file().get_basename().trim_suffix("_service")
-		var extend_url: String = ProjectSettings.get_setting("accelbyte/extend/" + stem + "_url", "")
+		var extend_url: String = ProjectSettings.get_setting(
+			"accelbyte/extend/" + stem + "_url", ""
+		)
 		if not extend_url.is_empty():
 			# Use Extend-specific service URL
 			svc.set_service_url(extend_url)
@@ -553,7 +661,9 @@ func _on_token_grant(result: Dictionary) -> void:
 			endpoint_url
 		)
 		if user_id.is_empty():
-			push_warning("[AccelByteSDK] Token granted but user_id is empty — check IAM response format")
+			push_warning(
+				"[AccelByteSDK] Token granted but user_id is empty — check IAM response format"
+			)
 		# Reset refresh backoff — new tokens, fresh start.
 		# NOTE: Don't reset _refresh_in_progress here - only _do_token_refresh() should manage that flag
 		# to avoid race conditions between user login and background refresh
@@ -579,7 +689,8 @@ func _on_token_revoke() -> void:
 # token_refresh_failed. The game must then re-authenticate.
 # =============================================================================
 
-const _PollNodeScript = preload("res://addons/accelbyte_sdk/scripts/utils/accelbyte_poll_node.gd")
+const _PollNodeScript = preload("utils/accelbyte_poll_node.gd")
+
 
 func _start_token_refresh_poller() -> void:
 	if _refresh_poll_node or not _scene_root:
@@ -631,10 +742,15 @@ func _do_token_refresh() -> void:
 	var headers: PackedStringArray = AccelbyteHttp.get_basic_auth_headers(
 		_settings.client_id, _settings._get_client_secret()
 	)
-	var body: String = AccelbyteHttp.build_form_body({
-		"grant_type": "refresh_token",
-		"refresh_token": _tokens.refresh_token,
-	})
+	var body: String = (
+		AccelbyteHttp
+		. build_form_body(
+			{
+				"grant_type": "refresh_token",
+				"refresh_token": _tokens.refresh_token,
+			}
+		)
+	)
 
 	var result: Dictionary = await _http.request(url, AccelbyteHttp.Method.POST, headers, body)
 
@@ -655,7 +771,9 @@ func _do_token_refresh() -> void:
 			return
 		else:
 			# HTTP success but malformed response - trigger backoff like any other failure
-			push_error("[AccelByteSDK] Token refresh response missing access_token — unexpected server response")
+			push_error(
+				"[AccelByteSDK] Token refresh response missing access_token — unexpected server response"
+			)
 			_on_token_refresh_failed()
 			return
 	_on_token_refresh_failed()
@@ -666,7 +784,12 @@ func _on_token_refresh_failed() -> void:
 	_refresh_in_progress = false
 
 	if _refresh_retry_count > _REFRESH_MAX_RETRIES:
-		push_error("[AccelByteSDK] Token refresh failed after %d retries — session expired. Re-authentication required." % _REFRESH_MAX_RETRIES)
+		push_error(
+			(
+				"[AccelByteSDK] Token refresh failed after %d retries — session expired. Re-authentication required."
+				% _REFRESH_MAX_RETRIES
+			)
+		)
 		token_refresh_failed.emit()
 		# Clear tokens so the game knows the session is gone.
 		_tokens.clear()
@@ -683,6 +806,9 @@ func _on_token_refresh_failed() -> void:
 		_refresh_retry_delay_ms = mini(_refresh_retry_delay_ms * 2, _REFRESH_BACKOFF_MAX_MS)
 
 	_refresh_retry_at_ms = Time.get_ticks_msec() + _refresh_retry_delay_ms
-	push_warning("[AccelByteSDK] Token refresh attempt %d/%d failed — retrying in %dms" % [
-		_refresh_retry_count, _REFRESH_MAX_RETRIES, _refresh_retry_delay_ms
-	])
+	push_warning(
+		(
+			"[AccelByteSDK] Token refresh attempt %d/%d failed — retrying in %dms"
+			% [_refresh_retry_count, _REFRESH_MAX_RETRIES, _refresh_retry_delay_ms]
+		)
+	)

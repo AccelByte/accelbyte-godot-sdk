@@ -62,9 +62,3 @@ __pycache__/
 # =========================================================
 *.pck
 *.zip
-
-# =========================================================
-# NOTE: DLLs, .so, .dylib, .wasm inside addons/accelbyte_sdk/bin/
-# are INTENTIONALLY TRACKED — they are the distributed binaries.
-# Do NOT add *.dll, *.so, *.wasm, etc. as global ignores here.
-# =========================================================

@@ -7,12 +7,14 @@
 ## AccelByte WebSocket transport layer
 ## =============================================================================
 ##
-## Low-level WebSocket transport for AccelByte lobby/chat services.
-## Handles connection lifecycle, heartbeat, reconnection, and the
-## AccelByte lobby text protocol (type: value lines).
+## Generic WebSocket transport for AccelByte services (Lobby, DSHub, AMS watchdog,
+## Chat). It owns the socket: connection lifecycle, heartbeat, reconnection and
+## request/response matching. The text wire format is delegated to an
+## AccelByteWsCodec, so each service plugs in its own format.
 ##
-## This class is used by LobbyWsService — game code should not use it directly.
-## Use AccelByteSDK.lobby_connect() and sdk.get_lobby_ws_service() instead.
+## This class is used by the generated *WsService classes — game code should not use
+## it directly. For Lobby use AccelByteSDK.lobby_connect() and
+## sdk.get_lobby_ws_service(); other services are created through the SDK facade.
 ## =============================================================================
 
 class_name AccelByteWsTransport
@@ -22,25 +24,31 @@ extends RefCounted
 # Signals
 # =============================================================================
 
-## Emitted when the lobby connection is established (connectNotif received).
+## Emitted when the connection is established. For Lobby this is the connectNotif
+## message; for formats without such a message it is emitted when the socket opens.
 signal connected(fields: Dictionary)
 
-## Emitted when the lobby connection is lost or closed.
+## Emitted when the connection is lost or closed.
 signal disconnected(reason: String)
 
 ## Emitted for every incoming message (notifications, responses).
-## LobbyWsService listens on this to dispatch typed signals.
+## The generated services listen on this to dispatch typed signals.
 signal message_received(msg_type: String, msg_id: int, code: int, fields: Dictionary)
 
 # =============================================================================
 # Configuration
 # =============================================================================
 
-## Heartbeat interval in seconds.
-## AccelByte Lobby protocol requires regular heartbeat messages to maintain connection.
-## Default: 4 seconds (recommended by AccelByte server specification)
-## Configurable via project.godot: [accelbyte] lobby_heartbeat_interval_sec=4.0
-var heartbeat_interval_sec: float = ProjectSettings.get_setting("accelbyte/lobby_heartbeat_interval_sec", 4.0)
+## Heartbeat interval in seconds. A negative value (the default) uses the codec's
+## own default, for example 4 s for Lobby (project setting
+## accelbyte/lobby_heartbeat_interval_sec) or 15 s for the AMS watchdog.
+var heartbeat_interval_sec: float = -1.0
+
+## Interval in seconds of the WebSocket ping control frames (RFC 6455) sent while connected; 0 turns them off.
+## AccelByte servers close a connection that stays silent (a DSHub connection of an unclaimed dedicated server was
+## closed after about 5 minutes), and the other AccelByte SDKs send a ping every 4 s by default. It is
+## independent of the message heartbeat above. Browsers do not allow it, so it has no effect on the web export.
+var ping_interval_sec: float = 4.0
 
 ## Reconnection: total timeout before giving up (ms).
 var reconnect_total_timeout_ms: int = 60000
@@ -61,13 +69,15 @@ var auto_reconnect: bool = true
 # Internal State
 # =============================================================================
 
-const _PollNodeScene = preload("res://addons/accelbyte_sdk/scripts/utils/accelbyte_poll_node.gd")
+const _PollNodeScene = preload("accelbyte_poll_node.gd")
 
 var _ws: WebSocketPeer
 var _scene_root: Node
 var _poll_node: Node
 var _url: String = ""
 var _auth_token: String = ""
+var _headers: Dictionary = {}
+var _codec: AccelByteWsCodec
 var _token_lifetime_callback: Callable  # Callback to get remaining token lifetime in seconds
 var _message_id: int = 0
 var _response_callbacks: Dictionary = {}  # {int: {"callback": Callable, "sent_at": int}}
@@ -87,6 +97,7 @@ var _reconnect_timer_sec: float = 0.0
 # Initialization
 # =============================================================================
 
+
 ## Set the scene root node (needed for timers and tree access).
 ## Attaches an internal poll node to the scene tree so polling is automatic.
 func initialize(scene_root: Node) -> void:
@@ -97,6 +108,7 @@ func initialize(scene_root: Node) -> void:
 # =============================================================================
 # Connection Lifecycle
 # =============================================================================
+
 
 ## Update the auth token for future reconnection attempts.
 ## This must be called after token refresh to ensure reconnects use the new token.
@@ -111,13 +123,23 @@ func set_token_lifetime_callback(callback: Callable) -> void:
 	_token_lifetime_callback = callback
 
 
-## Connect to the lobby WebSocket server.
+## Connect to a WebSocket service with the given codec.
+## `headers` are extra handshake headers (desktop only — browsers cannot set them).
+## `auth_token`, when not empty, is sent as `Authorization: Bearer` on desktop and as a
+## subprotocol on web.
 ## Returns OK on success, or an error code.
-func connect_to_lobby(url: String, auth_token: String) -> int:
+func connect_to_url(
+	url: String, codec: AccelByteWsCodec, headers: Dictionary = {}, auth_token: String = ""
+) -> int:
 	if _is_connected:
 		return OK
+	if codec == null:
+		push_error("[AccelByteWsTransport] connect_to_url() needs a codec")
+		return ERR_INVALID_PARAMETER
 
 	_url = url
+	_codec = codec
+	_headers = headers.duplicate()
 	_auth_token = auth_token
 	_intentional_disconnect = false
 	_is_reconnecting = false
@@ -126,8 +148,14 @@ func connect_to_lobby(url: String, auth_token: String) -> int:
 	return _do_connect()
 
 
-## Disconnect from the lobby WebSocket server.
-func disconnect_from_lobby() -> void:
+## Connect to the Lobby WebSocket server (Lobby text codec, bearer token).
+## Returns OK on success, or an error code.
+func connect_to_lobby(url: String, auth_token: String) -> int:
+	return connect_to_url(url, AccelByteWsLobbyTextCodec.new(), {}, auth_token)
+
+
+## Disconnect from the WebSocket server.
+func disconnect_service() -> void:
 	_intentional_disconnect = true
 	_is_reconnecting = false
 	_response_callbacks.clear()
@@ -140,6 +168,11 @@ func disconnect_from_lobby() -> void:
 		disconnected.emit("client disconnected")
 
 	_detach_poll_node()
+
+
+## Disconnect from the Lobby WebSocket server.
+func disconnect_from_lobby() -> void:
+	disconnect_service()
 
 
 ## Check if the WebSocket is currently connected.
@@ -166,6 +199,8 @@ func _poll() -> void:
 				_is_connected = true
 				_is_reconnecting = false
 				_heartbeat_timer_sec = 0.0
+				if _codec.connected_on_open():
+					connected.emit({})
 
 			# Process incoming packets
 			while _ws.get_available_packet_count() > 0:
@@ -191,12 +226,14 @@ func _poll() -> void:
 			_ws = null
 
 			if was_connected and not _intentional_disconnect:
-				disconnected.emit("connection lost (code: %d, reason: %s)" % [close_code, close_reason])
+				disconnected.emit(
+					"connection lost (code: %d, reason: %s)" % [close_code, close_reason]
+				)
 
 				if auto_reconnect:
 					_start_reconnect()
 			elif was_connected and _intentional_disconnect:
-				pass  # Already emitted in disconnect_from_lobby()
+				pass  # Already emitted in disconnect_service()
 
 		WebSocketPeer.STATE_CONNECTING:
 			pass  # Still connecting
@@ -210,11 +247,16 @@ func _poll() -> void:
 # Sending Messages
 # =============================================================================
 
+
 ## Send a typed request message. Automatically assigns a message ID.
-## If callback is valid, it will be called when the response arrives.
+## If callback is valid, it will be called when the response arrives. Formats without
+## request ids (see AccelByteWsCodec.supports_correlation) cannot match a response, so the
+## callback is called at once with an error and the request is still sent.
 func send_request(type_param: String, fields: Dictionary, callback: Callable = Callable()) -> void:
 	if not _is_connected or _ws == null:
-		push_warning("[AccelByteWsTransport] Request '%s' dropped - WebSocket not connected" % type_param)
+		push_warning(
+			"[AccelByteWsTransport] Request '%s' dropped - WebSocket not connected" % type_param
+		)
 		if callback.is_valid():
 			# Call with error parameter to indicate failure
 			callback.call({"error": "not_connected", "message": "WebSocket not connected"})
@@ -224,88 +266,45 @@ func send_request(type_param: String, fields: Dictionary, callback: Callable = C
 	var msg_id = _message_id
 
 	if callback.is_valid():
-		_response_callbacks[msg_id] = {
-			"callback": callback,
-			"sent_at": Time.get_ticks_msec()
-		}
-
-	var raw = _serialize_message(type_param, fields, msg_id)
-	_ws.send_text(raw)
-
-
-# =============================================================================
-# Lobby Text Protocol Serialization
-# =============================================================================
-
-## Serialize a message to AccelByte lobby text protocol (type: value lines).
-func _serialize_message(type_param: String, fields: Dictionary, msg_id: int = -1) -> String:
-	var lines: PackedStringArray = PackedStringArray()
-	lines.push_back("type: " + type_param)
-	if msg_id >= 0:
-		lines.push_back("id: " + str(msg_id))
-	for key in fields:
-		var value = fields[key]
-		if value is Array:
-			var items: PackedStringArray = PackedStringArray()
-			for item in value:
-				items.push_back(str(item))
-			lines.push_back(key + ": [" + ",".join(items) + "]")
-		elif value is bool:
-			lines.push_back(key + ": " + ("true" if value else "false"))
+		if _codec.supports_correlation():
+			_response_callbacks[msg_id] = {"callback": callback, "sent_at": Time.get_ticks_msec()}
 		else:
-			lines.push_back(key + ": " + str(value))
-	return "\n".join(lines)
+			push_warning(
+				(
+					"[AccelByteWsTransport] Request '%s': this protocol has no request ids, callback not supported"
+					% type_param
+				)
+			)
+			callback.call(
+				{
+					"error": "callbacks_not_supported",
+					"message": "This WebSocket protocol cannot match responses to requests"
+				}
+			)
 
-
-## Deserialize an AccelByte lobby text protocol message into a Dictionary.
-## Returns: {"type": String, "id": int, "code": int, ...fields}
-func _deserialize_message(raw: String) -> Dictionary:
-	var result: Dictionary = {}
-	result["id"] = -1
-	result["code"] = 0
-
-	for line in raw.split("\n"):
-		if line.is_empty():
-			continue
-		var sep = line.find(": ")
-		if sep == -1:
-			continue
-		# Keys are intentionally lowercased for case-insensitive lookup.
-		# WARNING: lobby_ws_service.gd.j2 depends on this — it accesses fields
-		# via lowercased keys (e.g. "friendid" not "friendId"). Do not change
-		# this to preserve original casing without updating the generated lobby service.
-		var key = line.substr(0, sep).to_lower()
-		var value = line.substr(sep + 2)
-
-		if key == "id":
-			result["id"] = value.to_int()
-		elif key == "code":
-			result["code"] = value.to_int()
-		elif value.begins_with("[") and value.ends_with("]"):
-			# Array: [item1,item2,item3] — server may send trailing comma
-			var inner = value.substr(1, value.length() - 2)
-			if inner.is_empty():
-				result[key] = []
-			else:
-				var items = inner.split(",")
-				# Strip empty entries from trailing commas
-				var cleaned: Array = []
-				for item in items:
-					if not item.is_empty():
-						cleaned.append(item)
-				result[key] = cleaned
-		else:
-			result[key] = value
-
-	return result
+	_ws.send_text(_codec.encode(type_param, fields, msg_id))
 
 
 # =============================================================================
 # Internal — Connection
 # =============================================================================
 
+
 func _do_connect() -> int:
 	_ws = WebSocketPeer.new()
+
+	var header_list: PackedStringArray = PackedStringArray()
+	for key in _headers:
+		header_list.push_back("%s: %s" % [key, _headers[key]])
+
+	# Browsers refuse to set User-Agent; desktop and servers identify the SDK.
+	if not OS.has_feature("web"):
+		var has_user_agent := false
+		for key in _headers:
+			if str(key).to_lower() == "user-agent":
+				has_user_agent = true
+		if not has_user_agent:
+			header_list.push_back("User-Agent: " + AccelbyteHttp.get_user_agent())
 
 	if not _auth_token.is_empty():
 		# Web platform (browser) blocks custom WebSocket handshake headers for security.
@@ -333,18 +332,41 @@ func _do_connect() -> int:
 				var remaining_seconds = _token_lifetime_callback.call()
 				var threshold_seconds = 300  # 5 minutes — matches "< 5 minutes" recommendation
 				if remaining_seconds > threshold_seconds:
-					push_error("[AccelByteWsTransport] SECURITY WARNING: Web platform token sent via Sec-WebSocket-Protocol header (visible in browser DevTools). Token lifetime: %.1f minutes. For production, use tokens < 5 minutes." % (remaining_seconds / 60.0))
+					push_error(
+						(
+							"[AccelByteWsTransport] SECURITY WARNING: Web platform token sent via Sec-WebSocket-Protocol header (visible in browser DevTools). Token lifetime: %.1f minutes. For production, use tokens < 5 minutes."
+							% (remaining_seconds / 60.0)
+						)
+					)
 				else:
-					push_warning("[AccelByteWsTransport] Web: Token sent via Sec-WebSocket-Protocol header. Token lifetime: %.1f minutes." % (remaining_seconds / 60.0))
+					push_warning(
+						(
+							"[AccelByteWsTransport] Web: Token sent via Sec-WebSocket-Protocol header. Token lifetime: %.1f minutes."
+							% (remaining_seconds / 60.0)
+						)
+					)
 			else:
-				push_warning("[AccelByteWsTransport] Web: Token sent via Sec-WebSocket-Protocol header (visible in browser DevTools). Ensure short-lived tokens are configured.")
+				push_warning(
+					"[AccelByteWsTransport] Web: Token sent via Sec-WebSocket-Protocol header (visible in browser DevTools). Ensure short-lived tokens are configured."
+				)
 
 		if OS.has_feature("web"):
 			# Sanitize token for WebSocket subprotocol (RFC 6455 compliance)
 			var clean_token = _auth_token.replace("+", "-").replace("/", "_").rstrip("=")
 			_ws.supported_protocols = PackedStringArray([clean_token])
 		else:
-			_ws.handshake_headers = PackedStringArray(["Authorization: Bearer " + _auth_token])
+			header_list.push_back("Authorization: Bearer " + _auth_token)
+
+	if OS.has_feature("web"):
+		if not _headers.is_empty():
+			push_warning(
+				"[AccelByteWsTransport] Web: custom handshake headers are not supported by browsers and are ignored"
+			)
+	elif not header_list.is_empty():
+		_ws.handshake_headers = header_list
+
+	if ping_interval_sec > 0.0 and not OS.has_feature("web"):
+		_ws.heartbeat_interval = ping_interval_sec
 
 	var err = _ws.connect_to_url(_url)
 	if err != OK:
@@ -359,31 +381,34 @@ func _do_connect() -> int:
 # Internal — Incoming Message Handling
 # =============================================================================
 
-func _on_data_received(raw: String) -> void:
-	var msg = _deserialize_message(raw)
-	var msg_type: String = msg.get("type", "")
-	var msg_id: int = msg.get("id", -1)
-	var code: int = msg.get("code", 0)
 
+func _on_data_received(raw: String) -> void:
+	var decoded: Dictionary = _codec.decode(raw)
+	var msg_type: String = decoded.get("type", "")
 	if msg_type.is_empty():
 		return
 
-	# Separate transport metadata from payload fields to prevent field name collisions
-	var payload_fields: Dictionary = {}
-	for key in msg.keys():
-		if key not in ["type", "id", "code"]:
-			payload_fields[key] = msg[key]
+	var msg_id: int = decoded.get("id", -1)
+	var code: int = decoded.get("code", 0)
+	# Payload fields are kept apart from transport metadata to prevent field name collisions.
+	var payload_fields: Dictionary = decoded.get("fields", {})
+
+	# Full message (payload plus type, id, code) as handed to `connected` and to callbacks.
+	var msg: Dictionary = payload_fields.duplicate()
+	msg["type"] = msg_type
+	msg["id"] = msg_id
+	msg["code"] = code
 
 	# Handle special messages
-	match msg_type:
-		"connectNotif":
+	match _codec.control_kind(decoded):
+		"connected":
 			connected.emit(msg)
 			return
 
-		"disconnectNotif":
+		"disconnected":
 			_is_connected = false
 			_intentional_disconnect = true
-			disconnected.emit(msg.get("message", "server disconnected"))
+			disconnected.emit(payload_fields.get("message", "server disconnected"))
 			if _ws:
 				_ws.close()
 			return
@@ -391,7 +416,7 @@ func _on_data_received(raw: String) -> void:
 		"heartbeat":
 			# Server heartbeat — respond with heartbeat
 			if _ws and _is_connected:
-				_ws.send_text("type: heartbeat")
+				_send_heartbeat()
 			return
 
 	# Handle response callbacks (messages with matching ID) - pass full message for response parsing
@@ -402,13 +427,14 @@ func _on_data_received(raw: String) -> void:
 		if callback.is_valid():
 			callback.call(msg)  # Callbacks get full message including transport metadata
 
-	# Always emit message_received for LobbyWsService routing (fields separated from transport metadata)
+	# Always emit message_received for service routing (fields separated from transport metadata)
 	message_received.emit(msg_type, msg_id, code, payload_fields)
 
 
 # =============================================================================
 # Internal — Heartbeat
 # =============================================================================
+
 
 ## Clean up response callbacks that have exceeded the timeout to prevent memory leaks.
 func _cleanup_expired_callbacks() -> void:
@@ -429,25 +455,42 @@ func _cleanup_expired_callbacks() -> void:
 		_response_callbacks.erase(msg_id)
 
 	if expired_ids.size() > 0:
-		push_warning("[AccelByteWsTransport] Cleaned up %d expired response callbacks" % expired_ids.size())
+		push_warning(
+			"[AccelByteWsTransport] Cleaned up %d expired response callbacks" % expired_ids.size()
+		)
+
+
+func _effective_heartbeat_interval() -> float:
+	if heartbeat_interval_sec >= 0.0:
+		return heartbeat_interval_sec
+	return _codec.heartbeat_interval_sec()
+
+
+func _send_heartbeat() -> void:
+	var text := _codec.heartbeat_message()
+	if not text.is_empty():
+		_ws.send_text(text)
 
 
 func _poll_heartbeat() -> void:
 	if not _is_connected or not _scene_root:
 		return
+	if _codec.heartbeat_message().is_empty():
+		return
 
 	var delta = _scene_root.get_process_delta_time()
 	_heartbeat_timer_sec += delta
 
-	if _heartbeat_timer_sec >= heartbeat_interval_sec:
+	if _heartbeat_timer_sec >= _effective_heartbeat_interval():
 		_heartbeat_timer_sec = 0.0
 		if _ws and _is_connected:
-			_ws.send_text("type: heartbeat")
+			_send_heartbeat()
 
 
 # =============================================================================
 # Internal — Reconnection (exponential backoff with jitter)
 # =============================================================================
+
 
 func _start_reconnect() -> void:
 	if _intentional_disconnect or _is_reconnecting:
@@ -461,7 +504,7 @@ func _start_reconnect() -> void:
 	# Clear stale callbacks and reset message ID for clean reconnection state
 	_response_callbacks.clear()
 
-	# Ensure the poll node is attached — disconnect_from_lobby() detaches it,
+	# Ensure the poll node is attached — disconnect_service() detaches it,
 	# so without this the reconnect WebSocket would never be polled.
 	_attach_poll_node()
 
@@ -496,14 +539,14 @@ func _poll_reconnect() -> void:
 			# Exponential backoff with jitter (±25%)
 			var jitter = randf_range(0.75, 1.25)
 			_reconnect_current_delay_ms = mini(
-				int(_reconnect_current_delay_ms * 2 * jitter),
-				reconnect_max_delay_ms
+				int(_reconnect_current_delay_ms * 2 * jitter), reconnect_max_delay_ms
 			)
 
 
 # =============================================================================
 # Internal — Auto-poll Node
 # =============================================================================
+
 
 func _attach_poll_node() -> void:
 	if _poll_node or not _scene_root:

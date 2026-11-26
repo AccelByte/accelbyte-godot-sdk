@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,12 +82,17 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## Return filtered chat message
+
+## Returns a filtered chat message with profanity analysis
 ## POST /chat/admin/namespaces/{namespace}/chat/filter
+##
+## For testing purpose, doesn't send any message to the topic. Always do filter regardless of enableProfanityFilter configuration.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - detail: Includes filter driver details in the response when set to true.
 func admin_filter_chat_message(
-	namespace_param: String,
-	detail: bool = false,
-	body: Dictionary = {}
+	namespace_param: String, detail: bool = false, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/chat/filter"
@@ -106,8 +109,25 @@ func admin_filter_chat_message(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin get chat history
+
+## Retrieves chat message history across all topics in a namespace
 ## GET /chat/admin/namespaces/{namespace}/chats
+##
+## Retrieves the message history across all topics in a namespace. Supports offset/limit pagination; use the `next` and `previous` cursor fields in the response to navigate pages.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - chat_id: Filters results to messages with the specified chat IDs.
+## - end_created_at: End date
+## - keyword: Keyword containing in message
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - order: Sort order for results. Valid values: createdAt:asc, createdAt:desc.
+## - sender_user_id: Filters results to messages sent by this user.
+## - shard_id: Filters results to messages from the specified shard.
+## - start_created_at: Start date
+## - topic: Topic ID that receives the chat
+## - unfiltered: Unfiltered chat messages
 func admin_chat_history(
 	namespace_param: String,
 	chat_id: Array = [],
@@ -157,12 +177,15 @@ func admin_chat_history(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Use to create namespace group. Message that send to this group...
+
+## Creates a namespace group topic
 ## POST /chat/admin/namespaces/{namespace}/namespace-topic
-func admin_create_namespace_topic(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Create new namespace group topic in a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_create_namespace_topic(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/namespace-topic"
 	# Use namespace parameter with fallback to configured namespace
@@ -173,13 +196,19 @@ func admin_create_namespace_topic(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin get list of topic
+
+## Lists chat topics in a namespace
 ## GET /chat/admin/namespaces/{namespace}/topic
+##
+## Lists chat topics in a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - topic_type: PERSONAL or GROUP
 func admin_topic_list(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1,
-	topic_type: String = ""
+	namespace_param: String, limit: int = -1, offset: int = -1, topic_type: String = ""
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic"
@@ -201,12 +230,15 @@ func admin_topic_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Use to create group. Only group admin can use this operation
+
+## Creates a group chat topic
 ## POST /chat/admin/namespaces/{namespace}/topic
-func admin_create_topic(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Create new group topic in a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_create_topic(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic"
 	# Use namespace parameter with fallback to configured namespace
@@ -217,13 +249,19 @@ func admin_create_topic(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin get list of channel topic
+
+## Lists channel chat topics in a namespace
 ## GET /chat/admin/namespaces/{namespace}/topic/channel
+##
+## Lists channel-type chat topics in a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - topic_name: Filters results to topics whose name contains this string.
 func admin_channel_topic_list(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1,
-	topic_name: String = ""
+	namespace_param: String, limit: int = -1, offset: int = -1, topic_name: String = ""
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/channel"
@@ -245,11 +283,15 @@ func admin_channel_topic_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin get channel topic summary
+
+## Retrieves a summary of channel topics in a namespace
 ## GET /chat/admin/namespaces/{namespace}/topic/channel/summary
-func admin_channel_topic_summary(
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns aggregated statistics and metadata for channel topics in the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_channel_topic_summary(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/channel/summary"
 	# Use namespace parameter with fallback to configured namespace
@@ -260,8 +302,22 @@ func admin_channel_topic_summary(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin query topic log
+
+## Queries the topic activity log for a namespace
 ## GET /chat/admin/namespaces/{namespace}/topic/log
+##
+## Queries the topic activity log for a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - end_created_at: End date
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sender_user_id: User ID of the message sender to filter results by.
+## - start_created_at: Start date
+## - topic_id: Filters results to the specified topic.
+## - topic_ids: Filters results to the specified topics.
+## - user_id: AccelByte user ID
 func admin_query_topic_log(
 	namespace_param: String,
 	end_created_at: int = -1,
@@ -303,12 +359,17 @@ func admin_query_topic_log(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Use to update group information. Only group admin can use this operation
+
+## Updates group topic information
 ## PUT /chat/admin/namespaces/{namespace}/topic/{topic}
+##
+## Update group topic in a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Topic ID that receives the chat
 func admin_update_topic(
-	namespace_param: String,
-	topic: String,
-	body: Dictionary = {}
+	namespace_param: String, topic: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}"
@@ -321,12 +382,16 @@ func admin_update_topic(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Use to delete group. Only group admin can use this operation
+
+## Deletes a group chat topic
 ## DELETE /chat/admin/namespaces/{namespace}/topic/{topic}
-func admin_delete_topic(
-	namespace_param: String,
-	topic: String
-) -> Dictionary:
+##
+## Delete topic in a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Topic ID that receives the chat
+func admin_delete_topic(namespace_param: String, topic: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}"
 	# Use namespace parameter with fallback to configured namespace
@@ -338,12 +403,17 @@ func admin_delete_topic(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## admins ban user in group topic
+
+## Bans users from a group topic
 ## POST /chat/admin/namespaces/{namespace}/topic/{topic}/ban-members
+##
+## Ban users in some topic. banned user not assigned to shard for channel topic, and cannot send and query chat.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Topic ID that receives the chat
 func admin_ban_topic_members(
-	namespace_param: String,
-	topic: String,
-	body: Dictionary = {}
+	namespace_param: String, topic: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/ban-members"
@@ -356,12 +426,16 @@ func admin_ban_topic_members(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin get channel topic detail
+
+## Retrieves details of a channel topic
 ## GET /chat/admin/namespaces/{namespace}/topic/{topic}/channel
-func admin_channel_topic_info(
-	namespace_param: String,
-	topic: String
-) -> Dictionary:
+##
+## Returns configuration and metadata for the specified channel topic, including its settings and current state.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Unique identifier of the topic.
+func admin_channel_topic_info(namespace_param: String, topic: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/channel"
 	# Use namespace parameter with fallback to configured namespace
@@ -373,61 +447,16 @@ func admin_channel_topic_info(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin get chat history
-## GET /chat/admin/namespaces/{namespace}/topic/{topic}/chats
-## @deprecated
-func admin_topic_chat_history(
-	namespace_param: String,
-	topic: String,
-	end_created_at: int = -1,
-	keyword: String = "",
-	limit: int = -1,
-	offset: int = -1,
-	order: String = "",
-	sender_user_id: String = "",
-	shard_id: String = "",
-	start_created_at: int = -1,
-	unfiltered: bool = false
-) -> Dictionary:
-	# Build URL path
-	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/chats"
-	# Use namespace parameter with fallback to configured namespace
-	var ns = namespace_param if not namespace_param.is_empty() else _namespace
-	url_path = url_path.replace("{namespace}", ns.uri_encode())
-	url_path = url_path.replace("{" + "topic" + "}", topic.uri_encode())
-	# Build query parameters
-	var query_params: Dictionary = {}
-	if end_created_at >= 0:
-		query_params["endCreatedAt"] = end_created_at
-	if not keyword.is_empty():
-		query_params["keyword"] = keyword
-	if limit >= 0:
-		query_params["limit"] = limit
-	if offset >= 0:
-		query_params["offset"] = offset
-	if not order.is_empty():
-		query_params["order"] = order
-	if not sender_user_id.is_empty():
-		query_params["senderUserId"] = sender_user_id
-	if not shard_id.is_empty():
-		query_params["shardId"] = shard_id
-	if start_created_at >= 0:
-		query_params["startCreatedAt"] = start_created_at
-	query_params["unfiltered"] = unfiltered
-	if not query_params.is_empty():
-		url_path += "?" + AccelbyteHttp.build_query_string(query_params)
-	var url: String = _service_url + url_path
-	var request_body: String = ""
-	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
-	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admins send chat to group topic
+## Sends a system message to a group topic
 ## POST /chat/admin/namespaces/{namespace}/topic/{topic}/chats
-func admin_send_chat(
-	namespace_param: String,
-	topic: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Send message to chat topic as system.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Topic ID that receives the chat
+func admin_send_chat(namespace_param: String, topic: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/chats"
 	# Use namespace parameter with fallback to configured namespace
@@ -439,13 +468,17 @@ func admin_send_chat(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admins delete chat
+
+## Deletes a chat message from a topic
 ## DELETE /chat/admin/namespaces/{namespace}/topic/{topic}/chats/{chatId}
-func admin_delete_chat(
-	chat_id: String,
-	namespace_param: String,
-	topic: String
-) -> Dictionary:
+##
+## Delete chat.
+##
+## Parameters:
+## - chat_id: Chat ID od the chat
+## - namespace_param: Game namespace
+## - topic: Topic ID of the chat
+func admin_delete_chat(chat_id: String, namespace_param: String, topic: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/chats/{chatId}"
 	url_path = url_path.replace("{" + "chatId" + "}", chat_id.uri_encode())
@@ -458,8 +491,20 @@ func admin_delete_chat(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## admin get topic member
+
+## Lists members of a topic
 ## GET /chat/admin/namespaces/{namespace}/topic/{topic}/members
+##
+## Lists members of a topic. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Unique identifier of the topic.
+## - is_banned: Only show banned member
+## - is_moderator: Only show moderator member
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - shard_id: Filters results to members on the specified shard.
 func admin_topic_members(
 	namespace_param: String,
 	topic: String,
@@ -492,12 +537,16 @@ func admin_topic_members(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin get shard list of topic
+
+## Lists shards for a topic
 ## GET /chat/admin/namespaces/{namespace}/topic/{topic}/shards
-func admin_topic_shards(
-	namespace_param: String,
-	topic: String
-) -> Dictionary:
+##
+## Get shard list from topic.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Unique identifier of the topic.
+func admin_topic_shards(namespace_param: String, topic: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/shards"
 	# Use namespace parameter with fallback to configured namespace
@@ -509,12 +558,17 @@ func admin_topic_shards(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admins unban user in group topic
+
+## Unbans users from a group topic
 ## POST /chat/admin/namespaces/{namespace}/topic/{topic}/unban-members
+##
+## Unban users in some topic.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Topic ID that receives the chat
 func admin_unban_topic_members(
-	namespace_param: String,
-	topic: String,
-	body: Dictionary = {}
+	namespace_param: String, topic: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/unban-members"
@@ -527,13 +581,18 @@ func admin_unban_topic_members(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin add user to topic
+
+## Adds a user to a topic
 ## POST /chat/admin/namespaces/{namespace}/topic/{topic}/user/{userId}
+##
+## Add new member for topic in a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Topic ID that will added user to
+## - user_id: AccelByte user ID
 func admin_add_topic_member(
-	namespace_param: String,
-	topic: String,
-	user_id: String,
-	body: Dictionary = {}
+	namespace_param: String, topic: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/user/{userId}"
@@ -547,12 +606,18 @@ func admin_add_topic_member(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin remove user from topic
+
+## Removes a user from a topic
 ## DELETE /chat/admin/namespaces/{namespace}/topic/{topic}/user/{userId}
+##
+## Remove member from topic in a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Topic ID that will removed user from
+## - user_id: AccelByte user ID
 func admin_remove_topic_member(
-	namespace_param: String,
-	topic: String,
-	user_id: String
+	namespace_param: String, topic: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/admin/namespaces/{namespace}/topic/{topic}/user/{userId}"
@@ -566,8 +631,23 @@ func admin_remove_topic_member(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## admin query topics
+
+## Lists topics in a namespace
 ## GET /chat/admin/namespaces/{namespace}/topics
+##
+## Lists topics in a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - include_members: Include topic's members
+## - include_past_members: Include past members (user that had left topic)
+## - include_past_topics: Includes soft-deleted topics in the results.
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - topic: Filters results to the specified topic ID.
+## - topic_sub_type: Filters results to topics with the specified sub-type.
+## - topic_type: Filters results to topics with the specified type.
+## - user_id: AccelByte user ID
 func admin_query_topic(
 	namespace_param: String,
 	include_members: bool = false,
@@ -609,8 +689,20 @@ func admin_query_topic(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin query user's topics
+
+## Lists topics a user belongs to
 ## GET /chat/admin/namespaces/{namespace}/users/{userId}/topics
+##
+## Lists topics a user belongs to in a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - include_past_topics: When true will include topics that user already left
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - topic_sub_type: Filters results to topics with the specified sub-type.
+## - topic_type: Filters results to topics with the specified type.
 func admin_query_users_topic(
 	namespace_param: String,
 	user_id: String,
@@ -644,11 +736,15 @@ func admin_query_users_topic(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## public get muted at topics
+
+## Retrieves topics where the current user is muted
 ## GET /chat/public/namespaces/{namespace}/muted
-func public_get_muted_topics(
-	namespace_param: String
-) -> Dictionary:
+##
+## Get chat muted topics in a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func public_get_muted_topics(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/public/namespaces/{namespace}/muted"
 	# Use namespace parameter with fallback to configured namespace
@@ -659,13 +755,19 @@ func public_get_muted_topics(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## public get list of topic
+
+## Lists chat topics in a namespace
 ## GET /chat/public/namespaces/{namespace}/topic
+##
+## Lists chat topics in a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - topic_type: PERSONAL or GROUP
 func public_topic_list(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1,
-	topic_type: String = ""
+	namespace_param: String, limit: int = -1, offset: int = -1, topic_type: String = ""
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/public/namespaces/{namespace}/topic"
@@ -687,12 +789,17 @@ func public_topic_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## public ban topic members in a group topic
+
+## Bans members from a group topic
 ## POST /chat/public/namespaces/{namespace}/topic/{topic}/ban-members
+##
+## Ban topic members in a group topic.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Unique identifier of the topic.
 func public_ban_topic_members(
-	namespace_param: String,
-	topic: String,
-	body: Dictionary = {}
+	namespace_param: String, topic: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/public/namespaces/{namespace}/topic/{topic}/ban-members"
@@ -705,8 +812,18 @@ func public_ban_topic_members(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## public get chat history
+
+## Retrieves chat message history for a topic
 ## GET /chat/public/namespaces/{namespace}/topic/{topic}/chats
+##
+## Get chat history in a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Topic ID that receives the chat
+## - limit: Number of results to return
+## - order: Sort order for results. Valid values: createdAt:asc, createdAt:desc.
+## - start_created_at: Filters results to messages created at or after this Unix timestamp (milliseconds).
 func public_chat_history(
 	namespace_param: String,
 	topic: String,
@@ -735,13 +852,17 @@ func public_chat_history(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## public delete chat
+
+## Deletes a chat message
 ## DELETE /chat/public/namespaces/{namespace}/topic/{topic}/chats/{chatId}
-func public_delete_chat(
-	chat_id: String,
-	namespace_param: String,
-	topic: String
-) -> Dictionary:
+##
+## Delete chat.
+##
+## Parameters:
+## - chat_id: Chat ID od the chat
+## - namespace_param: Game namespace
+## - topic: Topic ID of the chat
+func public_delete_chat(chat_id: String, namespace_param: String, topic: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/public/namespaces/{namespace}/topic/{topic}/chats/{chatId}"
 	url_path = url_path.replace("{" + "chatId" + "}", chat_id.uri_encode())
@@ -754,13 +875,16 @@ func public_delete_chat(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## public mute user in a topic
+
+## Mutes a topic member for the given duration
 ## PUT /chat/public/namespaces/{namespace}/topic/{topic}/mute
-func public_mute_user(
-	namespace_param: String,
-	topic: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Mute user.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Unique identifier of the topic.
+func public_mute_user(namespace_param: String, topic: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/public/namespaces/{namespace}/topic/{topic}/mute"
 	# Use namespace parameter with fallback to configured namespace
@@ -772,12 +896,17 @@ func public_mute_user(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## public unban topic members in a group topic
+
+## Unbans members from a group topic
 ## POST /chat/public/namespaces/{namespace}/topic/{topic}/unban-members
+##
+## Unban topic members in a group topic.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Unique identifier of the topic.
 func public_unban_topic_members(
-	namespace_param: String,
-	topic: String,
-	body: Dictionary = {}
+	namespace_param: String, topic: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/public/namespaces/{namespace}/topic/{topic}/unban-members"
@@ -790,12 +919,17 @@ func public_unban_topic_members(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## public unmute user in a topic
+
+## Removes the mute from a topic member
 ## PUT /chat/public/namespaces/{namespace}/topic/{topic}/unmute
+##
+## Unmute user.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - topic: Unique identifier of the topic.
 func public_unmute_user(
-	namespace_param: String,
-	topic: String,
-	body: Dictionary = {}
+	namespace_param: String, topic: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/public/namespaces/{namespace}/topic/{topic}/unmute"
@@ -808,8 +942,11 @@ func public_unmute_user(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## admin get all namespaces config
+
+## Retrieves configuration for all namespaces
 ## GET /chat/v1/admin/config
+##
+## Get chat config of all namespaces.
 func admin_get_all_config_v1() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/config"
@@ -818,8 +955,11 @@ func admin_get_all_config_v1() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get Log Configuration
+
+## Retrieves the log configuration
 ## GET /chat/v1/admin/config/log
+##
+## Returns the current log configuration for the chat service, including log levels, socket logging, and database query logging settings.
 func admin_get_log_config() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/config/log"
@@ -828,11 +968,12 @@ func admin_get_log_config() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Patch Update Log Configuration
+
+## Updates the log configuration
 ## PATCH /chat/v1/admin/config/log
-func admin_patch_update_log_config(
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates the log configuration for the chat service. Omit fields to perform a partial update.
+func admin_patch_update_log_config(body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/config/log"
 	var url: String = _service_url + url_path
@@ -840,11 +981,15 @@ func admin_patch_update_log_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## admin get namespace config
+
+## Retrieves the chat configuration for a namespace
 ## GET /chat/v1/admin/config/namespaces/{namespace}
-func admin_get_config_v1(
-	namespace_param: String
-) -> Dictionary:
+##
+## Get chat config of a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_config_v1(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/config/namespaces/{namespace}"
 	# Use namespace parameter with fallback to configured namespace
@@ -855,12 +1000,15 @@ func admin_get_config_v1(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin update namespace config
+
+## Updates the chat configuration for a namespace
 ## PUT /chat/v1/admin/config/namespaces/{namespace}
-func admin_update_config_v1(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Update chat config of a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_update_config_v1(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/config/namespaces/{namespace}"
 	# Use namespace parameter with fallback to configured namespace
@@ -871,11 +1019,15 @@ func admin_update_config_v1(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Export chat config to a json file.
+
+## Exports the chat configuration to a JSON file
 ## GET /chat/v1/admin/config/namespaces/{namespace}/export
-func export_config(
-	namespace_param: String
-) -> Dictionary:
+##
+## Exports the chat configuration for a namespace as a JSON file. The exported file can be re-imported using the import operation.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func export_config(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/config/namespaces/{namespace}/export"
 	# Use namespace parameter with fallback to configured namespace
@@ -886,12 +1038,16 @@ func export_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Import chat config from a json file.
+
+## Imports chat configuration from a JSON file
 ## POST /chat/v1/admin/config/namespaces/{namespace}/import
-func import_config(
-	namespace_param: String,
-	file: String = ""
-) -> Dictionary:
+##
+## Imports chat configuration from a JSON file, replacing the existing configuration. Use the export operation to download a file in the correct format.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - file: The JSON configuration file to import.
+func import_config(namespace_param: String, file: String = "") -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/config/namespaces/{namespace}/import"
 	# Use namespace parameter with fallback to configured namespace
@@ -902,11 +1058,15 @@ func import_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin get inbox categories
+
+## Retrieves inbox categories for a namespace
 ## GET /chat/v1/admin/inbox/namespaces/{namespace}/categories
-func admin_get_inbox_categories(
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns all inbox message categories configured for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_inbox_categories(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/categories"
 	# Use namespace parameter with fallback to configured namespace
@@ -917,12 +1077,15 @@ func admin_get_inbox_categories(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## add inbox category
+
+## Adds an inbox category
 ## POST /chat/v1/admin/inbox/namespaces/{namespace}/categories
-func admin_add_inbox_category(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Add inbox category.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_add_inbox_category(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/categories"
 	# Use namespace parameter with fallback to configured namespace
@@ -933,12 +1096,16 @@ func admin_add_inbox_category(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin delete inbox category
+
+## Deletes an inbox category
 ## DELETE /chat/v1/admin/inbox/namespaces/{namespace}/categories/{category}
-func admin_delete_inbox_category(
-	category: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Permanently removes the specified inbox category from the namespace.
+##
+## Parameters:
+## - category: Name of the category to delete.
+## - namespace_param: Game namespace
+func admin_delete_inbox_category(category: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/categories/{category}"
 	url_path = url_path.replace("{" + "category" + "}", category.uri_encode())
@@ -950,12 +1117,17 @@ func admin_delete_inbox_category(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## admin update inbox category
+
+## Updates an inbox category
 ## PATCH /chat/v1/admin/inbox/namespaces/{namespace}/categories/{category}
+##
+## Update inbox category
+##
+## Parameters:
+## - category: Name of the category to update.
+## - namespace_param: Game namespace
 func admin_update_inbox_category(
-	category: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	category: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/categories/{category}"
@@ -968,12 +1140,16 @@ func admin_update_inbox_category(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## admin get category schema
+
+## Retrieves the schema for an inbox category
 ## GET /chat/v1/admin/inbox/namespaces/{namespace}/categories/{category}/schema.json
-func admin_get_category_schema(
-	category: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Get category schema.
+##
+## Parameters:
+## - category: Name of the category.
+## - namespace_param: Game namespace
+func admin_get_category_schema(category: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/categories/{category}/schema.json"
 	url_path = url_path.replace("{" + "category" + "}", category.uri_encode())
@@ -985,11 +1161,15 @@ func admin_get_category_schema(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin get list kafka topic
+
+## Lists Kafka topics for inbox notifications
 ## GET /chat/v1/admin/inbox/namespaces/{namespace}/list/topic/kafka
-func admin_list_kafka_topic(
-	namespace_param: String
-) -> Dictionary:
+##
+## Get list kafka topic. example result chat,sessionNotification
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_list_kafka_topic(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/list/topic/kafka"
 	# Use namespace parameter with fallback to configured namespace
@@ -1000,12 +1180,18 @@ func admin_list_kafka_topic(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin delete inbox message
+
+## Deletes an inbox message
 ## DELETE /chat/v1/admin/inbox/namespaces/{namespace}/message/{messageId}
+##
+## Delete inbox message
+##
+## Parameters:
+## - message_id: Unique identifier of the inbox message.
+## - namespace_param: Game namespace
+## - force: Only for testing purposes, to force delete data
 func admin_delete_inbox_message(
-	message_id: String,
-	namespace_param: String,
-	force: bool = false
+	message_id: String, namespace_param: String, force: bool = false
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/message/{messageId}"
@@ -1023,8 +1209,24 @@ func admin_delete_inbox_message(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## admin get inbox messages
+
+## Lists inbox messages for a namespace
 ## GET /chat/v1/admin/inbox/namespaces/{namespace}/messages
+##
+## Lists inbox messages for a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - active_only: When true, returns only active messages.
+## - end_created_at: Upper bound for the message creation timestamp (Unix epoch).
+## - limit: Number of results to return
+## - message_id: Filters results to the specified message IDs.
+## - offset: Number of results to skip for pagination
+## - order: Sort order for results. Valid values: createdAt:asc, createdAt:desc.
+## - scope: Message scope
+## - start_created_at: Lower bound for the message creation timestamp (Unix epoch).
+## - status: Message status
+## - transient: Transient message filter
 func admin_get_inbox_messages(
 	namespace_param: String,
 	active_only: bool = false,
@@ -1070,12 +1272,15 @@ func admin_get_inbox_messages(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin save inbox message
+
+## Creates an inbox message
 ## POST /chat/v1/admin/inbox/namespaces/{namespace}/messages
-func admin_save_inbox_message(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Save inbox message
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_save_inbox_message(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/messages"
 	# Use namespace parameter with fallback to configured namespace
@@ -1086,12 +1291,17 @@ func admin_save_inbox_message(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin unsend inbox message
+
+## Retracts an inbox message from specified recipients
 ## POST /chat/v1/admin/inbox/namespaces/{namespace}/messages/{inbox}/unsend
+##
+## Unsend inbox message
+##
+## Parameters:
+## - inbox: Message
+## - namespace_param: Game namespace
 func admin_unsend_inbox_message(
-	inbox: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	inbox: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/messages/{inbox}/unsend"
@@ -1104,8 +1314,19 @@ func admin_unsend_inbox_message(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin get inbox users
+
+## Lists users who received an inbox message
 ## GET /chat/v1/admin/inbox/namespaces/{namespace}/messages/{inbox}/users
+##
+## Lists users who received an inbox message. Supports offset/limit pagination.
+##
+## Parameters:
+## - inbox: Message id
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - status: Message status
+## - user_id: AccelByte user ID
 func admin_get_inbox_users(
 	inbox: String,
 	namespace_param: String,
@@ -1137,12 +1358,17 @@ func admin_get_inbox_users(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin update inbox message
+
+## Updates an inbox message
 ## PATCH /chat/v1/admin/inbox/namespaces/{namespace}/messages/{messageId}
+##
+## Update inbox message
+##
+## Parameters:
+## - message_id: Unique identifier of the inbox message.
+## - namespace_param: Game namespace
 func admin_update_inbox_message(
-	message_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	message_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/messages/{messageId}"
@@ -1155,12 +1381,17 @@ func admin_update_inbox_message(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## admin send inbox message
+
+## Sends an inbox message to its recipients
 ## POST /chat/v1/admin/inbox/namespaces/{namespace}/messages/{messageId}/send
+##
+## Send inbox message
+##
+## Parameters:
+## - message_id: Unique identifier of the inbox message to send.
+## - namespace_param: Game namespace
 func admin_send_inbox_message(
-	message_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	message_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/messages/{messageId}/send"
@@ -1173,12 +1404,16 @@ func admin_send_inbox_message(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin get inbox stats
+
+## Retrieves inbox statistics for specified messages
 ## GET /chat/v1/admin/inbox/namespaces/{namespace}/stats
-func admin_get_inbox_stats(
-	namespace_param: String,
-	message_id: Array = []
-) -> Dictionary:
+##
+## Get inbox stats
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - message_id: Filters stats to the specified message IDs.
+func admin_get_inbox_stats(namespace_param: String, message_id: Array = []) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/inbox/namespaces/{namespace}/stats"
 	# Use namespace parameter with fallback to configured namespace
@@ -1195,12 +1430,16 @@ func admin_get_inbox_stats(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin get chat snapshot
+
+## Retrieves a chat snapshot
 ## GET /chat/v1/admin/namespaces/{namespace}/snapshot/{chatId}
-func admin_get_chat_snapshot(
-	chat_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Get the chat snapshot
+##
+## Parameters:
+## - chat_id: Unique identifier of the chat.
+## - namespace_param: Game namespace
+func admin_get_chat_snapshot(chat_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/namespaces/{namespace}/snapshot/{chatId}"
 	url_path = url_path.replace("{" + "chatId" + "}", chat_id.uri_encode())
@@ -1212,12 +1451,16 @@ func admin_get_chat_snapshot(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin delete chat snapshot
+
+## Deletes a chat snapshot
 ## DELETE /chat/v1/admin/namespaces/{namespace}/snapshot/{chatId}
-func admin_delete_chat_snapshot(
-	chat_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Delete the chat snapshot
+##
+## Parameters:
+## - chat_id: Unique identifier of the chat.
+## - namespace_param: Game namespace
+func admin_delete_chat_snapshot(chat_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/namespaces/{namespace}/snapshot/{chatId}"
 	url_path = url_path.replace("{" + "chatId" + "}", chat_id.uri_encode())
@@ -1229,8 +1472,21 @@ func admin_delete_chat_snapshot(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## admin query profanity words
+
+## Queries the profanity word dictionary
 ## GET /chat/v1/admin/profanity/namespaces/{namespace}/dictionary
+##
+## Queries the profanity word dictionary for a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - filter_mask: Glob pattern to filter words by.
+## - include_children: Include false positives and false negatives
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - parent_id: Parent ID of the word
+## - start_with: Word start with
+## - word_type: The word classification. Valid values: PROFANITY, FALSEPOSITIVE, FALSENEGATIVE.
 func admin_profanity_query(
 	namespace_param: String,
 	filter_mask: String = "",
@@ -1268,12 +1524,15 @@ func admin_profanity_query(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin insert new profanity words
+
+## Adds a profanity word to the namespace dictionary
 ## POST /chat/v1/admin/profanity/namespaces/{namespace}/dictionary
-func admin_profanity_create(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Insert new word for profanity censor
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_profanity_create(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/profanity/namespaces/{namespace}/dictionary"
 	# Use namespace parameter with fallback to configured namespace
@@ -1284,12 +1543,15 @@ func admin_profanity_create(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin bulk insert new profanity words
+
+## Adds profanity words to the namespace dictionary in bulk
 ## POST /chat/v1/admin/profanity/namespaces/{namespace}/dictionary/bulk
-func admin_profanity_create_bulk(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Bulk insert new word for profanity censor
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_profanity_create_bulk(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/profanity/namespaces/{namespace}/dictionary/bulk"
 	# Use namespace parameter with fallback to configured namespace
@@ -1300,11 +1562,15 @@ func admin_profanity_create_bulk(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin export profanity words
+
+## Exports profanity words from the dictionary
 ## GET /chat/v1/admin/profanity/namespaces/{namespace}/dictionary/export
-func admin_profanity_export(
-	namespace_param: String
-) -> Dictionary:
+##
+## Export profanity words
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_profanity_export(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/profanity/namespaces/{namespace}/dictionary/export"
 	# Use namespace parameter with fallback to configured namespace
@@ -1315,12 +1581,18 @@ func admin_profanity_export(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin get profanity words group
+
+## Lists profanity word groups
 ## GET /chat/v1/admin/profanity/namespaces/{namespace}/dictionary/group
+##
+## Lists profanity word groups for a namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_profanity_group(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/profanity/namespaces/{namespace}/dictionary/group"
@@ -1340,13 +1612,19 @@ func admin_profanity_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin import profanity words
+
+## Imports profanity words from a file
 ## POST /chat/v1/admin/profanity/namespaces/{namespace}/dictionary/import
+##
+## Import profanity words
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - action: Conflict resolution strategy for duplicate words. Valid values: REPLACE (update existing), FULLREPLACE (replace all and remove non-imported), LEAVEOUT (skip duplicates).
+## - show_result: When true, returns the list of imported words in the response.
+## - file: The profanity word list file to import.
 func admin_profanity_import(
-	namespace_param: String,
-	file: String,
-	action: String = "",
-	show_result: bool = false
+	namespace_param: String, file: String, action: String = "", show_result: bool = false
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/profanity/namespaces/{namespace}/dictionary/import"
@@ -1365,12 +1643,17 @@ func admin_profanity_import(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin update profanity word
+
+## Updates a profanity word in the dictionary
 ## PUT /chat/v1/admin/profanity/namespaces/{namespace}/dictionary/{id}
+##
+## Update profanity word
+##
+## Parameters:
+## - id: Id of the dictionary
+## - namespace_param: Game namespace
 func admin_profanity_update(
-	id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/profanity/namespaces/{namespace}/dictionary/{id}"
@@ -1383,12 +1666,16 @@ func admin_profanity_update(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## admin delete profanity words
+
+## Deletes a profanity word from the dictionary
 ## DELETE /chat/v1/admin/profanity/namespaces/{namespace}/dictionary/{id}
-func admin_profanity_delete(
-	id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Delete profanity words.
+##
+## Parameters:
+## - id: Id of the dictionary
+## - namespace_param: Game namespace
+func admin_profanity_delete(id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/admin/profanity/namespaces/{namespace}/dictionary/{id}"
 	url_path = url_path.replace("{" + "id" + "}", id.uri_encode())
@@ -1400,8 +1687,11 @@ func admin_profanity_delete(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## get service messages
+
+## Retrieves service-level messages
 ## GET /chat/v1/messages
+##
+## Get the list of messages.
 func public_get_messages() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/messages"
@@ -1410,11 +1700,15 @@ func public_get_messages() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## public get namespace config
+
+## Retrieves the public chat configuration for a namespace
 ## GET /chat/v1/public/config/namespaces/{namespace}
-func public_get_config_v1(
-	namespace_param: String
-) -> Dictionary:
+##
+## Get chat config of a namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func public_get_config_v1(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/public/config/namespaces/{namespace}"
 	# Use namespace parameter with fallback to configured namespace
@@ -1425,12 +1719,18 @@ func public_get_config_v1(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## public get chat snapshot
+
+## Retrieves a chat snapshot
 ## GET /chat/v1/public/namespaces/{namespace}/topic/{topic}/snapshot/{chatId}
+##
+## Get the chat snapshot
+##
+## Parameters:
+## - chat_id: Unique identifier of the chat.
+## - namespace_param: Game namespace
+## - topic: Unique identifier of the topic.
 func public_get_chat_snapshot(
-	chat_id: String,
-	namespace_param: String,
-	topic: String
+	chat_id: String, namespace_param: String, topic: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/chat/v1/public/namespaces/{namespace}/topic/{topic}/snapshot/{chatId}"

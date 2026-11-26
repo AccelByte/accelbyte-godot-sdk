@@ -5,7 +5,7 @@
 ## loginqueue_service.gd
 ## Generated AccelByte API service (pure GDScript, all platforms)
 ## Service: justice-login-queue-service
-## Version: 2.3.4
+## Version: 1.2.0
 ## DO NOT EDIT - This file is auto-generated from OpenAPI spec
 ## =============================================================================
 ##
@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,11 +82,15 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## Get Configuration
+
+## Retrieves login queue configuration
 ## GET /login-queue/v1/admin/namespaces/{namespace}/config
-func admin_get_configuration(
-	namespace_param: String
-) -> Dictionary:
+##
+## Gets the login queue configuration for the specified namespace. If the namespace does not have a saved configuration, the operation returns the default configuration values.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_configuration(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/login-queue/v1/admin/namespaces/{namespace}/config"
 	# Use namespace parameter with fallback to configured namespace
@@ -99,12 +101,15 @@ func admin_get_configuration(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update Configuration
+
+## Updates login queue configuration
 ## PUT /login-queue/v1/admin/namespaces/{namespace}/config
-func admin_update_configuration(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates or updates the login queue configuration for the specified namespace. When the namespace does not already have a configuration, the operation creates one and applies default values to omitted fields. When a configuration already exists, the operation replaces it and enforces the documented numeric limits for concurrency, rate, grace periods, polling time, and safety margin percentage.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_update_configuration(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/login-queue/v1/admin/namespaces/{namespace}/config"
 	# Use namespace parameter with fallback to configured namespace
@@ -115,11 +120,15 @@ func admin_update_configuration(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Get login queue status
+
+## Retrieves login queue status
 ## GET /login-queue/v1/admin/namespaces/{namespace}/status
-func admin_get_status(
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns the current status of the login queue for the specified namespace, including queue depth and processing metrics.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_status(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/login-queue/v1/admin/namespaces/{namespace}/status"
 	# Use namespace parameter with fallback to configured namespace
@@ -130,11 +139,15 @@ func admin_get_status(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Refresh ticket
+
+## Refreshes a login queue ticket
 ## GET /login-queue/v1/namespaces/{namespace}/ticket
-func refresh_ticket(
-	namespace_param: String
-) -> Dictionary:
+##
+## Refreshes the current login queue ticket for the specified namespace. Supply the ticket in the `Authorization` header using the format `Bearer ticketID`. The operation returns `401 Unauthorized` when the ticket is empty or the service cannot find it.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func refresh_ticket(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/login-queue/v1/namespaces/{namespace}/ticket"
 	# Use namespace parameter with fallback to configured namespace
@@ -145,11 +158,15 @@ func refresh_ticket(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Cancel ticket
+
+## Cancels a login queue ticket
 ## DELETE /login-queue/v1/namespaces/{namespace}/ticket
-func cancel_ticket(
-	namespace_param: String
-) -> Dictionary:
+##
+## Cancels the current login queue ticket for the specified namespace. Supply the ticket in the `Authorization` header using the format `Bearer ticketID`.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func cancel_ticket(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/login-queue/v1/namespaces/{namespace}/ticket"
 	# Use namespace parameter with fallback to configured namespace

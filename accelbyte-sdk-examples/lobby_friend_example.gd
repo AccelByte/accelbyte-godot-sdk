@@ -57,7 +57,9 @@ func _login_and_connect() -> void:
 
 	print("Logging in with device ID: ", device_id)
 
-	var login_result = await iam.platform_token_grant_v4("device", "", "", true, device_id)
+	# Parameters: platform_id, code_challenge, code_challenge_method, additional_data, app_id, client_id, code_verifier,
+	# create_headless, device_id (SDK 0.2 added app_id, so create_headless and device_id are the 8th and 9th).
+	var login_result = await iam.platform_token_grant_v4("device", "", "", "", "", "", "", true, device_id)
 
 	if not login_result.get("success", false):
 		print("Login failed: ", login_result.get("error", "Unknown error"))
@@ -72,13 +74,13 @@ func _login_and_connect() -> void:
 		print("Failed to connect to lobby: ", lobby_error)
 
 func _on_lobby_connected(data: Dictionary) -> void:
-	print("Connected to lobby! Session ID: ", data.get("sessionId", ""))
+	print("Connected to lobby! Lobby session ID: ", data.get("lobbysessionid", ""))
 
 	# Setup lobby WebSocket service for notifications
 	var lobby_ws = sdk.get_service(LobbyWsService)
 	if lobby_ws:
 		# Connect to friend-related notifications
-		lobby_ws.friend_request_accepted_notif.connect(_on_friend_request_accepted)
+		lobby_ws.accept_friends_notif.connect(_on_friend_request_accepted)
 		lobby_ws.unfriend_notif.connect(_on_unfriend_notification)
 		lobby_ws.request_friends_notif.connect(_on_friend_request_received)
 
@@ -102,7 +104,7 @@ func _send_friend_request(user_id: String) -> void:
 		return
 
 	print("Sending friend request to: ", user_id)
-	lobby_ws.request_friend(user_id)
+	lobby_ws.request_friends_request(user_id)
 
 func _accept_friend_request(user_id: String) -> void:
 	"""Accept a friend request from another user"""
@@ -112,7 +114,7 @@ func _accept_friend_request(user_id: String) -> void:
 		return
 
 	print("Accepting friend request from: ", user_id)
-	lobby_ws.accept_friend(user_id)
+	lobby_ws.accept_friends_request(user_id)
 
 func _reject_friend_request(user_id: String) -> void:
 	"""Reject a friend request from another user"""
@@ -122,7 +124,7 @@ func _reject_friend_request(user_id: String) -> void:
 		return
 
 	print("Rejecting friend request from: ", user_id)
-	lobby_ws.reject_friend(user_id)
+	lobby_ws.reject_friends_request(user_id)
 
 # Notification handlers
 func _on_friend_request_received(user_id: String) -> void:

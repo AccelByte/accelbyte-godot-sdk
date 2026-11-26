@@ -5,7 +5,7 @@
 ## seasonpass_service.gd
 ## Generated AccelByte API service (pure GDScript, all platforms)
 ## Service: justice-seasonpass-service
-## Version: 1.26.3
+## Version: 1.27.3
 ## DO NOT EDIT - This file is auto-generated from OpenAPI spec
 ## =============================================================================
 ##
@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,11 +82,15 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## export season service data
+
+## Exports season service data
 ## GET /seasonpass/admin/namespace/{namespace}/export
-func export_season(
-	namespace_param: String
-) -> Dictionary:
+##
+## Exports all season service data files in CSV format.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func export_season(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespace/{namespace}/export"
 	# Use namespace parameter with fallback to configured namespace
@@ -99,13 +101,19 @@ func export_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Query seasons
+
+## Lists seasons in the namespace
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons
+##
+## Lists seasons in the namespace. Excludes publisher namespaces. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - status: Filters seasons by status. Valid values: DRAFT, PUBLISHED, RETIRED.
 func query_seasons(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1,
-	status: Array = []
+	namespace_param: String, limit: int = -1, offset: int = -1, status: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons"
@@ -127,12 +135,15 @@ func query_seasons(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a season
+
+## Creates a season in the namespace
 ## POST /seasonpass/admin/namespaces/{namespace}/seasons
-func create_season(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a season. Requires a non-publisher namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_season(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons"
 	# Use namespace parameter with fallback to configured namespace
@@ -143,11 +154,15 @@ func create_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get current published season summary
+
+## Retrieves the current published season summary
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/current
-func get_current_season(
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the current published season summary, including the previous season summary if one exists. Excludes publisher namespaces. Intended for internal service communication only.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func get_current_season(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/current"
 	# Use namespace parameter with fallback to configured namespace
@@ -158,12 +173,15 @@ func get_current_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Bulk get user current season progression
+
+## Retrieves current season progression for a batch of users
 ## POST /seasonpass/admin/namespaces/{namespace}/seasons/current/users/bulk/progression
-func bulk_get_user_season_progression(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Retrieves the current season progression for a batch of users. Excludes publisher namespaces.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func bulk_get_user_season_progression(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/current/users/bulk/progression"
 	# Use namespace parameter with fallback to configured namespace
@@ -174,12 +192,16 @@ func bulk_get_user_season_progression(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get season pass ecommerce item references
+
+## Retrieves season pass item references from the ecommerce store
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/item/references
-func get_item_references(
-	namespace_param: String,
-	item_id: String
-) -> Dictionary:
+##
+## Retrieves season pass item references from the ecommerce store.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - item_id: The id of the ecommerce item
+func get_item_references(namespace_param: String, item_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/item/references"
 	# Use namespace parameter with fallback to configured namespace
@@ -196,12 +218,16 @@ func get_item_references(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get a season
+
+## Retrieves a season by ID
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}
-func get_season(
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Retrieves a season by ID. Excludes publisher namespaces.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season to retrieve.
+func get_season(namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -213,12 +239,16 @@ func get_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete a season
+
+## Deletes a season permanently
 ## DELETE /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}
-func delete_season(
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Permanently deletes a season. Requires the season to be in DRAFT status.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season to delete.
+func delete_season(namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -230,13 +260,16 @@ func delete_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update a season
+
+## Updates a season
 ## PATCH /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}
-func update_season(
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates a season. Requires the season to be in DRAFT status.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season to update.
+func update_season(namespace_param: String, season_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -248,13 +281,16 @@ func update_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Clone a season
+
+## Clones a season
 ## POST /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/clone
-func clone_season(
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a copy of an existing season with a new time range.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season to clone.
+func clone_season(namespace_param: String, season_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/clone"
 	# Use namespace parameter with fallback to configured namespace
@@ -266,12 +302,16 @@ func clone_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get a season full content
+
+## Retrieves the full content of a season
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/full
-func get_full_season(
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Retrieves the full content of a season including passes, rewards, and tiers. Excludes publisher namespaces.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season to retrieve.
+func get_full_season(namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/full"
 	# Use namespace parameter with fallback to configured namespace
@@ -283,12 +323,16 @@ func get_full_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Query all passes for a season
+
+## Lists all passes for a season
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes
-func query_passes(
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Lists all passes for a season. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func query_passes(namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes"
 	# Use namespace parameter with fallback to configured namespace
@@ -300,13 +344,16 @@ func query_passes(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a pass
+
+## Creates a pass for a season
 ## POST /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes
-func create_pass(
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a pass for a draft season.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func create_pass(namespace_param: String, season_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes"
 	# Use namespace parameter with fallback to configured namespace
@@ -318,13 +365,17 @@ func create_pass(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get a pass
+
+## Retrieves a pass by code
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes/{code}
-func get_pass(
-	code: String,
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Retrieves a pass for the specified season.
+##
+## Parameters:
+## - code: Pass code identifying the pass to retrieve.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func get_pass(code: String, namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes/{code}"
 	url_path = url_path.replace("{" + "code" + "}", code.uri_encode())
@@ -337,13 +388,17 @@ func get_pass(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete a pass
+
+## Deletes a pass permanently
 ## DELETE /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes/{code}
-func delete_pass(
-	code: String,
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Permanently deletes a pass. Requires the season to be in DRAFT status.
+##
+## Parameters:
+## - code: Pass code identifying the pass to delete.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func delete_pass(code: String, namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes/{code}"
 	url_path = url_path.replace("{" + "code" + "}", code.uri_encode())
@@ -356,13 +411,18 @@ func delete_pass(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update a pass
+
+## Updates a pass
 ## PATCH /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes/{code}
+##
+## Updates a pass. Requires the season to be in DRAFT status.
+##
+## Parameters:
+## - code: Pass code identifying the pass to update.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
 func update_pass(
-	code: String,
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
+	code: String, namespace_param: String, season_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/passes/{code}"
@@ -376,12 +436,16 @@ func update_pass(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Publish a season
+
+## Publishes a season
 ## PUT /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/publish
-func publish_season(
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Publishes a draft season. Each namespace may have at most one published season at a time.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season to publish.
+func publish_season(namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/publish"
 	# Use namespace parameter with fallback to configured namespace
@@ -393,13 +457,17 @@ func publish_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Retire a season
+
+## Retires a published season
 ## PUT /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/retire
-func retire_season(
-	namespace_param: String,
-	season_id: String,
-	force: bool = false
-) -> Dictionary:
+##
+## Retires a published season. Fails if the season end date has not passed, unless force is true.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season to retire.
+## - force: When true, retires the season even if it has not ended. Defaults to false.
+func retire_season(namespace_param: String, season_id: String, force: bool = false) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/retire"
 	# Use namespace parameter with fallback to configured namespace
@@ -416,13 +484,17 @@ func retire_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Query all rewards for a season
+
+## Lists all rewards for a season
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards
-func query_rewards(
-	namespace_param: String,
-	season_id: String,
-	q: String = ""
-) -> Dictionary:
+##
+## Lists all rewards for a season. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+## - q: Filters rewards by name. Performs a partial match on the reward name.
+func query_rewards(namespace_param: String, season_id: String, q: String = "") -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards"
 	# Use namespace parameter with fallback to configured namespace
@@ -440,13 +512,16 @@ func query_rewards(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a reward
+
+## Creates a reward for a season
 ## POST /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards
-func create_reward(
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a reward for a draft season.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func create_reward(namespace_param: String, season_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards"
 	# Use namespace parameter with fallback to configured namespace
@@ -458,13 +533,17 @@ func create_reward(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get a reward
+
+## Retrieves a reward by code
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards/{code}
-func get_reward(
-	code: String,
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Retrieves a reward for the specified season.
+##
+## Parameters:
+## - code: Reward code identifying the reward to retrieve.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func get_reward(code: String, namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards/{code}"
 	url_path = url_path.replace("{" + "code" + "}", code.uri_encode())
@@ -477,13 +556,17 @@ func get_reward(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete a reward
+
+## Deletes a reward permanently
 ## DELETE /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards/{code}
-func delete_reward(
-	code: String,
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Permanently deletes a reward. Requires the season to be in DRAFT status.
+##
+## Parameters:
+## - code: Reward code identifying the reward to delete.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func delete_reward(code: String, namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards/{code}"
 	url_path = url_path.replace("{" + "code" + "}", code.uri_encode())
@@ -496,13 +579,18 @@ func delete_reward(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update a reward
+
+## Updates a reward
 ## PATCH /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards/{code}
+##
+## Updates a reward. Requires the season to be in DRAFT status.
+##
+## Parameters:
+## - code: Reward code identifying the reward to update.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
 func update_reward(
-	code: String,
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
+	code: String, namespace_param: String, season_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/rewards/{code}"
@@ -516,13 +604,19 @@ func update_reward(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Query paginated tiers for a season
+
+## Lists all tiers for a season
 ## GET /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers
+##
+## Lists tiers for a season. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func query_tiers(
-	namespace_param: String,
-	season_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, season_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers"
@@ -543,13 +637,16 @@ func query_tiers(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create tier
+
+## Creates tiers for a season
 ## POST /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers
-func create_tier(
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates one or more tiers for a draft season.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func create_tier(namespace_param: String, season_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers"
 	# Use namespace parameter with fallback to configured namespace
@@ -561,13 +658,18 @@ func create_tier(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update a tier
+
+## Updates a tier
 ## PUT /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers/{id}
+##
+## Updates a tier. Requires the season to be in DRAFT status.
+##
+## Parameters:
+## - id: Unique identifier of the tier to update.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
 func update_tier(
-	id: String,
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
+	id: String, namespace_param: String, season_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers/{id}"
@@ -581,13 +683,17 @@ func update_tier(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete a tier
+
+## Deletes a tier permanently
 ## DELETE /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers/{id}
-func delete_tier(
-	id: String,
-	namespace_param: String,
-	season_id: String
-) -> Dictionary:
+##
+## Permanently deletes a tier. Requires the season to be in DRAFT status.
+##
+## Parameters:
+## - id: Unique identifier of the tier to delete.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+func delete_tier(id: String, namespace_param: String, season_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers/{id}"
 	url_path = url_path.replace("{" + "id" + "}", id.uri_encode())
@@ -600,13 +706,18 @@ func delete_tier(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Reorder a tier
+
+## Moves a tier to a new position
 ## PUT /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers/{id}/reorder
+##
+## Reorders a tier within a draft season.
+##
+## Parameters:
+## - id: Unique identifier of the tier to reorder.
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
 func reorder_tier(
-	id: String,
-	namespace_param: String,
-	season_id: String,
-	body: Dictionary = {}
+	id: String, namespace_param: String, season_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/tiers/{id}/reorder"
@@ -620,12 +731,18 @@ func reorder_tier(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Unpublish a season
+
+## Unpublishes a season
 ## PUT /seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/unpublish
+##
+## Unpublishes a published season. Fails if the season has already started, unless force is true.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season to unpublish.
+## - force: When true, unpublishes the season even if it has already started. Defaults to false.
 func unpublish_season(
-	namespace_param: String,
-	season_id: String,
-	force: bool = false
+	namespace_param: String, season_id: String, force: bool = false
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/seasons/{seasonId}/unpublish"
@@ -643,13 +760,19 @@ func unpublish_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Get user participated season data
+
+## Retrieves a user's participated season data
 ## GET /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons
+##
+## Retrieves season data for seasons the user has participated in. Excludes publisher namespaces. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func get_user_participated_seasons(
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons"
@@ -670,13 +793,16 @@ func get_user_participated_seasons(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Grant exp to user
+
+## Grants experience points to a user
 ## POST /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/exp
-func grant_user_exp(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Grants experience points to a user in the current season. Auto-enrolls the user if no active user season exists but a published season is active.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func grant_user_exp(namespace_param: String, user_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/exp"
 	# Use namespace parameter with fallback to configured namespace
@@ -688,13 +814,16 @@ func grant_user_exp(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Grant pass to user
+
+## Grants a pass to a user
 ## POST /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/passes
-func grant_user_pass(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Grants a pass to a user in the current season. Auto-enrolls the user if no active user season exists but a published season is active.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func grant_user_pass(namespace_param: String, user_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/passes"
 	# Use namespace parameter with fallback to configured namespace
@@ -706,12 +835,18 @@ func grant_user_pass(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get ownership for any pass codes
+
+## Checks ownership of any season pass
 ## GET /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/passes/ownership/any
+##
+## Checks whether the user owns any of the specified pass codes in the current season. Intended for internal service communication only.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - pass_codes: List of pass codes to check ownership for.
 func exists_any_pass_by_pass_codes(
-	namespace_param: String,
-	user_id: String,
-	pass_codes: Array = []
+	namespace_param: String, user_id: String, pass_codes: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/passes/ownership/any"
@@ -730,12 +865,16 @@ func exists_any_pass_by_pass_codes(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get current user season progression
+
+## Retrieves the current user's season progression
 ## GET /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/progression
-func get_current_user_season_progression(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Retrieves the current season progression for the specified user. Excludes publisher namespaces.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func get_current_user_season_progression(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/progression"
 	# Use namespace parameter with fallback to configured namespace
@@ -747,12 +886,17 @@ func get_current_user_season_progression(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Check pass or tier purchasable
+
+## Checks if a pass or tier is purchasable
 ## POST /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/purchasable
+##
+## Checks whether the specified pass or tier is purchasable for the user in the current season.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func check_season_purchasable(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/purchasable"
@@ -765,12 +909,16 @@ func check_season_purchasable(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Reset user data in current season
+
+## Resets user data in the current season
 ## DELETE /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/reset
-func reset_user_season(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Resets a user's data in the current season. Rewarded entitlements are not revoked. Available in test environments only; not permitted in live namespaces.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func reset_user_season(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/reset"
 	# Use namespace parameter with fallback to configured namespace
@@ -782,13 +930,16 @@ func reset_user_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Grant tier to user
+
+## Grants a tier to a user
 ## POST /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/tiers
-func grant_user_tier(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Grants a tier to a user in the current season. Auto-enrolls the user if no active user season exists but a published season is active.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func grant_user_tier(namespace_param: String, user_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/current/tiers"
 	# Use namespace parameter with fallback to configured namespace
@@ -800,8 +951,22 @@ func grant_user_tier(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Query user season exp acquisition history
+
+## Lists a user's season experience acquisition history
 ## GET /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/exp/history
+##
+## Lists the user's experience acquisition history. Defaults to the current active season. Excludes publisher namespaces. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - from: Section active range time start , using ISO 8601 format e.g. yyyy-MM-dd'T'HH:mm:ssZZ
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - season_id: If not provide, will query current season
+## - source: Exp grant source
+## - tags: Exp grant tags
+## - to: Section active range time end, using ISO 8601 format e.g. yyyy-MM-dd'T'HH:mm:ssZZ
 func query_user_exp_grant_history(
 	namespace_param: String,
 	user_id: String,
@@ -842,12 +1007,18 @@ func query_user_exp_grant_history(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Query user season exp acquisition history's reason tag list
+
+## Lists reason tags for a user's experience history
 ## GET /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/exp/history/tags
+##
+## Lists the reason tags used in the user's experience acquisition history. Defaults to the current active season.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - season_id: If not provide, will query current season
 func query_user_exp_grant_history_tag(
-	namespace_param: String,
-	user_id: String,
-	season_id: String = ""
+	namespace_param: String, user_id: String, season_id: String = ""
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/exp/history/tags"
@@ -866,13 +1037,17 @@ func query_user_exp_grant_history_tag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get user season data
+
+## Retrieves a user's data for a specific season
 ## GET /seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/{seasonId}/data
-func get_user_season(
-	namespace_param: String,
-	season_id: String,
-	user_id: String
-) -> Dictionary:
+##
+## Retrieves season data for the specified user and season. Excludes publisher namespaces.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+## - user_id: AccelByte user ID
+func get_user_season(namespace_param: String, season_id: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/admin/namespaces/{namespace}/users/{userId}/seasons/{seasonId}/data"
 	# Use namespace parameter with fallback to configured namespace
@@ -885,12 +1060,16 @@ func get_user_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get current published season
+
+## Retrieves the current published season
 ## GET /seasonpass/public/namespaces/{namespace}/seasons/current
-func public_get_current_season(
-	namespace_param: String,
-	language: String = ""
-) -> Dictionary:
+##
+## Retrieves the current published season for the namespace, with fields localized to the requested language.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - language: BCP 47 language tag for localizing season content. Defaults to the season's default language.
+func public_get_current_season(namespace_param: String, language: String = "") -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/public/namespaces/{namespace}/seasons/current"
 	# Use namespace parameter with fallback to configured namespace
@@ -907,12 +1086,16 @@ func public_get_current_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get current user season data
+
+## Retrieves the current user's season data
 ## GET /seasonpass/public/namespaces/{namespace}/users/{userId}/seasons/current/data
-func public_get_current_user_season(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Retrieves the current season data for the user. Auto-enrolls the user if no active user season exists but a published season is active.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func public_get_current_user_season(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/public/namespaces/{namespace}/users/{userId}/seasons/current/data"
 	# Use namespace parameter with fallback to configured namespace
@@ -924,12 +1107,17 @@ func public_get_current_user_season(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Claim tier reward
+
+## Claims a tier reward
 ## POST /seasonpass/public/namespaces/{namespace}/users/{userId}/seasons/current/rewards
+##
+## Claims a reward for the specified tier in the current season.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func public_claim_user_reward(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/public/namespaces/{namespace}/users/{userId}/seasons/current/rewards"
@@ -942,12 +1130,16 @@ func public_claim_user_reward(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Bulk claim all remained rewards
+
+## Claims all remaining tier rewards
 ## POST /seasonpass/public/namespaces/{namespace}/users/{userId}/seasons/current/rewards/bulk
-func public_bulk_claim_user_rewards(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Claims all unclaimed rewards across all tiers in the current season.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func public_bulk_claim_user_rewards(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/public/namespaces/{namespace}/users/{userId}/seasons/current/rewards/bulk"
 	# Use namespace parameter with fallback to configured namespace
@@ -959,12 +1151,18 @@ func public_bulk_claim_user_rewards(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get user season data
+
+## Retrieves a user's data for a specific season
 ## GET /seasonpass/public/namespaces/{namespace}/users/{userId}/seasons/{seasonId}/data
+##
+## Retrieves season data for the specified user and season.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - season_id: Unique identifier of the season.
+## - user_id: AccelByte user ID
 func public_get_user_season(
-	namespace_param: String,
-	season_id: String,
-	user_id: String
+	namespace_param: String, season_id: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/seasonpass/public/namespaces/{namespace}/users/{userId}/seasons/{seasonId}/data"

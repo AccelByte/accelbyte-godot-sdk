@@ -5,7 +5,7 @@
 ## ams_service.gd
 ## Generated AccelByte API service (pure GDScript, all platforms)
 ## Service: fleet-commander
-## Version: 1.43.0
+## Version: 1.47.0
 ## DO NOT EDIT - This file is auto-generated from OpenAPI spec
 ## =============================================================================
 ##
@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,8 +82,11 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## checks if fleet commander can auth with AMS
+
+## Checks if fleet commander can auth with AMS
 ## GET /ams/auth
+##
+## Checks whether Fleet Commander can communicate with AMS using the current IAM credentials.
 func auth_check() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/auth"
@@ -94,8 +95,11 @@ func auth_check() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Health check
+
+## Checks service health
 ## GET /ams/healthz
+##
+## Checks whether the AMS portal service is reachable and responding. Use this operation for basic service health verification.
 func portal_health_check() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/healthz"
@@ -104,11 +108,15 @@ func portal_health_check() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get the account associated with the namespace
+
+## Retrieves the account associated with the namespace
 ## GET /ams/v1/admin/namespaces/{namespace}/account
-func admin_account_get(
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the AMS account associated with the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_account_get(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/account"
 	# Use namespace parameter with fallback to configured namespace
@@ -119,12 +127,15 @@ func admin_account_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## create a new AMS account
+
+## Creates a new AMS account
 ## POST /ams/v1/admin/namespaces/{namespace}/account
-func admin_account_create(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates an AMS account for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_account_create(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/account"
 	# Use namespace parameter with fallback to configured namespace
@@ -135,11 +146,15 @@ func admin_account_create(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## get a link to account token
+
+## Retrieves an account link token
 ## GET /ams/v1/admin/namespaces/{namespace}/account/link
-func admin_account_link_token_get(
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns a link token that lets you connect another namespace to the account associated with the provided namespace. This operation fails if the specified namespace is not linked to an account.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_account_link_token_get(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/account/link"
 	# Use namespace parameter with fallback to configured namespace
@@ -150,12 +165,15 @@ func admin_account_link_token_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## link an account to a namespace
+
+## Links an account to a namespace
 ## POST /ams/v1/admin/namespaces/{namespace}/account/link
-func admin_account_link(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Links an existing AMS account to the namespace by using a valid account link token. The request fails if the namespace is already linked to an account.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_account_link(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/account/link"
 	# Use namespace parameter with fallback to configured namespace
@@ -166,8 +184,28 @@ func admin_account_link(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## get all artifacts matching the provided criteria
+
+## Retrieves all artifacts that match the provided criteria
 ## GET /ams/v1/admin/namespaces/{namespace}/artifacts
+##
+## Returns artifacts that match the provided search criteria. When you omit a filter, the operation does not filter results by that field.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - artifact_type: Artifact type to include. Valid values: log, coredump.
+## - count: Defines the largest number of records returned in one page.
+## - end_date: Omit artifacts with collection dates newer than
+## - fleet_id: Fleet ID filter for the artifact query.
+## - image_id: Image ID filter for the artifact query.
+## - max_size: Largest artifact size to include, in bytes.
+## - min_size: Smallest artifact size to include, in bytes.
+## - offset: Number of results to skip for pagination
+## - region: Region filter for the artifact query.
+## - server_id: Server ID filter for the artifact query.
+## - sort_by: Field name to sort the artifact
+## - sort_direction: Sort order for the returned artifacts.
+## - start_date: Omit artifacts with collection dates older than
+## - status: Artifact processing status. Valid values: success, skipped_sample, skipped_usage, failed.
 func artifact_get(
 	namespace_param: String,
 	artifact_type: String = "",
@@ -227,8 +265,17 @@ func artifact_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## delete artifacts that match criteria in bulk. all artifacts...
+
+## Deletes artifacts in bulk that match any of the provided criteria
 ## DELETE /ams/v1/admin/namespaces/{namespace}/artifacts
+##
+## Deletes artifacts in bulk that match the provided filters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - artifact_type: Artifact type filter. Repeat this parameter to target more than one artifact type.
+## - fleet_id: Fleet ID filter. Repeat this parameter to target artifacts from more than one fleet.
+## - uploaded_before: Uploaded before date
 func artifact_bulk_delete(
 	namespace_param: String,
 	artifact_type: String = "",
@@ -255,11 +302,15 @@ func artifact_bulk_delete(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## retrieve artifact storage usage for the namespace
+
+## Retrieves artifact storage usage for the namespace
 ## GET /ams/v1/admin/namespaces/{namespace}/artifacts/usage
-func artifact_usage_get(
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves artifact storage usage for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func artifact_usage_get(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/artifacts/usage"
 	# Use namespace parameter with fallback to configured namespace
@@ -270,12 +321,16 @@ func artifact_usage_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## delete a specified artifact
+
+## Deletes a specified artifact
 ## DELETE /ams/v1/admin/namespaces/{namespace}/artifacts/{artifactID}
-func artifact_delete(
-	artifact_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Deletes the specified artifact.
+##
+## Parameters:
+## - artifact_id: Unique identifier for the artifact to delete.
+## - namespace_param: Game namespace
+func artifact_delete(artifact_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/artifacts/{artifactID}"
 	url_path = url_path.replace("{" + "artifactID" + "}", artifact_id.uri_encode())
@@ -287,12 +342,16 @@ func artifact_delete(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## get a signed URL for a specific artifact
+
+## Retrieves a signed URL for a specific artifact
 ## GET /ams/v1/admin/namespaces/{namespace}/artifacts/{artifactID}/url
-func artifact_get_url(
-	artifact_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves a signed URL for the specified artifact.
+##
+## Parameters:
+## - artifact_id: Unique identifier for the artifact to download.
+## - namespace_param: Game namespace
+func artifact_get_url(artifact_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/artifacts/{artifactID}/url"
 	url_path = url_path.replace("{" + "artifactID" + "}", artifact_id.uri_encode())
@@ -304,8 +363,20 @@ func artifact_get_url(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## lists development server configurations with pagination
+
+## Lists development server configurations with pagination
 ## GET /ams/v1/admin/namespaces/{namespace}/development/server-configurations
+##
+## Lists development server configurations for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - count: Defines the largest number of records returned in one page.
+## - image_id: Filter by image ID
+## - name_param: Filter by config name
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort records by the given field
+## - sort_direction: Sort direction (ascending or descending)
 func development_server_configuration_list(
 	namespace_param: String,
 	count: int = -1,
@@ -341,11 +412,16 @@ func development_server_configuration_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## create a new development server configuration
+
+## Creates a new development server configuration
 ## POST /ams/v1/admin/namespaces/{namespace}/development/server-configurations
+##
+## Creates a development server configuration for the namespace. Configuration names can be up to 128 characters and must match `^[.a-zA-Z0-9_-]+$`.
+##
+## Parameters:
+## - namespace_param: Game namespace
 func development_server_configuration_create(
-	namespace_param: String,
-	body: Dictionary = {}
+	namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/development/server-configurations"
@@ -357,15 +433,23 @@ func development_server_configuration_create(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## get a development server configuration
+
+## Retrieves a development server configuration
 ## GET /ams/v1/admin/namespaces/{namespace}/development/server-configurations/{developmentServerConfigID}
+##
+## Retrieves the specified development server configuration.
+##
+## Parameters:
+## - development_server_config_id: The name of the development server configuration
+## - namespace_param: Game namespace
 func development_server_configuration_get(
-	development_server_config_id: String,
-	namespace_param: String
+	development_server_config_id: String, namespace_param: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/development/server-configurations/{developmentServerConfigID}"
-	url_path = url_path.replace("{" + "developmentServerConfigID" + "}", development_server_config_id.uri_encode())
+	url_path = url_path.replace(
+		"{" + "developmentServerConfigID" + "}", development_server_config_id.uri_encode()
+	)
 	# Use namespace parameter with fallback to configured namespace
 	var ns = namespace_param if not namespace_param.is_empty() else _namespace
 	url_path = url_path.replace("{namespace}", ns.uri_encode())
@@ -374,15 +458,23 @@ func development_server_configuration_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## delete a development server configuration
+
+## Deletes a development server configuration
 ## DELETE /ams/v1/admin/namespaces/{namespace}/development/server-configurations/{developmentServerConfigID}
+##
+## Deletes the specified development server configuration.
+##
+## Parameters:
+## - development_server_config_id: The name of the development server configuration
+## - namespace_param: Game namespace
 func development_server_configuration_delete(
-	development_server_config_id: String,
-	namespace_param: String
+	development_server_config_id: String, namespace_param: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/development/server-configurations/{developmentServerConfigID}"
-	url_path = url_path.replace("{" + "developmentServerConfigID" + "}", development_server_config_id.uri_encode())
+	url_path = url_path.replace(
+		"{" + "developmentServerConfigID" + "}", development_server_config_id.uri_encode()
+	)
 	# Use namespace parameter with fallback to configured namespace
 	var ns = namespace_param if not namespace_param.is_empty() else _namespace
 	url_path = url_path.replace("{namespace}", ns.uri_encode())
@@ -391,16 +483,23 @@ func development_server_configuration_delete(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## patch a development server configuration
+
+## Updates a development server configuration
 ## PATCH /ams/v1/admin/namespaces/{namespace}/development/server-configurations/{developmentServerConfigID}
+##
+## Updates the specified development server configuration.
+##
+## Parameters:
+## - development_server_config_id: The name of the development server configuration
+## - namespace_param: Game namespace
 func development_server_configuration_patch(
-	development_server_config_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	development_server_config_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/development/server-configurations/{developmentServerConfigID}"
-	url_path = url_path.replace("{" + "developmentServerConfigID" + "}", development_server_config_id.uri_encode())
+	url_path = url_path.replace(
+		"{" + "developmentServerConfigID" + "}", development_server_config_id.uri_encode()
+	)
 	# Use namespace parameter with fallback to configured namespace
 	var ns = namespace_param if not namespace_param.is_empty() else _namespace
 	url_path = url_path.replace("{namespace}", ns.uri_encode())
@@ -409,12 +508,27 @@ func development_server_configuration_patch(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## list all fleets in a namespace
+
+## Lists all fleets in a namespace
 ## GET /ams/v1/admin/namespaces/{namespace}/fleets
+##
+## Lists fleets in the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - active: Filter fleets by active status
+## - count: The number of fleets to return
+## - include_inactive_regions: include inactive regions in the response
+## - name_param: Filter fleets by name
+## - offset: Number of results to skip for pagination
+## - region: Filter fleets by region
+## - sort_by: Sort fleets by column name
+## - sort_direction: Sort direction (ascending or descending)
 func fleet_list(
 	namespace_param: String,
 	active: bool = false,
 	count: int = -1,
+	include_inactive_regions: bool = false,
 	name_param: String = "",
 	offset: int = -1,
 	region: String = "",
@@ -431,6 +545,7 @@ func fleet_list(
 	query_params["active"] = active
 	if count >= 0:
 		query_params["count"] = count
+	query_params["includeInactiveRegions"] = include_inactive_regions
 	if not name_param.is_empty():
 		query_params["name"] = name_param
 	if offset >= 0:
@@ -448,12 +563,15 @@ func fleet_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## create a fleet
+
+## Creates a fleet
 ## POST /ams/v1/admin/namespaces/{namespace}/fleets
-func fleet_create(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a fleet for the namespace using the provided fleet configuration. You can also include sampling rules for fleet artifacts.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func fleet_create(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/fleets"
 	# Use namespace parameter with fallback to configured namespace
@@ -464,12 +582,15 @@ func fleet_create(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## delete one or more fleets. maximum of 1000 fleets allowed
+
+## Deletes one or more fleets
 ## DELETE /ams/v1/admin/namespaces/{namespace}/fleets
-func bulk_fleet_delete(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Deletes up to 1000 fleets in a single request using the fleet IDs sent with the request.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func bulk_fleet_delete(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/fleets"
 	# Use namespace parameter with fallback to configured namespace
@@ -480,11 +601,18 @@ func bulk_fleet_delete(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## get a fleet
+
+## Retrieves a fleet
 ## GET /ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}
+##
+## Retrieves the specified fleet.
+##
+## Parameters:
+## - fleet_id: Unique identifier for the fleet to retrieve.
+## - namespace_param: Game namespace
+## - include_inactive_regions: include inactive regions in the response
 func fleet_get(
-	fleet_id: String,
-	namespace_param: String
+	fleet_id: String, namespace_param: String, include_inactive_regions: bool = false
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}"
@@ -492,18 +620,26 @@ func fleet_get(
 	# Use namespace parameter with fallback to configured namespace
 	var ns = namespace_param if not namespace_param.is_empty() else _namespace
 	url_path = url_path.replace("{namespace}", ns.uri_encode())
+	# Build query parameters
+	var query_params: Dictionary = {}
+	query_params["includeInactiveRegions"] = include_inactive_regions
+	if not query_params.is_empty():
+		url_path += "?" + AccelbyteHttp.build_query_string(query_params)
 	var url: String = _service_url + url_path
 	var request_body: String = ""
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## update a fleet -– overrides current data
+
+## Updates a fleet
 ## PUT /ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}
-func fleet_update(
-	fleet_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates the fleet configuration and replaces the current fleet settings with the values in the request. You can also update the fleet artifact sampling rules.
+##
+## Parameters:
+## - fleet_id: Unique identifier for the fleet to update.
+## - namespace_param: Game namespace
+func fleet_update(fleet_id: String, namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}"
 	url_path = url_path.replace("{" + "fleetID" + "}", fleet_id.uri_encode())
@@ -515,12 +651,16 @@ func fleet_update(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## delete a fleet
+
+## Deletes a fleet
 ## DELETE /ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}
-func fleet_delete(
-	fleet_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Deletes the specified fleet.
+##
+## Parameters:
+## - fleet_id: Unique identifier for the fleet to delete.
+## - namespace_param: Game namespace
+func fleet_delete(fleet_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}"
 	url_path = url_path.replace("{" + "fleetID" + "}", fleet_id.uri_encode())
@@ -532,12 +672,16 @@ func fleet_delete(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## get the sampling rules for a fleet
+
+## Returns the sampling rules for a fleet
 ## GET /ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}/artifacts-sampling-rules
-func fleet_artifact_sampling_rules_get(
-	fleet_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves artifact sampling rules for the specified fleet.
+##
+## Parameters:
+## - fleet_id: Unique identifier for the fleet.
+## - namespace_param: Game namespace
+func fleet_artifact_sampling_rules_get(fleet_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}/artifacts-sampling-rules"
 	url_path = url_path.replace("{" + "fleetID" + "}", fleet_id.uri_encode())
@@ -549,12 +693,17 @@ func fleet_artifact_sampling_rules_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## set sampling rules for a fleet
+
+## Sets sampling rules for a fleet
 ## PUT /ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}/artifacts-sampling-rules
+##
+## Sets artifact sampling rules for the specified fleet.
+##
+## Parameters:
+## - fleet_id: Unique identifier for the fleet whose artifact sampling rules to update.
+## - namespace_param: Game namespace
 func fleet_artifact_sampling_rules_set(
-	fleet_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	fleet_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}/artifacts-sampling-rules"
@@ -567,8 +716,22 @@ func fleet_artifact_sampling_rules_set(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## get server details & counts for a fleet
+
+## Retrieves server details and counts for a fleet
 ## GET /ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}/servers
+##
+## Retrieves server details and counts for the specified fleet.
+##
+## Parameters:
+## - fleet_id: Unique identifier for the fleet whose servers to retrieve.
+## - namespace_param: Game namespace
+## - count: The data limit
+## - offset: Number of results to skip for pagination
+## - region: The servers region
+## - server_id: Unique identifier for the server to filter by.
+## - sort_by: The field by which to order the data
+## - sort_direction: The data ordering direction
+## - status: The servers status
 func fleet_servers(
 	fleet_id: String,
 	namespace_param: String,
@@ -609,8 +772,22 @@ func fleet_servers(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get history records of a dedicated server in a fleet
+
+## Retrieves history records for a dedicated server in a fleet
 ## GET /ams/v1/admin/namespaces/{namespace}/fleets/{fleetID}/servers/history
+##
+## Retrieves server history records for the specified fleet.
+##
+## Parameters:
+## - fleet_id: Unique identifier for the fleet whose server history to retrieve.
+## - namespace_param: Game namespace
+## - count: Defines the largest number of records returned in one page. Defaults to 1000 when not provided.
+## - offset: Number of results to skip for pagination
+## - reason: Exit reason
+## - region: Region to filter the dedicated server history by.
+## - server_id: Dedicated server ID
+## - sort_direction: Sort direction for the `createdAt` column. Defaults to `asc` when not provided.
+## - status: Status of the dedicated server
 func fleet_server_history(
 	fleet_id: String,
 	namespace_param: String,
@@ -651,8 +828,24 @@ func fleet_server_history(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get a list of existing images
+
+## Retrieves a list of existing images
 ## GET /ams/v1/admin/namespaces/{namespace}/images
+##
+## Returns images that currently exist in the linked account, including uploaded, uploading, and building images. This operation fails if the namespace is not linked to an account.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - count: The count of image list
+## - in_use: Whether to return only images that are currently in use.
+## - is_protected: The image protected
+## - name_param: The image name
+## - offset: Number of results to skip for pagination
+## - sort_by: Field to sort the returned images by.
+## - sort_direction: Sort direction for the returned images.
+## - status: The image status
+## - tag: The image tag
+## - target_architecture: Target architecture to filter by. Supported values: `linux-x86_64`, `linux-arm_64`.
 func image_list(
 	namespace_param: String,
 	count: int = -1,
@@ -699,11 +892,15 @@ func image_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get current usage for images storage
+
+## Retrieves current usage for image storage
 ## GET /ams/v1/admin/namespaces/{namespace}/images-storage
-func images_storage(
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns the account's image storage usage, including the free tier quota.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func images_storage(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/images-storage"
 	# Use namespace parameter with fallback to configured namespace
@@ -714,12 +911,16 @@ func images_storage(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get image details.
+
+## Retrieves image details
 ## GET /ams/v1/admin/namespaces/{namespace}/images/{imageID}
-func image_get(
-	image_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the specified image.
+##
+## Parameters:
+## - image_id: Unique identifier for the image to retrieve.
+## - namespace_param: Game namespace
+func image_get(image_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/images/{imageID}"
 	url_path = url_path.replace("{" + "imageID" + "}", image_id.uri_encode())
@@ -731,12 +932,16 @@ func image_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## mark the image for deletion
+
+## Marks the image for deletion
 ## DELETE /ams/v1/admin/namespaces/{namespace}/images/{imageID}
-func image_mark_for_deletion(
-	image_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Marks an image for deletion. The image stops being available to fleets, and the cleanup process deletes it later.
+##
+## Parameters:
+## - image_id: Unique identifier for the image to delete.
+## - namespace_param: Game namespace
+func image_mark_for_deletion(image_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/images/{imageID}"
 	url_path = url_path.replace("{" + "imageID" + "}", image_id.uri_encode())
@@ -748,13 +953,16 @@ func image_mark_for_deletion(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## edit the image
+
+## Updates an image
 ## PATCH /ams/v1/admin/namespaces/{namespace}/images/{imageID}
-func image_patch(
-	image_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates the image name, protection setting, and tags for the specified image.
+##
+## Parameters:
+## - image_id: Unique identifier for the image to update.
+## - namespace_param: Game namespace
+func image_patch(image_id: String, namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/images/{imageID}"
 	url_path = url_path.replace("{" + "imageID" + "}", image_id.uri_encode())
@@ -766,12 +974,16 @@ func image_patch(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## unmarks the image for deletion
+
+## Returns an image to active use
 ## POST /ams/v1/admin/namespaces/{namespace}/images/{imageID}/restore
-func image_unmark_for_deletion(
-	image_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Restores an image marked for deletion so fleets can use it again.
+##
+## Parameters:
+## - image_id: Unique identifier for the image to restore.
+## - namespace_param: Game namespace
+func image_unmark_for_deletion(image_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/images/{imageID}/restore"
 	url_path = url_path.replace("{" + "imageID" + "}", image_id.uri_encode())
@@ -783,12 +995,16 @@ func image_unmark_for_deletion(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## get a list of available AMS QoS regions
+
+## Retrieves available AMS QoS regions
 ## GET /ams/v1/admin/namespaces/{namespace}/qos
-func qo_s_regions_get(
-	namespace_param: String,
-	status: String = ""
-) -> Dictionary:
+##
+## Lists the available AMS QoS services for each region. Game clients can ping the returned IP and port pairs to measure latency, help players choose a region, or send latency results to matchmaking.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - status: QoS status, available value: ACTIVE, INACTIVE
+func qo_s_regions_get(namespace_param: String, status: String = "") -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/qos"
 	# Use namespace parameter with fallback to configured namespace
@@ -805,12 +1021,17 @@ func qo_s_regions_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## update the status of a QoS region
+
+## Updates a QoS region status
 ## PATCH /ams/v1/admin/namespaces/{namespace}/qos/{region}
+##
+## Updates the configurable status for the QoS service registered in the specified region.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - region: Region of the QoS
 func qo_s_regions_update(
-	namespace_param: String,
-	region: String,
-	body: Dictionary = {}
+	namespace_param: String, region: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/qos/{region}"
@@ -823,11 +1044,15 @@ func qo_s_regions_update(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## get a list of the available AMS regions
+
+## Retrieves available AMS regions
 ## GET /ams/v1/admin/namespaces/{namespace}/regions
-func info_regions(
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the AMS regions available to the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func info_regions(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/regions"
 	# Use namespace parameter with fallback to configured namespace
@@ -838,12 +1063,16 @@ func info_regions(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get information about a dedicated server
+
+## Retrieves dedicated server details
 ## GET /ams/v1/admin/namespaces/{namespace}/servers/{serverID}
-func fleet_server_info(
-	namespace_param: String,
-	server_id: String
-) -> Dictionary:
+##
+## Retrieves details for the specified dedicated server.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - server_id: The id of the dedicated server
+func fleet_server_info(namespace_param: String, server_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/servers/{serverID}"
 	# Use namespace parameter with fallback to configured namespace
@@ -855,12 +1084,16 @@ func fleet_server_info(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get connection info for a dedicated server
+
+## Retrieves dedicated server connection info
 ## GET /ams/v1/admin/namespaces/{namespace}/servers/{serverID}/connectioninfo
-func fleet_server_connection_info(
-	namespace_param: String,
-	server_id: String
-) -> Dictionary:
+##
+## Retrieves connection information for the specified dedicated server.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - server_id: The ID of the dedicated server
+func fleet_server_connection_info(namespace_param: String, server_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/servers/{serverID}/connectioninfo"
 	# Use namespace parameter with fallback to configured namespace
@@ -872,12 +1105,16 @@ func fleet_server_connection_info(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get history records of a dedicated server
+
+## Retrieves dedicated server history
 ## GET /ams/v1/admin/namespaces/{namespace}/servers/{serverID}/history
-func server_history(
-	namespace_param: String,
-	server_id: String
-) -> Dictionary:
+##
+## Retrieves history records for the specified dedicated server.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - server_id: The id of the dedicated server
+func server_history(namespace_param: String, server_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/servers/{serverID}/history"
 	# Use namespace parameter with fallback to configured namespace
@@ -889,11 +1126,15 @@ func server_history(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get a list of available instance types for the current account
+
+## Retrieves available instance types for the current account
 ## GET /ams/v1/admin/namespaces/{namespace}/supported-instances
-func info_supported_instances(
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the supported instance types for the current account in the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func info_supported_instances(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/admin/namespaces/{namespace}/supported-instances"
 	# Use namespace parameter with fallback to configured namespace
@@ -904,11 +1145,15 @@ func info_supported_instances(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get the account associated with the namespace
+
+## Retrieves the account associated with the namespace
 ## GET /ams/v1/namespaces/{namespace}/account
-func account_get(
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the AMS account associated with the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func account_get(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/namespaces/{namespace}/account"
 	# Use namespace parameter with fallback to configured namespace
@@ -919,12 +1164,17 @@ func account_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## claim a dedicated server from a fleet
+
+## Claims a dedicated server from a fleet
 ## PUT /ams/v1/namespaces/{namespace}/fleets/{fleetID}/claim
+##
+## Claims a dedicated server from the specified fleet.
+##
+## Parameters:
+## - fleet_id: Unique identifier for the fleet to claim a dedicated server from.
+## - namespace_param: Game namespace
 func fleet_claim_by_id(
-	fleet_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	fleet_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/namespaces/{namespace}/fleets/{fleetID}/claim"
@@ -937,12 +1187,16 @@ func fleet_claim_by_id(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## connect a local watchdog
+
+## Connects a local watchdog
 ## GET /ams/v1/namespaces/{namespace}/local/{watchdogID}/connect
-func local_watchdog_connect(
-	namespace_param: String,
-	watchdog_id: String
-) -> Dictionary:
+##
+## Supports local dedicated server development scenarios.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - watchdog_id: Identifier for the local watchdog to connect.
+func local_watchdog_connect(namespace_param: String, watchdog_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/namespaces/{namespace}/local/{watchdogID}/connect"
 	# Use namespace parameter with fallback to configured namespace
@@ -954,12 +1208,15 @@ func local_watchdog_connect(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## claim a dedicated server
+
+## Claims a dedicated server
 ## PUT /ams/v1/namespaces/{namespace}/servers/claim
-func fleet_claim_by_keys(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Claims a dedicated server from fleets with matching claim keys. Claims for regular fleets fail immediately when no server is available, while claims for development fleets can wait briefly for a new server to start before returning `404` if none is ready.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func fleet_claim_by_keys(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/namespaces/{namespace}/servers/claim"
 	# Use namespace parameter with fallback to configured namespace
@@ -970,12 +1227,16 @@ func fleet_claim_by_keys(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## connect a watchdog
+
+## Connects a watchdog
 ## GET /ams/v1/namespaces/{namespace}/watchdogs/{watchdogID}/connect
-func watchdog_connect(
-	namespace_param: String,
-	watchdog_id: String
-) -> Dictionary:
+##
+## Connects the specified watchdog.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - watchdog_id: Identifier for the watchdog to connect.
+func watchdog_connect(namespace_param: String, watchdog_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/namespaces/{namespace}/watchdogs/{watchdogID}/connect"
 	# Use namespace parameter with fallback to configured namespace
@@ -987,8 +1248,11 @@ func watchdog_connect(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## get an URL for uploading an image
+
+## Retrieves an upload URL for an image
 ## GET /ams/v1/upload-url
+##
+## Returns a temporary URL that clients can use to upload an image.
 func upload_url_get() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/v1/upload-url"
@@ -997,9 +1261,12 @@ func upload_url_get() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Version info
+
+## Retrieves version info
 ## GET /ams/version
-func func1() -> Dictionary:
+##
+## Returns version information for the AMS service.
+func version_info() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ams/version"
 	var url: String = _service_url + url_path
@@ -1007,8 +1274,11 @@ func func1() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Health check
+
+## Checks service health
 ## GET /healthz
+##
+## Returns the health status of the service.
 func basic_health_check() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/healthz"

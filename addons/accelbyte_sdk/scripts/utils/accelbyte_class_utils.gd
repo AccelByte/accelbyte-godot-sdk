@@ -14,6 +14,7 @@
 class_name AccelByteClassUtils
 extends RefCounted
 
+
 ## Check if a custom GDScript class exists (Godot 4 compatible).
 ## ClassDB.class_exists() only works for built-in engine classes, not custom classes with class_name.
 ##
@@ -30,6 +31,7 @@ static func custom_class_exists(_class_name: String) -> bool:
 			return true
 	return false
 
+
 ## Get the script path for a custom GDScript class.
 ## Returns the file path of the class if found, empty string otherwise.
 static func get_custom_class_path(_class_name: String) -> String:
@@ -38,6 +40,7 @@ static func get_custom_class_path(_class_name: String) -> String:
 		if class_info.get("class", "") == _class_name:
 			return class_info.get("path", "")
 	return ""
+
 
 ## Get all registered global script classes.
 ## Returns an array of dictionaries with "class" and "path" keys.

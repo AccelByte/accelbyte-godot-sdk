@@ -51,11 +51,11 @@ signal signaling_message_ready(destination_user_id: String, base64_message: Stri
 
 enum P2PState {
 	DISCONNECTED,
-	CHECKING_HOST,    ## Sent CheckRequest, waiting for CheckResponse
-	CREATING_OFFER,   ## Creating SDP offer (initiator)
-	WAITING_ANSWER,   ## Sent offer, waiting for answer
+	CHECKING_HOST,  ## Sent CheckRequest, waiting for CheckResponse
+	CREATING_OFFER,  ## Creating SDP offer (initiator)
+	WAITING_ANSWER,  ## Sent offer, waiting for answer
 	CREATING_ANSWER,  ## Received offer, creating answer (receiver)
-	CONNECTING,       ## ICE connecting
+	CONNECTING,  ## ICE connecting
 	CONNECTED,
 	FAILED,
 }
@@ -79,10 +79,12 @@ var _host_check_start_time: int = 0
 ## ICE candidates received before remote description is set are queued here
 ## and flushed once set_remote_description() succeeds.
 var _pending_candidates: Array = []
+var _remote_description_set: bool = false
 
 # =============================================================================
 # Initialization
 # =============================================================================
+
 
 ## Initialize with the remote peer's user ID and optional ICE servers.
 func initialize(remote_user_id: String, ice_servers: Array = []) -> void:
@@ -94,8 +96,12 @@ func initialize(remote_user_id: String, ice_servers: Array = []) -> void:
 ## Returns OK or ERR_UNAVAILABLE if WebRTC is not available.
 func start_as_initiator() -> int:
 	if not _webrtc_available():
-		push_error("AccelByteP2PPeer: WebRTCPeerConnection not available. "
-			+ "Install WebRTC plugin: https://godotengine.org/asset-library/asset/2103")
+		push_error(
+			(
+				"AccelByteP2PPeer: WebRTCPeerConnection not available. "
+				+ "Install WebRTC plugin: https://godotengine.org/asset-library/asset/2103"
+			)
+		)
 		return ERR_UNAVAILABLE
 
 	is_initiator = true
@@ -110,8 +116,12 @@ func start_as_initiator() -> int:
 ## Returns OK or ERR_UNAVAILABLE if WebRTC is not available.
 func start_as_receiver() -> int:
 	if not _webrtc_available():
-		push_error("AccelByteP2PPeer: WebRTCPeerConnection not available. "
-			+ "Install WebRTC plugin: https://godotengine.org/asset-library/asset/2103")
+		push_error(
+			(
+				"AccelByteP2PPeer: WebRTCPeerConnection not available. "
+				+ "Install WebRTC plugin: https://godotengine.org/asset-library/asset/2103"
+			)
+		)
 		return ERR_UNAVAILABLE
 
 	is_initiator = false
@@ -147,7 +157,9 @@ func receive_signaling(base64_message: String) -> void:
 			state = P2PState.FAILED
 			disconnected.emit(peer_user_id)
 		_:
-			push_warning("AccelByteP2PPeer: Unknown signaling type '%s' from %s" % [msg_type, peer_user_id])
+			push_warning(
+				"AccelByteP2PPeer: Unknown signaling type '%s' from %s" % [msg_type, peer_user_id]
+			)
 
 
 ## Poll the WebRTC connection and data channel. Called every frame by manager.
@@ -189,11 +201,14 @@ func close() -> void:
 	if _rtc_peer:
 		_rtc_peer.close()
 		_rtc_peer = null
+	_remote_description_set = false
+	_pending_candidates.clear()
 
 
 # =============================================================================
 # Signaling handlers
 # =============================================================================
+
 
 func _handle_check_request() -> void:
 	# Remote is asking if we're ready — respond yes
@@ -226,6 +241,7 @@ func _handle_offer(data: Dictionary) -> void:
 		push_error("AccelByteP2PPeer: set_remote_description(offer) failed: %d" % err)
 		disconnected.emit(peer_user_id)
 		return
+	_remote_description_set = true
 	# Answer is generated automatically via _on_session_description_created
 	_flush_pending_candidates()
 
@@ -239,16 +255,16 @@ func _handle_answer(data: Dictionary) -> void:
 	if err != OK:
 		push_error("AccelByteP2PPeer: set_remote_description(answer) failed: %d" % err)
 		return
+	_remote_description_set = true
 	_flush_pending_candidates()
 
 
 func _handle_candidate(data: Dictionary) -> void:
 	var sdp: String = data.get("Description", "")
-	# Queue candidates that arrive before the remote description is set.
-	# On fast networks (or same-machine tests) candidates race the SDP exchange —
-	# add_ice_candidate() silently fails with "Got a remote candidate without remote
-	# description" if called too early.
-	if _rtc_peer == null or state == P2PState.CHECKING_HOST or state == P2PState.CREATING_OFFER:
+	# Queue candidates until the remote description is set (an initiator waiting for the answer, or a
+	# host that has not yet received the offer): add_ice_candidate() fails with "Got a remote candidate
+	# without remote description" if called too early.
+	if _rtc_peer == null or not _remote_description_set:
 		_pending_candidates.append(sdp)
 		return
 	_rtc_peer.add_ice_candidate("", 0, sdp)
@@ -268,6 +284,7 @@ func _handle_gathering_done() -> void:
 # Outgoing signaling helpers
 # =============================================================================
 
+
 func _send_check_request() -> void:
 	_send_message({"Type": "CheckRequest"})
 
@@ -280,10 +297,16 @@ func _create_and_send_offer() -> void:
 	state = P2PState.CREATING_OFFER
 	_create_rtc_peer()
 
-	_data_channel = _rtc_peer.create_data_channel("data", {
-		"negotiated": false,
-		"ordered": true,
-	})
+	_data_channel = (
+		_rtc_peer
+		. create_data_channel(
+			"data",
+			{
+				"negotiated": false,
+				"ordered": true,
+			}
+		)
+	)
 
 	_rtc_peer.create_offer()
 
@@ -297,6 +320,7 @@ func _send_message(payload: Dictionary) -> void:
 # =============================================================================
 # WebRTCPeerConnection callbacks
 # =============================================================================
+
 
 func _on_session_description_created(type: String, sdp: String) -> void:
 	_rtc_peer.set_local_description(type, sdp)
@@ -329,11 +353,15 @@ func _on_data_channel_received(channel: WebRTCDataChannel) -> void:
 # Internal
 # =============================================================================
 
+
 func _create_rtc_peer() -> void:
+	_remote_description_set = false
 	_rtc_peer = WebRTCPeerConnection.new()
 
 	if _ice_servers.size() == 0:
-		push_warning("[AccelByteP2PPeer] No ICE servers configured. P2P will use host-only connection, which may fail behind NAT. For production, configure TURN servers via Turn Manager service.")
+		push_warning(
+			"[AccelByteP2PPeer] No ICE servers configured. P2P will use host-only connection, which may fail behind NAT. For production, configure TURN servers via Turn Manager service."
+		)
 
 	_rtc_peer.initialize({"iceServers": _ice_servers})
 

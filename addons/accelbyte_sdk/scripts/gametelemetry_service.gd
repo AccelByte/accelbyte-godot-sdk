@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,8 +82,11 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## Get Namespaces
+
+## Retrieves all game telemetry namespaces available to the caller
 ## GET /game-telemetry/v1/admin/namespaces
+##
+## Retrieves the list of game telemetry namespaces available to the caller.
 func get_namespaces_game_telemetry_v1_admin_namespaces_get() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/game-telemetry/v1/admin/namespaces"
@@ -94,8 +95,24 @@ func get_namespaces_game_telemetry_v1_admin_namespaces_get() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get Events
+
+## Retrieves telemetry events for a namespace
 ## GET /game-telemetry/v1/admin/namespaces/{namespace}/events
+##
+## Retrieves the paginated list of telemetry events recorded under the specified namespace. Results sort by event timestamp and support offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - device_type: Game telemetry DeviceType.
+## - end_time: End of the time window to query. Defaults to the current UTC time.
+## - event_id: Game telemetry EventId.
+## - event_name: Game telemetry EventName.
+## - event_payload: Event data field to filter by. Format: [object].[field]:[keyword], for example player.username:tom*.
+## - flight_id: Game telemetry FlightId.
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - start_time: Start of the time window to query. Defaults to one day before the current UTC time.
+## - user_id: AccelByte user ID
 func get_events_game_telemetry_v1_admin_namespaces_namespace_events_get(
 	namespace_param: String,
 	device_type: String = "",
@@ -143,11 +160,24 @@ func get_events_game_telemetry_v1_admin_namespaces_namespace_events_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Protected Save Events
+
+## Saves telemetry events to the streaming pipeline
 ## POST /game-telemetry/v1/protected/events
-func protected_save_events_game_telemetry_v1_protected_events_post(
-	body: Array = []
-) -> Dictionary:
+##
+## Sends one or more telemetry events to the streaming pipeline. Each request may include a single event or a batch.
+##
+## Format of each event:
+##
+## - **EventNamespace (required)**: Namespace of the relevant game in domain name format. Allowed characters: Aa-Zz0-9_.-
+##
+## - **EventName (required)**: Name of the event. Allowed characters: Aa-Zz0-9_.-
+##
+## - **Payload (required)**: Arbitrary JSON object attached to the event. Maximum size: 1 MB.
+##
+## - **ClientTimestamp (optional)**: Timestamp recorded by the client SDK.
+##
+## - **DeviceType (optional)**: Device type of the submitting user..
+func protected_save_events_game_telemetry_v1_protected_events_post(body: Array = []) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/game-telemetry/v1/protected/events"
 	var url: String = _service_url + url_path
@@ -155,8 +185,14 @@ func protected_save_events_game_telemetry_v1_protected_events_post(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Protected Get Playtime
+
+## Retrieves a player's total Steam playtime for a specific game
 ## GET /game-telemetry/v1/protected/steamIds/{steamId}/playtime
+##
+## Retrieves the player's total Steam playtime for a specific game (AppId) and caches the result. The player's Steam account must be public for the service to access their playtime data.
+##
+## Parameters:
+## - steam_id: Steam account ID of the player.
 func protected_get_playtime_game_telemetry_v1_protected_steam_ids_steam_id_playtime_get(
 	steam_id: String
 ) -> Dictionary:
@@ -168,11 +204,17 @@ func protected_get_playtime_game_telemetry_v1_protected_steam_ids_steam_id_playt
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Protected Update Playtime
+
+## Updates a player's cached Steam playtime for a specific game
 ## PUT /game-telemetry/v1/protected/steamIds/{steamId}/playtime/{playtime}
+##
+## Updates the player's total Steam playtime in the cache for a specific game (AppId).
+##
+## Parameters:
+## - playtime: Total playtime value to set, in minutes.
+## - steam_id: Steam account ID of the player.
 func protected_update_playtime_game_telemetry_v1_protected_steam_ids_steam_id_playtime_playtime_put(
-	playtime: String,
-	steam_id: String
+	playtime: String, steam_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/game-telemetry/v1/protected/steamIds/{steamId}/playtime/{playtime}"

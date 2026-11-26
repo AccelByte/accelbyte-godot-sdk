@@ -71,7 +71,9 @@ func _initialize_p2p_flow() -> void:
 
 	print("Logging in with device ID: ", device_id)
 
-	var login_result = await iam.platform_token_grant_v4("device", "", "", true, device_id)
+	# Parameters: platform_id, code_challenge, code_challenge_method, additional_data, app_id, client_id, code_verifier,
+	# create_headless, device_id (SDK 0.2 added app_id, so create_headless and device_id are the 8th and 9th).
+	var login_result = await iam.platform_token_grant_v4("device", "", "", "", "", "", "", true, device_id)
 
 	if not login_result.get("success", false):
 		print("P2P Setup failed: Login error - ", login_result.get("error", "Unknown error"))
@@ -87,7 +89,7 @@ func _initialize_p2p_flow() -> void:
 		return
 
 func _on_lobby_connected(data: Dictionary) -> void:
-	print("Lobby connected! Session ID: ", data.get("sessionId", ""))
+	print("Lobby connected! Lobby session ID: ", data.get("lobbysessionid", ""))
 
 	# Step 3: Initialize P2P Manager
 	await _setup_p2p_manager()

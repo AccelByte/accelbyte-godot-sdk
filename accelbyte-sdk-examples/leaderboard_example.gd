@@ -23,12 +23,12 @@ func submit_score(score: int) -> bool:
 	var body = [
 		{
 			"statCode": "highscore",
-			"inc": score,
-			"updateStrategy": "MAX"
+			"updateStrategy": "MAX",
+			"value": score
 		}
 	]
 
-	var result = await social.bulk_update_user_stat_item_2(namespace_, user_id, body)
+	var result = await social.bulk_update_user_stat_item_2(namespace_, user_id, "", body)  # (namespace, user_id, additional_key, body)
 	if result.get("success", false):
 		print("Score submitted: ", score)
 		return true

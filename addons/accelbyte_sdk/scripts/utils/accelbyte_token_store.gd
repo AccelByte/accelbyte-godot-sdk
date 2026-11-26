@@ -49,7 +49,9 @@ var _refresh_endpoint_url: String = ""
 ## [param uid] The user ID.
 ## [param expires_in] Token lifetime in seconds.
 ## [param endpoint_url] The endpoint URL that issued these tokens (for refresh tracking).
-func set_tokens(access: String, refresh: String, uid: String, expires_in: int, endpoint_url: String = "") -> void:
+func set_tokens(
+	access: String, refresh: String, uid: String, expires_in: int, endpoint_url: String = ""
+) -> void:
 	access_token = access
 	refresh_token = refresh
 	user_id = uid

@@ -29,6 +29,9 @@ var client_id: String = ""
 ## OAuth client secret (write-only for security)
 var _client_secret: String = ""
 
+## OAuth redirect URI (authorization-code flows)
+var redirect_uri: String = ""
+
 ## Publisher namespace client ID (for publisher-level operations)
 var publisher_id: String = ""
 
@@ -43,7 +46,9 @@ var game_namespace: String = ""
 
 ## Enable request/response logging. Can be configured via project.godot [accelbyte] section:
 ## enable_http_logging=true/false. Defaults to debug builds only if not specified.
-var enable_http_logging: bool = ProjectSettings.get_setting("accelbyte/enable_http_logging", OS.is_debug_build())
+var enable_http_logging: bool = ProjectSettings.get_setting(
+	"accelbyte/enable_http_logging", OS.is_debug_build()
+)
 
 
 ## Validate that essential settings are configured.

@@ -5,7 +5,7 @@
 ## sessionhistory_service.gd
 ## Generated AccelByte API service (pure GDScript, all platforms)
 ## Service: justice-session-history-service
-## Version: 1.14.6
+## Version: 1.17.2
 ## DO NOT EDIT - This file is auto-generated from OpenAPI spec
 ## =============================================================================
 ##
@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,6 +82,7 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
+
 ## GetHealthcheckInfo
 ## GET /healthz
 func get_healthcheck_info() -> Dictionary:
@@ -93,6 +92,7 @@ func get_healthcheck_info() -> Dictionary:
 	var request_body: String = ""
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
+
 
 ## postgresStatsHandler
 ## GET /sessionhistory/admin/internal/db-pg-stats
@@ -104,6 +104,7 @@ func postgres_stats_handler() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## redisStatsHandler
 ## GET /sessionhistory/admin/internal/db-redis-stats
 func redis_stats_handler() -> Dictionary:
@@ -113,6 +114,7 @@ func redis_stats_handler() -> Dictionary:
 	var request_body: String = ""
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
+
 
 ## GetHealthcheckInfoV1
 ## GET /sessionhistory/healthz
@@ -124,8 +126,11 @@ func get_healthcheck_info_v1() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get Runtime Environment Variable Configuration
 ## GET /sessionhistory/v1/admin/config/env
+##
+## Get Runtime Environment Configuration.
 func admin_get_env_config() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/config/env"
@@ -134,11 +139,12 @@ func admin_get_env_config() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Patch Update Runtime Environment Variable Configuration
 ## PATCH /sessionhistory/v1/admin/config/env
-func admin_patch_update_env_config(
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Update Runtime Environment Variable Configuration.
+func admin_patch_update_env_config(body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/config/env"
 	var url: String = _service_url + url_path
@@ -146,8 +152,11 @@ func admin_patch_update_env_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
+
 ## Get Log Configuration
 ## GET /sessionhistory/v1/admin/config/log
+##
+## Get Log Configuration.
 func admin_get_log_config() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/config/log"
@@ -156,11 +165,12 @@ func admin_get_log_config() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Patch Update Log Configuration
 ## PATCH /sessionhistory/v1/admin/config/log
-func admin_patch_update_log_config(
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Update Log Configuration.
+func admin_patch_update_log_config(body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/config/log"
 	var url: String = _service_url + url_path
@@ -168,8 +178,29 @@ func admin_patch_update_log_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
+
 ## Get all game sessions history.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/gamesessions
+##
+## Get all game sessions.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - completed_only: only query for session that already ended. supported: TRUE, FALSE
+## - configuration_name: configuration template name
+## - ds_pod_name: pod name of a dedicated server
+## - end_date: End date time in RFC 3339 format: 2026-10-15T19:11:42Z
+## - game_session_id: gamesession ID
+## - is_persistent: game session is Persistent. supported: TRUE, FALSE
+## - joinability: game session joinability to filter. joinability types: OPEN,CLOSED,INVITE_ONLY
+## - limit: Pagination limit
+## - match_pool: matchmaking pool
+## - offset: Pagination offset
+## - order: Order of the result. Supported: desc (default), asc
+## - order_by: Order result by specific attribute. Supported: created_at (default), updated_at
+## - start_date: Start date time in RFC 3339 format: 2026-10-15T19:11:42Z
+## - status_v2: game session status to filter. supported status: NEED_TO_REQUEST,REQUESTED,AVAILABLE,FAILED_TO_REQUEST,UNKNOWN,ENDED,DS_ERROR,PREPARING
+## - user_id: user ID
 func admin_query_game_session_detail(
 	namespace_param: String,
 	completed_only: String = "",
@@ -232,12 +263,16 @@ func admin_query_game_session_detail(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get game session detail.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/gamesessions/{sessionId}
-func get_game_session_detail(
-	namespace_param: String,
-	session_id: String
-) -> Dictionary:
+##
+## Get game session detail.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - session_id: session ID
+func get_game_session_detail(namespace_param: String, session_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/namespaces/{namespace}/gamesessions/{sessionId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -249,8 +284,21 @@ func get_game_session_detail(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get all matchmaking history.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/matchmaking
+##
+## Get all matchmaking.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - game_session_id: gamesession ID
+## - limit: Pagination limit
+## - offset: Pagination offset
+## - order: Order of the result. Supported: desc (default), asc
+## - order_by: Order result by specific attribute. Supported: expiredAt (default)
+## - ticket_id: ticket ID
+## - user_id: user ID
 func admin_query_matchmaking_detail(
 	namespace_param: String,
 	game_session_id: String = "",
@@ -289,11 +337,17 @@ func admin_query_matchmaking_detail(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get detail matchmaking history by session ID.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/matchmaking/session/{sessionId}
+##
+## Get detail matchmaking history by session ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - session_id: session ID
 func admin_get_matchmaking_detail_by_session_id(
-	namespace_param: String,
-	session_id: String
+	namespace_param: String, session_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/namespaces/{namespace}/matchmaking/session/{sessionId}"
@@ -306,11 +360,17 @@ func admin_get_matchmaking_detail_by_session_id(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get detail matchmaking history by ticket ID.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/matchmaking/ticket/{ticketId}
+##
+## Get detail matchmaking history by ticket ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticket_id: ticket ID
 func admin_get_matchmaking_detail_by_ticket_id(
-	namespace_param: String,
-	ticket_id: String
+	namespace_param: String, ticket_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/namespaces/{namespace}/matchmaking/ticket/{ticketId}"
@@ -323,8 +383,25 @@ func admin_get_matchmaking_detail_by_ticket_id(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get all parties history.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/parties
+##
+## Get all parties.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - configuration_name: Configuration Name
+## - end_date: End date time in RFC 3339 format: 2026-10-15T19:11:42Z
+## - joinability: joinability of the party
+## - leader_id: leader ID
+## - limit: Pagination limit
+## - offset: Pagination offset
+## - order: Order of the result. Supported: desc (default), asc
+## - order_by: Order result by specific attribute. Supported: created_at (default), updated_at
+## - party_id: party ID
+## - start_date: Start date time in RFC 3339 format: 2026-10-15T19:11:42Z
+## - user_id: user ID
 func admin_query_party_detail(
 	namespace_param: String,
 	configuration_name: String = "",
@@ -375,12 +452,16 @@ func admin_query_party_detail(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get party detail.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/parties/{sessionId}
-func get_party_detail(
-	namespace_param: String,
-	session_id: String
-) -> Dictionary:
+##
+## Get party detail.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - session_id: session ID
+func get_party_detail(namespace_param: String, session_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/namespaces/{namespace}/parties/{sessionId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -392,8 +473,23 @@ func get_party_detail(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get all matchmaking ticket history.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/tickets
+##
+## Get all matchmaking ticket.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - end_date: End Date 2026-10-15T19:11:42Z
+## - game_mode: Game Mode
+## - limit: Pagination limit
+## - offset: Pagination offset
+## - order: Order of the result. Supported: desc (default), asc
+## - party_id: Party ID
+## - region: Region
+## - start_date: Start Date 2026-10-15T19:11:42Z
+## - user_i_ds: User IDs
 func admin_query_ticket_detail(
 	namespace_param: String,
 	end_date: String = "",
@@ -438,12 +534,16 @@ func admin_query_ticket_detail(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get detail matchmaking ticket history by ticket ID.
 ## GET /sessionhistory/v1/admin/namespaces/{namespace}/tickets/{ticketId}
-func admin_ticket_detail_get_by_ticket_id(
-	namespace_param: String,
-	ticket_id: String
-) -> Dictionary:
+##
+## Get detail matchmaking ticket history by ticket ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticket_id: ticket ID
+func admin_ticket_detail_get_by_ticket_id(namespace_param: String, ticket_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/admin/namespaces/{namespace}/tickets/{ticketId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -455,13 +555,19 @@ func admin_ticket_detail_get_by_ticket_id(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Get all game sessions history for current user.
 ## GET /sessionhistory/v1/public/namespaces/{namespace}/users/me/gamesessions
+##
+## Get all game sessions history for current user.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Pagination limit
+## - offset: Pagination offset
+## - order: Order of the result. Supported: desc (default), asc
 func public_query_game_session_me(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1,
-	order: String = ""
+	namespace_param: String, limit: int = -1, offset: int = -1, order: String = ""
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v1/public/namespaces/{namespace}/users/me/gamesessions"
@@ -483,13 +589,20 @@ func public_query_game_session_me(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query xray match pool
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/match-pools/{poolName}
+##
+## Query xray match pool.
+## query can using matchpool array with separate ","
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool_name: match pool names
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_xray_match_pool(
-	namespace_param: String,
-	pool_name: Array,
-	end_date: String,
-	start_date: String
+	namespace_param: String, pool_name: Array, end_date: String, start_date: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/match-pools/{poolName}"
@@ -510,8 +623,21 @@ func query_xray_match_pool(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query xray match pool ticks
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/match-pools/{poolName}/pods/{podName}/ticks
+##
+## Query xray match pool ticks.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pod_name: pod name
+## - pool_name: match pool name
+## - all: Set value to 'true' to get all record, included with 0 value
+## - limit: Pagination limit
+## - offset: Pagination offset
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_detail_tick_match_pool(
 	namespace_param: String,
 	pod_name: String,
@@ -547,13 +673,19 @@ func query_detail_tick_match_pool(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query xray match pool tick matches by tick id
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/match-pools/{poolName}/pods/{podName}/ticks/{tickId}/matches
+##
+## Query xray match pool tick matches by tick id.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pod_name: pod name
+## - pool_name: match pool name
+## - tick_id: tick id
 func query_detail_tick_match_pool_matches(
-	namespace_param: String,
-	pod_name: String,
-	pool_name: String,
-	tick_id: String
+	namespace_param: String, pod_name: String, pool_name: String, tick_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/match-pools/{poolName}/pods/{podName}/ticks/{tickId}/matches"
@@ -568,13 +700,19 @@ func query_detail_tick_match_pool_matches(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query xray match pool tick tickets by tick id
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/match-pools/{poolName}/pods/{podName}/ticks/{tickId}/tickets
+##
+## Query xray match pool tick tickets detail by tick id.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pod_name: pod name
+## - pool_name: match pool name
+## - tick_id: tick id
 func query_detail_tick_match_pool_ticket(
-	namespace_param: String,
-	pod_name: String,
-	pool_name: String,
-	tick_id: String
+	namespace_param: String, pod_name: String, pool_name: String, tick_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/match-pools/{poolName}/pods/{podName}/ticks/{tickId}/tickets"
@@ -589,13 +727,19 @@ func query_detail_tick_match_pool_ticket(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query xray match histories
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/matches/{matchId}/histories
+##
+## Query xray match histories.
+##
+## Parameters:
+## - match_id: match id
+## - namespace_param: Game namespace
+## - limit: Pagination limit
+## - offset: Pagination offset
 func query_match_histories(
-	match_id: String,
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	match_id: String, namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/matches/{matchId}/histories"
@@ -616,12 +760,16 @@ func query_match_histories(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query xray match ticket histories
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/matches/{matchId}/ticket-histories
-func query_match_ticket_histories(
-	match_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Query xray match ticket histories.
+##
+## Parameters:
+## - match_id: match id
+## - namespace_param: Game namespace
+func query_match_ticket_histories(match_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/matches/{matchId}/ticket-histories"
 	url_path = url_path.replace("{" + "matchId" + "}", match_id.uri_encode())
@@ -633,12 +781,16 @@ func query_match_ticket_histories(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query xray timeline by matchID
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/matches/{matchId}/tickets
-func query_xray_match(
-	match_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Query xray timeline by matchID.
+##
+## Parameters:
+## - match_id: match ID
+## - namespace_param: Game namespace
+func query_xray_match(match_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/matches/{matchId}/tickets"
 	url_path = url_path.replace("{" + "matchId" + "}", match_id.uri_encode())
@@ -650,13 +802,19 @@ func query_xray_match(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query total success and failed claim DS
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/acquiring-ds
+##
+## Query total success and failed claim DS.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_acquiring_ds(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/acquiring-ds"
@@ -678,13 +836,19 @@ func query_acquiring_ds(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query acquiring ds wait time average
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/acquiring-ds-wait-time-avg
+##
+## Query acquiring ds wait time average. time in seconds
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_acquiring_ds_wait_time_avg(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/acquiring-ds-wait-time-avg"
@@ -706,13 +870,19 @@ func query_acquiring_ds_wait_time_avg(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query match length duration avg
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/match-length-duration-avg
+##
+## Query match length duration avg. time in seconds
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_match_length_durationp_avg(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/match-length-duration-avg"
@@ -734,13 +904,19 @@ func query_match_length_durationp_avg(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query match length duration p99
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/match-length-duration-p99
+##
+## Query match length duration p99. time in seconds
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_match_length_durationp99(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/match-length-duration-p99"
@@ -762,8 +938,18 @@ func query_match_length_durationp99(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query total active session
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-active-session
+##
+## Query total active session.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - region: region name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_total_active_session(
 	namespace_param: String,
 	end_date: String,
@@ -793,13 +979,19 @@ func query_total_active_session(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query total match
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-match
+##
+## Query total match.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_total_matchmaking_match(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-match"
@@ -821,13 +1013,19 @@ func query_total_matchmaking_match(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query total player persession average
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-player-persession-avg
+##
+## Query total player persession average.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_total_player_persession(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-player-persession-avg"
@@ -849,13 +1047,19 @@ func query_total_player_persession(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query total ticket canceled
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-ticket-canceled
+##
+## Query total ticket canceled.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_total_matchmaking_canceled(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-ticket-canceled"
@@ -877,13 +1081,19 @@ func query_total_matchmaking_canceled(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query total ticket created
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-ticket-created
+##
+## Query total ticket created.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_total_matchmaking_created(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-ticket-created"
@@ -905,13 +1115,19 @@ func query_total_matchmaking_created(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query total ticket expired
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-ticket-expired
+##
+## Query total ticket expired.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_total_matchmaking_expired(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-ticket-expired"
@@ -933,13 +1149,19 @@ func query_total_matchmaking_expired(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query total ticket match
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-ticket-match
+##
+## Query total ticket match.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - match_pool: match pool name
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_total_matchmaking_match_ticket(
-	namespace_param: String,
-	end_date: String,
-	start_date: String,
-	match_pool: Array = []
+	namespace_param: String, end_date: String, start_date: String, match_pool: Array = []
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/metrics/total-ticket-match"
@@ -961,12 +1183,36 @@ func query_total_matchmaking_match_ticket(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create ticket observability request
+
+## Creates a ticket observability record
 ## POST /sessionhistory/v2/admin/namespaces/{namespace}/xray/tickets
-func create_xray_ticket_observability(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Submits a matchmaking observability record for a single ticket in the given namespace.
+##
+## All body attributes are optional:
+## - timestamp: submission time for this record.
+## - action: matchmaking result. Valid values: `matchFound`, `matchNotFound`, `flexed`.
+## - ticketID: ticket ID.
+## - matchID: match ID; populated only when matchmaking finds a match.
+## - namespace: current namespace of the ticket.
+## - gameMode: current match pool of the ticket.
+## - activeAllianceRule: current active alliance rule set.
+## - activeMatchingRule: current active matching rule set.
+## - function: name of the caller function.
+## - iteration: total iterations before matchmaking finds a match.
+## - timeToMatchSec: time to match in seconds; populated only when matchmaking finds a match.
+## - unmatchReason: reason why matchmaking failed to find a match.
+## - remainingTickets: remaining tickets when matchmaking fails to find a match.
+## - remainingPlayersPerTicket: remaining players per ticket when matchmaking fails to find a match.
+## - unbackfillReason: reason why backfill could not complete.
+## - isBackfillMatch: true when this is a backfill match rather than a new match.
+## - isRuleSetFlexed: true when matchmaking flexes the rule set.
+## - tickID: tick ID for the matchmaking tick.
+## - sessionTickID: session tick ID to distinguish sessions when matching.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_xray_ticket_observability(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/tickets"
 	# Use namespace parameter with fallback to configured namespace
@@ -977,11 +1223,37 @@ func create_xray_ticket_observability(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Create bulk ticket observability request
+
+## Creates ticket observability records in bulk
 ## POST /sessionhistory/v2/admin/namespaces/{namespace}/xray/tickets/bulk
+##
+## Submits matchmaking observability records for a batch of tickets in a single call.
+##
+## Each entry in `ticketObservabilities` may include the following attributes (all optional):
+## - timestamp: submission time for this record.
+## - action: matchmaking result. Valid values: `matchFound`, `matchNotFound`, `flexed`.
+## - ticketID: ticket ID.
+## - matchID: match ID; populated only when matchmaking finds a match.
+## - namespace: current namespace of the ticket.
+## - gameMode: current match pool of the ticket.
+## - activeAllianceRule: current active alliance rule set.
+## - activeMatchingRule: current active matching rule set.
+## - function: name of the caller function.
+## - iteration: total iterations before matchmaking finds a match.
+## - timeToMatchSec: time to match in seconds; populated only when matchmaking finds a match.
+## - unmatchReason: reason why matchmaking failed to find a match.
+## - remainingTickets: remaining tickets when matchmaking fails to find a match.
+## - remainingPlayersPerTicket: remaining players per ticket when matchmaking fails to find a match.
+## - unbackfillReason: reason why backfill could not complete.
+## - isBackfillMatch: true when this is a backfill match rather than a new match.
+## - isRuleSetFlexed: true when matchmaking flexes the rule set.
+## - tickID: tick ID for the matchmaking tick.
+## - sessionTickID: session tick ID to distinguish sessions when matching.
+##
+## Parameters:
+## - namespace_param: Game namespace
 func create_xray_bulk_ticket_observability(
-	namespace_param: String,
-	body: Dictionary = {}
+	namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/sessionhistory/v2/admin/namespaces/{namespace}/xray/tickets/bulk"
@@ -993,8 +1265,19 @@ func create_xray_bulk_ticket_observability(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
+
 ## Query xray timeline
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/tickets/{ticketId}
+##
+## Query xray timeline by ticketID
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticket_id: ticket ID
+## - limit: Pagination limit
+## - offset: Pagination offset
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_xray_timeline_by_ticket_id(
 	namespace_param: String,
 	ticket_id: String,
@@ -1026,8 +1309,21 @@ func query_xray_timeline_by_ticket_id(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Query xray timeline
 ## GET /sessionhistory/v2/admin/namespaces/{namespace}/xray/users/{userId}/tickets
+##
+## Query xray timeline by userID or ticketID
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: user ID
+## - limit: Pagination limit
+## - offset: Pagination offset
+## - order: Order of the result. Supported: desc (default), asc
+## - order_by: Order result by specific attribute. only Supported: created_at (timestamp) default
+## - end_date: End date time: 2026-10-15T19:11:42Z
+## - start_date: Start date time. Format: 2026-10-15T19:11:42Z
 func query_xray_timeline_by_user_id(
 	namespace_param: String,
 	user_id: String,

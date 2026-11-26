@@ -5,7 +5,7 @@
 ## reporting_service.gd
 ## Generated AccelByte API service (pure GDScript, all platforms)
 ## Service: justice-reporting-service
-## Version: 0.1.46
+## Version: 0.1.53
 ## DO NOT EDIT - This file is auto-generated from OpenAPI spec
 ## =============================================================================
 ##
@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,8 +82,11 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## Find Auto Moderation Action List
+
+## Retrieves all auto moderation actions
 ## GET /reporting/v1/admin/extensionActions
+##
+## Returns all auto moderation actions available in the system.
 func admin_find_action_list() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/extensionActions"
@@ -94,11 +95,12 @@ func admin_find_action_list() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create Auto Moderation Action data
+
+## Creates an auto moderation action
 ## POST /reporting/v1/admin/extensionActions
-func admin_create_mod_action(
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new auto moderation action in the system.
+func admin_create_mod_action(body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/extensionActions"
 	var url: String = _service_url + url_path
@@ -106,12 +108,16 @@ func admin_create_mod_action(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Find Extension Category List
+
+## Retrieves all extension categories
 ## GET /reporting/v1/admin/extensionCategories
-func admin_find_extension_category_list(
-	order: String = "",
-	sort_by: String = ""
-) -> Dictionary:
+##
+## Returns all extension categories, optionally filtered by name.
+##
+## Parameters:
+## - order: Sort order for results. Valid values: asc or desc. Defaults to asc.
+## - sort_by: Sort field for results. Valid values: extensionCategory or extensionCategoryName. Defaults to extensionCategory.
+func admin_find_extension_category_list(order: String = "", sort_by: String = "") -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/extensionCategories"
 	# Build query parameters
@@ -127,11 +133,12 @@ func admin_find_extension_category_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create Extension Category
+
+## Creates an extension category
 ## POST /reporting/v1/admin/extensionCategories
-func admin_create_extension_category(
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new extension category in the system.
+func admin_create_extension_category(body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/extensionCategories"
 	var url: String = _service_url + url_path
@@ -139,12 +146,16 @@ func admin_create_extension_category(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get configuration
+
+## Retrieves the reporting configuration for a namespace
 ## GET /reporting/v1/admin/namespaces/{namespace}/configurations
-func get_configurations(
-	namespace_param: String,
-	category: String = ""
-) -> Dictionary:
+##
+## Retrieves the reporting rate-limit configuration for the namespace. Time intervals use nanoseconds. Without a configuration, the response returns service default values.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - category: Configuration category flag. set this to 'all' to retrieve all category configurations set this to 'extension' to retrieve [EXTENSION] category configurations leave it blank to retrieve core categories [UGC,USER,CHAT] configurations
+func get_configurations(namespace_param: String, category: String = "") -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/configurations"
 	# Use namespace parameter with fallback to configured namespace
@@ -161,12 +172,15 @@ func get_configurations(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create/Update configuration
+
+## Creates or updates the reporting configuration for a namespace
 ## POST /reporting/v1/admin/namespaces/{namespace}/configurations
-func upsert(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates or updates the reporting rate-limit configuration for the namespace. Time intervals use nanoseconds.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func upsert(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/configurations"
 	# Use namespace parameter with fallback to configured namespace
@@ -177,12 +191,18 @@ func upsert(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## List reason groups under a namespace
+
+## Lists reason groups in a namespace
 ## GET /reporting/v1/admin/namespaces/{namespace}/reasonGroups
+##
+## Lists reason groups for a namespace, returning each group's ID and title. Supports offset/limit pagination. To retrieve the reasons within a group, call the get reason group operation.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_list_reason_groups(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasonGroups"
@@ -202,12 +222,15 @@ func admin_list_reason_groups(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a reason group
+
+## Creates a reason group
 ## POST /reporting/v1/admin/namespaces/{namespace}/reasonGroups
-func create_reason_group(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a reason group to make querying reasons easier. Reasons can then be queried by specifying the group title. Group titles are case-insensitive â you cannot create a group titled **reason** if one already exists titled **Reason**.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_reason_group(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasonGroups"
 	# Use namespace parameter with fallback to configured namespace
@@ -218,12 +241,16 @@ func create_reason_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get reason group
+
+## Retrieves a reason group by ID
 ## GET /reporting/v1/admin/namespaces/{namespace}/reasonGroups/{groupId}
-func get_reason_group(
-	group_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves a reason group and its associated reasons by ID.
+##
+## Parameters:
+## - group_id: Reason group ID
+## - namespace_param: Game namespace
+func get_reason_group(group_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasonGroups/{groupId}"
 	url_path = url_path.replace("{" + "groupId" + "}", group_id.uri_encode())
@@ -235,12 +262,16 @@ func get_reason_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete a reason group
+
+## Deletes a reason group
 ## DELETE /reporting/v1/admin/namespaces/{namespace}/reasonGroups/{groupId}
-func delete_reason_group(
-	group_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Deletes the reason group with the specified ID from the namespace.
+##
+## Parameters:
+## - group_id: Reason group ID
+## - namespace_param: Game namespace
+func delete_reason_group(group_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasonGroups/{groupId}"
 	url_path = url_path.replace("{" + "groupId" + "}", group_id.uri_encode())
@@ -252,12 +283,17 @@ func delete_reason_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update a reason group
+
+## Updates a reason group
 ## PATCH /reporting/v1/admin/namespaces/{namespace}/reasonGroups/{groupId}
+##
+## Reason group titles are case-insensitive: you cannot create a group titled 'reason' if one titled 'Reason' already exists. When updating without reason IDs, the group retains its current reasons.
+##
+## Parameters:
+## - group_id: Reason group ID
+## - namespace_param: Game namespace
 func update_reason_group(
-	group_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	group_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasonGroups/{groupId}"
@@ -270,8 +306,18 @@ func update_reason_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Get list of reasons
+
+## Lists reasons in a namespace
 ## GET /reporting/v1/admin/namespaces/{namespace}/reasons
+##
+## Lists reasons for a namespace with offset/limit pagination. Filter results by reason group title or reason title.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - group: Query reasons under specified reason group
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - title: Query reason(s) by title
 func admin_get_reasons(
 	namespace_param: String,
 	group: String = "",
@@ -301,12 +347,15 @@ func admin_get_reasons(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a report reason
+
+## Creates a report reason
 ## POST /reporting/v1/admin/namespaces/{namespace}/reasons
-func create_reason(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a report reason that users can select when submitting a report.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_reason(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasons"
 	# Use namespace parameter with fallback to configured namespace
@@ -317,11 +366,15 @@ func create_reason(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get all reasons
+
+## Retrieves all reasons without pagination
 ## GET /reporting/v1/admin/namespaces/{namespace}/reasons/all
-func admin_get_all_reasons(
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns all reasons in the namespace in a single response, without pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_all_reasons(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasons/all"
 	# Use namespace parameter with fallback to configured namespace
@@ -332,12 +385,18 @@ func admin_get_all_reasons(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get list of reasons that not used by moderation rules
+
+## Lists reasons not used by any moderation rule
 ## GET /reporting/v1/admin/namespaces/{namespace}/reasons/unused
+##
+## Lists reasons in the namespace that are not assigned to any moderation rule.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - extension_category: Extension category to further filter unused reasons.
+## - category: Report category to filter unused reasons for.
 func admin_get_unused_reasons(
-	namespace_param: String,
-	category: String,
-	extension_category: String = ""
+	namespace_param: String, category: String, extension_category: String = ""
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasons/unused"
@@ -357,12 +416,16 @@ func admin_get_unused_reasons(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get a single reason
+
+## Retrieves a single report reason
 ## GET /reporting/v1/admin/namespaces/{namespace}/reasons/{reasonId}
-func admin_get_reason(
-	namespace_param: String,
-	reason_id: String
-) -> Dictionary:
+##
+## Retrieves the report reason with the specified ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - reason_id: Report reason ID.
+func admin_get_reason(namespace_param: String, reason_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasons/{reasonId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -374,12 +437,16 @@ func admin_get_reason(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete a report reason
+
+## Deletes a report reason
 ## DELETE /reporting/v1/admin/namespaces/{namespace}/reasons/{reasonId}
-func delete_reason(
-	namespace_param: String,
-	reason_id: String
-) -> Dictionary:
+##
+## Deletes the report reason with the specified ID from the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - reason_id: Report reason ID.
+func delete_reason(namespace_param: String, reason_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasons/{reasonId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -391,13 +458,16 @@ func delete_reason(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update a report reason
+
+## Updates a report reason
 ## PATCH /reporting/v1/admin/namespaces/{namespace}/reasons/{reasonId}
-func update_reason(
-	namespace_param: String,
-	reason_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates the report reason with the specified ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - reason_id: Report reason ID.
+func update_reason(namespace_param: String, reason_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reasons/{reasonId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -409,8 +479,19 @@ func update_reason(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## List reports
+
+## Lists submitted reports for a namespace
 ## GET /reporting/v1/admin/namespaces/{namespace}/reports
+##
+## Lists submitted reports for a namespace with offset/limit pagination. Supports sorting by createdAt or updatedAt.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - category: Filter reports by category
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - reported_user_id: Filter reports by reportedUserId
+## - sort_by: Sort field and direction. Valid values: createdAt:asc, createdAt:desc, updatedAt:asc, updatedAt:desc. Defaults to createdAt:desc.
 func list_reports(
 	namespace_param: String,
 	category: String = "",
@@ -443,12 +524,15 @@ func list_reports(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Submit a report by admin
+
+## Submits a report as an admin
 ## POST /reporting/v1/admin/namespaces/{namespace}/reports
-func admin_submit_report(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Submits a report for the specified user or content object and returns the associated ticket. Creates a new ticket if no open ticket exists for the reported object (matched by object ID and type) in the namespace. An admin can submit only one report per distinct user or object per open ticket; reporting the same target on the same open ticket returns a 409 conflict. Set the reason field to a reason title. Supported categories: UGC, USER, CHAT, EXTENSION.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_submit_report(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/reports"
 	# Use namespace parameter with fallback to configured namespace
@@ -459,12 +543,15 @@ func admin_submit_report(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Create auto moderation rule
+
+## Creates an auto moderation rule
 ## POST /reporting/v1/admin/namespaces/{namespace}/rule
-func create_moderation_rule(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates an auto moderation rule for the namespace. Supported categories: UGC, USER, CHAT, EXTENSION. Supported actions: `hideContent` (hides the content), banAccount (bans the user account), deleteChat (deletes the chat). The action field (deprecated) â use the actions field instead.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_moderation_rule(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/rule"
 	# Use namespace parameter with fallback to configured namespace
@@ -475,12 +562,17 @@ func create_moderation_rule(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update auto moderation rule
+
+## Updates an auto moderation rule
 ## PUT /reporting/v1/admin/namespaces/{namespace}/rule/{ruleId}
+##
+## Updates an auto moderation rule for the namespace. Supported categories: UGC, USER, CHAT, EXTENSION. Supported actions: `hideContent` (hides the content), banAccount (bans the user account), deleteChat (deletes the chat). The action field (deprecated) â use the actions field instead.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - rule_id: Auto moderation rule ID.
 func update_moderation_rule(
-	namespace_param: String,
-	rule_id: String,
-	body: Dictionary = {}
+	namespace_param: String, rule_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/rule/{ruleId}"
@@ -493,12 +585,16 @@ func update_moderation_rule(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete auto moderation rule
+
+## Deletes an auto moderation rule
 ## DELETE /reporting/v1/admin/namespaces/{namespace}/rule/{ruleId}
-func delete_moderation_rule(
-	namespace_param: String,
-	rule_id: String
-) -> Dictionary:
+##
+## Deletes the auto moderation rule with the specified ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - rule_id: Auto moderation rule ID.
+func delete_moderation_rule(namespace_param: String, rule_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/rule/{ruleId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -510,12 +606,17 @@ func delete_moderation_rule(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Enable/Disable auto moderation rule
+
+## Enables or disables an auto moderation rule
 ## PUT /reporting/v1/admin/namespaces/{namespace}/rule/{ruleId}/status
+##
+## Enables or disables the auto moderation rule with the specified ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - rule_id: Auto moderation rule ID.
 func update_moderation_rule_status(
-	namespace_param: String,
-	rule_id: String,
-	body: Dictionary = {}
+	namespace_param: String, rule_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/rule/{ruleId}/status"
@@ -528,8 +629,18 @@ func update_moderation_rule_status(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Get auto moderation rules
+
+## Lists auto moderation rules for a namespace
 ## GET /reporting/v1/admin/namespaces/{namespace}/rules
+##
+## Lists auto moderation rules for a namespace with offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - category: Filter rules by category
+## - extension_category: Filter rules by extension category
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func get_moderation_rules(
 	namespace_param: String,
 	category: String = "",
@@ -559,12 +670,16 @@ func get_moderation_rules(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get auto moderation rule
+
+## Retrieves an auto moderation rule
 ## GET /reporting/v1/admin/namespaces/{namespace}/rules/{ruleId}
-func get_moderation_rule_details(
-	namespace_param: String,
-	rule_id: String
-) -> Dictionary:
+##
+## Retrieves the auto moderation rule with the specified ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - rule_id: Auto moderation rule ID.
+func get_moderation_rule_details(namespace_param: String, rule_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/rules/{ruleId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -576,8 +691,22 @@ func get_moderation_rule_details(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List report tickets
+
+## Lists report tickets for a namespace
 ## GET /reporting/v1/admin/namespaces/{namespace}/tickets
+##
+## Lists report tickets for a namespace with offset/limit pagination. Supports sorting by createdAt, reportsCount, or status.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - category: Filter tickets by category
+## - extension_category: Filter tickets by extension category
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - order: Sort order for results. Valid values: asc or desc. Defaults to desc.
+## - reported_user_id: Filter reports by reportedUserId
+## - sort_by: Sort key for results. Valid values: createdAt, reportsCount, status. Defaults to createdAt.
+## - status: Filter tickets by status. Valid values: OPEN, AUTO_MODERATED, CLOSED.
 func list_tickets(
 	namespace_param: String,
 	category: String = "",
@@ -619,12 +748,18 @@ func list_tickets(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Ticket statistic
+
+## Retrieves ticket statistics
 ## GET /reporting/v1/admin/namespaces/{namespace}/tickets/statistic
+##
+## Retrieves ticket statistics for the namespace, filterable by category and extension category.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - extension_category: Filter statistic by extension category
+## - category: Filter statistic by category
 func ticket_statistic(
-	namespace_param: String,
-	category: String,
-	extension_category: String = ""
+	namespace_param: String, category: String, extension_category: String = ""
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/tickets/statistic"
@@ -644,12 +779,16 @@ func ticket_statistic(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get single ticket
+
+## Retrieves a single report ticket
 ## GET /reporting/v1/admin/namespaces/{namespace}/tickets/{ticketId}
-func get_ticket_detail(
-	namespace_param: String,
-	ticket_id: String
-) -> Dictionary:
+##
+## Retrieves the ticket details for the specified ticket ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticket_id: Ticket ID.
+func get_ticket_detail(namespace_param: String, ticket_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/tickets/{ticketId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -661,12 +800,16 @@ func get_ticket_detail(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete single ticket
+
+## Deletes a report ticket
 ## DELETE /reporting/v1/admin/namespaces/{namespace}/tickets/{ticketId}
-func delete_ticket(
-	namespace_param: String,
-	ticket_id: String
-) -> Dictionary:
+##
+## Deletes the ticket and all its associated reports.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticket_id: Ticket ID.
+func delete_ticket(namespace_param: String, ticket_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/tickets/{ticketId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -678,13 +821,19 @@ func delete_ticket(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get reports by ticket ID
+
+## Lists reports for a ticket
 ## GET /reporting/v1/admin/namespaces/{namespace}/tickets/{ticketId}/reports
+##
+## Lists reports for the specified ticket, ordered by createdAt descending. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticket_id: Ticket ID.
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func get_reports_by_ticket(
-	namespace_param: String,
-	ticket_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, ticket_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/tickets/{ticketId}/reports"
@@ -705,12 +854,17 @@ func get_reports_by_ticket(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update ticket resolution to a given status
+
+## Updates a ticket's resolution status
 ## POST /reporting/v1/admin/namespaces/{namespace}/tickets/{ticketId}/resolutions
+##
+## Updates the resolution status of the specified ticket to OPEN or CLOSED. You must include notes.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticket_id: Ticket ID.
 func update_ticket_resolutions(
-	namespace_param: String,
-	ticket_id: String,
-	body: Dictionary = {}
+	namespace_param: String, ticket_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/admin/namespaces/{namespace}/tickets/{ticketId}/resolutions"
@@ -723,12 +877,18 @@ func update_ticket_resolutions(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## List reason groups under a namespace
+
+## Lists reason groups for a namespace
 ## GET /reporting/v1/public/namespaces/{namespace}/reasonGroups
+##
+## Lists reason groups by ID and title for the specified namespace. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func public_list_reason_groups(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/public/namespaces/{namespace}/reasonGroups"
@@ -748,8 +908,18 @@ func public_list_reason_groups(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get list of reasons
+
+## Lists reasons for a namespace
 ## GET /reporting/v1/public/namespaces/{namespace}/reasons
+##
+## Lists reasons for the specified namespace, optionally filtered by reason group or title. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - group: Query reasons under specified reason group
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - title: Query reason(s) by title
 func public_get_reasons(
 	namespace_param: String,
 	group: String = "",
@@ -779,12 +949,22 @@ func public_get_reasons(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Submit a report
+
+## Submits a report
 ## POST /reporting/v1/public/namespaces/{namespace}/reports
-func submit_report(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Submit a report and will return ticket for reported object.
+## The system creates a new ticket if no OPEN ticket exists for the reported object (based by `objectId` and `objectType`) in a namespace.
+##
+## User can only submit report once for each different user / object reported in the same OPEN ticket.
+## Reporting the same user / object in the same OPEN ticket will return HTTP code 409 (conflict).
+##
+## Fill the 'reason' field with a 'reason title'
+## Supported category: - UGC - USER - CHAT - EXTENSION
+##
+## Parameters:
+## - namespace_param: Game namespace
+func submit_report(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/reporting/v1/public/namespaces/{namespace}/reports"
 	# Use namespace parameter with fallback to configured namespace

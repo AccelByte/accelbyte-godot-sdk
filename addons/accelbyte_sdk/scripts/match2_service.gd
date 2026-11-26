@@ -5,7 +5,7 @@
 ## match2_service.gd
 ## Generated AccelByte API service (pure GDScript, all platforms)
 ## Service: Justice Match Service v2
-## Version: 2.38.2
+## Version: 2.42.1
 ## DO NOT EDIT - This file is auto-generated from OpenAPI spec
 ## =============================================================================
 ##
@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,8 +82,11 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## GetHealthcheckInfo
+
+## Checks service health
 ## GET /healthz
+##
+## Checks whether the Match2 service is running and reachable. Returns a 200 response with no body when healthy.
 func get_healthcheck_info() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/healthz"
@@ -94,8 +95,11 @@ func get_healthcheck_info() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## GetHealthcheckInfoV1
+
+## Checks service health
 ## GET /match2/healthz
+##
+## Checks whether the Match2 service is running and reachable. Returns a 200 response with no body when healthy.
 func get_healthcheck_info_v1() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/healthz"
@@ -104,8 +108,11 @@ func get_healthcheck_info_v1() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get Log Configuration
+
+## Retrieves the log configuration
 ## GET /match2/v1/admin/config/log
+##
+## Returns the log configuration for the service.
 func admin_get_log_config() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/admin/config/log"
@@ -114,11 +121,12 @@ func admin_get_log_config() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Patch Update Log Configuration
+
+## Updates the log configuration
 ## PATCH /match2/v1/admin/config/log
-func admin_patch_update_log_config(
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates the log configuration for the service.
+func admin_patch_update_log_config(body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/admin/config/log"
 	var url: String = _service_url + url_path
@@ -126,11 +134,15 @@ func admin_patch_update_log_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## admin Play Feature Flag
+
+## Retrieves the play feature flag for the namespace
 ## GET /match2/v1/admin/namespaces/{namespace}/playfeatureflag
-func admin_get_play_feature_flag(
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns the matchmaking play feature flag for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_play_feature_flag(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/admin/namespaces/{namespace}/playfeatureflag"
 	# Use namespace parameter with fallback to configured namespace
@@ -141,12 +153,15 @@ func admin_get_play_feature_flag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin Upsert Play Feature Flag
+
+## Creates or updates the play feature flag for the namespace
 ## POST /match2/v1/admin/namespaces/{namespace}/playfeatureflag
-func admin_upsert_play_feature_flag(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates or updates the play feature flag configuration for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_upsert_play_feature_flag(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/admin/namespaces/{namespace}/playfeatureflag"
 	# Use namespace parameter with fallback to configured namespace
@@ -157,11 +172,16 @@ func admin_upsert_play_feature_flag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin Delete Play Feature Flag
+
+## Deletes the play feature flag for the namespace
 ## DELETE /match2/v1/admin/namespaces/{namespace}/playfeatureflag
-func admin_delete_play_feature_flag(
-	namespace_param: String
-) -> Dictionary:
+##
+## Delete matchmaking Play Feature Flag.
+## Deleting the current namespace's custom config only removes it from the database, the system will then use the environment variable defined in the ConfigMap instead.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_delete_play_feature_flag(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/admin/namespaces/{namespace}/playfeatureflag"
 	# Use namespace parameter with fallback to configured namespace
@@ -172,11 +192,15 @@ func admin_delete_play_feature_flag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Admin get XRay config
+
+## Retrieves the X-Ray configuration for the namespace
 ## GET /match2/v1/admin/namespaces/{namespace}/xray/config
-func admin_get_x_ray_config(
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the X-Ray analytics configuration for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_x_ray_config(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/admin/namespaces/{namespace}/xray/config"
 	# Use namespace parameter with fallback to configured namespace
@@ -187,12 +211,15 @@ func admin_get_x_ray_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Admin update XRay config
+
+## Updates the X-Ray configuration for the namespace
 ## POST /match2/v1/admin/namespaces/{namespace}/xray/config
-func admin_update_x_ray_config(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates the X-Ray analytics configuration for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_update_x_ray_config(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/admin/namespaces/{namespace}/xray/config"
 	# Use namespace parameter with fallback to configured namespace
@@ -203,8 +230,11 @@ func admin_update_x_ray_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## admin get all namespaces config
+
+## Lists matchmaking configurations for all namespaces
 ## GET /match2/v1/config
+##
+## Lists matchmaking configurations across all namespaces. Only includes namespaces with a custom configuration applied.
 func admin_get_all_config_v1() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/config"
@@ -213,11 +243,15 @@ func admin_get_all_config_v1() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin get namespace config
+
+## Retrieves the matchmaking configuration for the namespace
 ## GET /match2/v1/config/namespaces/{namespace}
-func admin_get_config_v1(
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns the matchmaking configuration for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_config_v1(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/config/namespaces/{namespace}"
 	# Use namespace parameter with fallback to configured namespace
@@ -228,12 +262,15 @@ func admin_get_config_v1(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## admin patch update namespace config
+
+## Updates the matchmaking configuration for the namespace
 ## PATCH /match2/v1/config/namespaces/{namespace}
-func admin_patch_config_v1(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Partially updates the matchmaking configuration for the namespace. Only fields included in the update take effect; omitted fields are left unchanged.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_patch_config_v1(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/config/namespaces/{namespace}"
 	# Use namespace parameter with fallback to configured namespace
@@ -244,8 +281,11 @@ func admin_patch_config_v1(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## List environment variables
+
+## Lists environment variables
 ## GET /match2/v1/environment-variables
+##
+## Lists all environment variables available to the service.
 func environment_variable_list() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/environment-variables"
@@ -254,8 +294,23 @@ func environment_variable_list() -> Dictionary:
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Admin Query backfill ticket 
+
+## Queries backfill tickets in the namespace
 ## GET /match2/v1/namespaces/{namespace}/backfill
+##
+## Queries backfill tickets in the namespace. Supports filtering by active status, match pool, time range, session ID, player ID, and region. Pagination is offset-based using the limit and offset parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - from_time: Beginning of backfill ticket creation time range in RFC 3339 format e.g. 2022-10-21T07:20:50Z
+## - is_active: Whether to filter to only active backfill tickets. Omit to return both active and inactive.
+## - limit: Number of results to return
+## - match_pool: Name of the match pool to filter backfill tickets by.
+## - offset: Number of results to skip for pagination
+## - player_id: Player ID of the backfilled session (WARNING: slow)
+## - region: Preferred region of the backfilled session (WARNING: slow)
+## - session_id: Unique identifier of the backfill session to filter by.
+## - to_time: End of backfill ticket creation time range in RFC 3339 format e.g. 2022-10-21T07:20:50Z
 func admin_query_backfill(
 	namespace_param: String,
 	from_time: String = "",
@@ -299,12 +354,15 @@ func admin_query_backfill(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a backfill ticket
+
+## Creates a backfill ticket
 ## POST /match2/v1/namespaces/{namespace}/backfill
-func create_backfill(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a backfill ticket for the specified namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_backfill(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/backfill"
 	# Use namespace parameter with fallback to configured namespace
@@ -315,12 +373,16 @@ func create_backfill(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get backfill proposal
+
+## Retrieves a backfill proposal for the session
 ## GET /match2/v1/namespaces/{namespace}/backfill/proposal
-func get_backfill_proposal(
-	namespace_param: String,
-	session_id: String
-) -> Dictionary:
+##
+## Returns the current backfill proposal for the specified namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - session_id: Unique identifier of the game session to retrieve a backfill proposal for.
+func get_backfill_proposal(namespace_param: String, session_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/backfill/proposal"
 	# Use namespace parameter with fallback to configured namespace
@@ -337,12 +399,16 @@ func get_backfill_proposal(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get a backfill ticket
+
+## Retrieves a backfill ticket by ID
 ## GET /match2/v1/namespaces/{namespace}/backfill/{backfillID}
-func get_backfill(
-	backfill_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns a backfill ticket by its ID.
+##
+## Parameters:
+## - backfill_id: Unique identifier of the backfill ticket to retrieve.
+## - namespace_param: Game namespace
+func get_backfill(backfill_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/backfill/{backfillID}"
 	url_path = url_path.replace("{" + "backfillID" + "}", backfill_id.uri_encode())
@@ -354,12 +420,16 @@ func get_backfill(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete a backfill ticket
+
+## Deletes a backfill ticket
 ## DELETE /match2/v1/namespaces/{namespace}/backfill/{backfillID}
-func delete_backfill(
-	backfill_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Deletes an existing backfill ticket.
+##
+## Parameters:
+## - backfill_id: Unique identifier of the backfill ticket to delete.
+## - namespace_param: Game namespace
+func delete_backfill(backfill_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/backfill/{backfillID}"
 	url_path = url_path.replace("{" + "backfillID" + "}", backfill_id.uri_encode())
@@ -371,12 +441,17 @@ func delete_backfill(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Accept a backfill proposal
+
+## Accepts a backfill proposal
 ## PUT /match2/v1/namespaces/{namespace}/backfill/{backfillID}/proposal/accept
+##
+## Accepts a backfill proposal for the specified backfill ticket. Use **acceptedTicketIds** to selectively accept specific tickets; the matchmaker rejects and reactivates any unlisted tickets for future proposals. Omit **acceptedTicketIds** or leave it nil to accept all tickets in the proposal.
+##
+## Parameters:
+## - backfill_id: Unique identifier of the backfill ticket whose proposal to accept.
+## - namespace_param: Game namespace
 func accept_backfill(
-	backfill_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	backfill_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/backfill/{backfillID}/proposal/accept"
@@ -389,12 +464,17 @@ func accept_backfill(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Reject a backfill proposal
+
+## Rejects a backfill proposal
 ## PUT /match2/v1/namespaces/{namespace}/backfill/{backfillID}/proposal/reject
+##
+## Rejects the current backfill proposal for the specified namespace.
+##
+## Parameters:
+## - backfill_id: Unique identifier of the backfill ticket whose proposal to reject.
+## - namespace_param: Game namespace
 func reject_backfill(
-	backfill_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	backfill_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/backfill/{backfillID}/proposal/reject"
@@ -407,13 +487,17 @@ func reject_backfill(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## List existing match functions
+
+## Lists match functions in the namespace
 ## GET /match2/v1/namespaces/{namespace}/match-functions
-func match_function_list(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
-) -> Dictionary:
+##
+## Lists match functions registered in the namespace. Pagination is offset-based using the limit and offset query parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+func match_function_list(namespace_param: String, limit: int = -1, offset: int = -1) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-functions"
 	# Use namespace parameter with fallback to configured namespace
@@ -432,12 +516,15 @@ func match_function_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a match function
+
+## Creates a match function
 ## POST /match2/v1/namespaces/{namespace}/match-functions
-func create_match_function(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new matchmaking function.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_match_function(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-functions"
 	# Use namespace parameter with fallback to configured namespace
@@ -448,12 +535,16 @@ func create_match_function(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get custom match function by name
+
+## Retrieves a match function by name
 ## GET /match2/v1/namespaces/{namespace}/match-functions/{name}
-func match_function_get(
-	name_param: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Returns a custom match function by its name.
+##
+## Parameters:
+## - name_param: Name of the custom match function
+## - namespace_param: Game namespace
+func match_function_get(name_param: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-functions/{name}"
 	url_path = url_path.replace("{" + "name" + "}", name_param.uri_encode())
@@ -465,12 +556,17 @@ func match_function_get(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update a match function
+
+## Updates a match function
 ## PUT /match2/v1/namespaces/{namespace}/match-functions/{name}
+##
+## Updates an existing matchmaking function.
+##
+## Parameters:
+## - name_param: Name of the match function
+## - namespace_param: Game namespace
 func update_match_function(
-	name_param: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	name_param: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-functions/{name}"
@@ -483,12 +579,16 @@ func update_match_function(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete a match function
+
+## Deletes a match function
 ## DELETE /match2/v1/namespaces/{namespace}/match-functions/{name}
-func delete_match_function(
-	name_param: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Deletes an existing match function.
+##
+## Parameters:
+## - name_param: Name of the match function
+## - namespace_param: Game namespace
+func delete_match_function(name_param: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-functions/{name}"
 	url_path = url_path.replace("{" + "name" + "}", name_param.uri_encode())
@@ -500,13 +600,19 @@ func delete_match_function(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## List match pools
+
+## Lists match pools in the namespace
 ## GET /match2/v1/namespaces/{namespace}/match-pools
+##
+## Lists matchmaking pools in the namespace. Pagination is offset-based using the limit and offset query parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - name_param: Match Pool name
+## - offset: Number of results to skip for pagination
 func match_pool_list(
-	namespace_param: String,
-	limit: int = -1,
-	name_param: String = "",
-	offset: int = -1
+	namespace_param: String, limit: int = -1, name_param: String = "", offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools"
@@ -528,12 +634,30 @@ func match_pool_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a match pool
+
+## Creates a match pool
 ## POST /match2/v1/namespaces/{namespace}/match-pools
-func create_match_pool(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new matchmaking pool.
+##
+## A pool operates independently of other pools â tickets only match with other tickets in the same pool. Each pool has its own matchmaking rules and logic.
+##
+## `ticket_expiration_seconds` and `backfill_ticket_expiration_seconds` default to 300 seconds (5 minutes) if not provided.
+##
+## Match Function specifies the name of the match logic server that matchmaking refers to. By default, "default" and "basic" are available. Match Function serves as the reference value for Match Function Overrides when not explicitly set.
+##
+## To use the matchmaking service default match logic, specify it in match_function_overrides. Example:
+## {
+## "match_function": "custom",
+## "match_function_overrides": {
+## "validation": ["default","custom"],
+## "make_matches": "default"
+## }
+## }
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_match_pool(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools"
 	# Use namespace parameter with fallback to configured namespace
@@ -544,12 +668,16 @@ func create_match_pool(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get details for a specific match pool
+
+## Retrieves details for a match pool
 ## GET /match2/v1/namespaces/{namespace}/match-pools/{pool}
-func match_pool_details(
-	namespace_param: String,
-	pool: String
-) -> Dictionary:
+##
+## Returns configuration and details for the specified match pool.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool: Name of the match pool
+func match_pool_details(namespace_param: String, pool: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools/{pool}"
 	# Use namespace parameter with fallback to configured namespace
@@ -561,13 +689,29 @@ func match_pool_details(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update a match pool
+
+## Updates a match pool
 ## PUT /match2/v1/namespaces/{namespace}/match-pools/{pool}
-func update_match_pool(
-	namespace_param: String,
-	pool: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates an existing matchmaking pool.
+##
+## ticket_expiration_seconds and backfill_ticket_expiration_seconds default to 300 seconds (5 minutes) if not provided.
+##
+## Match Function specifies the name of the match logic server that matchmaking refers to. By default, "default" and "basic" are available. Match Function serves as the reference value for Match Function Overrides when not explicitly set.
+##
+## To use the matchmaking service default match logic, specify it in match_function_overrides. Example:
+## {
+## "match_function": "custom",
+## "match_function_overrides": {
+## "validation": ["default","custom"],
+## "make_matches": "default"
+## }
+## }
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool: Name of the match pool
+func update_match_pool(namespace_param: String, pool: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools/{pool}"
 	# Use namespace parameter with fallback to configured namespace
@@ -579,12 +723,16 @@ func update_match_pool(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete a match pool
+
+## Deletes a match pool
 ## DELETE /match2/v1/namespaces/{namespace}/match-pools/{pool}
-func delete_match_pool(
-	namespace_param: String,
-	pool: String
-) -> Dictionary:
+##
+## Deletes an existing matchmaking pool.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool: Name of the match pool
+func delete_match_pool(namespace_param: String, pool: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools/{pool}"
 	# Use namespace parameter with fallback to configured namespace
@@ -596,12 +744,16 @@ func delete_match_pool(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get metrics for a specific match pool
+
+## Retrieves metrics for a match pool
 ## GET /match2/v1/namespaces/{namespace}/match-pools/{pool}/metrics
-func match_pool_metric(
-	namespace_param: String,
-	pool: String
-) -> Dictionary:
+##
+## Returns metrics for the specified match pool. The result includes queueTime in seconds.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool: Name of the match pool
+func match_pool_metric(namespace_param: String, pool: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools/{pool}/metrics"
 	# Use namespace parameter with fallback to configured namespace
@@ -613,12 +765,17 @@ func match_pool_metric(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Post metrics for external flow failure in a specific match pool
+
+## Records an external flow failure metric for a match pool
 ## POST /match2/v1/namespaces/{namespace}/match-pools/{pool}/metrics/external-failure
+##
+## Records metrics for an external flow failure in the specified match pool.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool: Name of the match pool
 func post_match_error_metric(
-	namespace_param: String,
-	pool: String,
-	body: Dictionary = {}
+	namespace_param: String, pool: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools/{pool}/metrics/external-failure"
@@ -631,12 +788,16 @@ func post_match_error_metric(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get metrics player for a specific match pool
+
+## Retrieves player metrics for a match pool
 ## GET /match2/v1/namespaces/{namespace}/match-pools/{pool}/metrics/player
-func get_player_metric(
-	namespace_param: String,
-	pool: String
-) -> Dictionary:
+##
+## Returns player metrics for the specified match pool.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool: Name of the match pool
+func get_player_metric(namespace_param: String, pool: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools/{pool}/metrics/player"
 	# Use namespace parameter with fallback to configured namespace
@@ -648,13 +809,19 @@ func get_player_metric(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get tickets in queue for a specific match pool
+
+## Retrieves tickets in the queue for a match pool
 ## GET /match2/v1/namespaces/{namespace}/match-pools/{pool}/tickets
+##
+## Retrieves the current tickets in the matchmaking queue for a match pool. Returns the count and details for each queued ticket. Pagination is offset-based using the limit and offset query parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool: Name of the match pool
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_get_match_pool_tickets(
-	namespace_param: String,
-	pool: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, pool: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-pools/{pool}/tickets"
@@ -675,12 +842,52 @@ func admin_get_match_pool_tickets(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a matchmaking ticket
+
+## Creates a matchmaking ticket
 ## POST /match2/v1/namespaces/{namespace}/match-tickets
-func create_match_ticket(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new request for matchmaking.
+##
+## Cross Platform: Allow player to play game with "all" registered platforms.
+## 1. You can enable Cross Platform through session service or create match ticket.
+## a. via ticket: specify several cross_platform on create match ticket attributes. **[DEPRECATED]** client should not send from attribute; the backend populates `cross_platform` automatically.
+## This value will override player attributes in session service. e.g. cross_platform:[xbox,psn,steam]
+## b. via session service: set player/party cross_platform attributes.
+## c. Enable match options ruleset with name cross_platform and type "all".
+## ```
+## {
+## "name": "co-op",
+## "data": {
+## "alliance": {
+## "min_number": 1,
+## "max_number": 1,
+## "player_min_number": 1,
+## "player_max_number": 4
+## },
+## "match_options": {
+## "options": [
+## {"name": "cross_platform", "type": "all"}
+## ]
+## }
+## }
+## }
+## ```
+## 2. Cross Platform can be disabled from the matchpool configuration `crossplay_disabled=true`
+## 3. When matchpool `crossplay_disabled=false`
+## * request attribute cross_platform is empty **[Recommended]**:
+## * Matchmaking will consider Party leader `crossplayEnabled` preference or Session attribute `crossplayEnabled` preference.
+## * When `crossplayEnabled=true` matchmaking populates `cross_platforms` attributes from [active login methods](/iam/apidocs/#/Third%20Party%20Credential/RetrieveAllActiveThirdPartyLoginPlatformCredentialPublicV3), otherwise it sets them to the leader's current platform.
+## * When `crossplayEnabled=false` matchmaking sets `cross_platforms` attributes to the user's currentPlatform.
+## * request attribute cross_platform is not empty **[Not Recommended]**:
+## * Cross Platform can be disabled with specify only ONE cross_platform. Current matchmaking use this behavior. e.g. cross_platform:[xbox]
+## * Multiple cross_platform values is considered to be crossplay enabled
+## 4. This behavior only works for Default Matchmaker. Custom matchmaker (custom gRPC matchmaker) need to consider this on its own implementation.
+##
+## ExcludedSessions: allow player to list out game sessions that they want to avoid matching, for example a match that they've recently left or get kicked out from.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_match_ticket(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-tickets"
 	# Use namespace parameter with fallback to configured namespace
@@ -691,13 +898,19 @@ func create_match_ticket(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get my match tickets
+
+## Retrieves match tickets for the current user
 ## GET /match2/v1/namespaces/{namespace}/match-tickets/me
+##
+## Retrieves matchmaking tickets belonging to the current user. Pagination is offset-based using the limit and offset query parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - match_pool: Name of the match pool to filter tickets by.
+## - offset: Number of results to skip for pagination
 func get_my_match_tickets(
-	namespace_param: String,
-	limit: int = -1,
-	match_pool: String = "",
-	offset: int = -1
+	namespace_param: String, limit: int = -1, match_pool: String = "", offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-tickets/me"
@@ -719,12 +932,16 @@ func get_my_match_tickets(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get details for a specific match ticket
+
+## Retrieves details for a match ticket
 ## GET /match2/v1/namespaces/{namespace}/match-tickets/{ticketid}
-func match_ticket_details(
-	namespace_param: String,
-	ticketid: String
-) -> Dictionary:
+##
+## Returns the details of the specified matchmaking ticket.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticketid: Id of the ticket to get the status of
+func match_ticket_details(namespace_param: String, ticketid: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-tickets/{ticketid}"
 	# Use namespace parameter with fallback to configured namespace
@@ -736,12 +953,16 @@ func match_ticket_details(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete a match ticket
+
+## Deletes a matchmaking ticket
 ## DELETE /match2/v1/namespaces/{namespace}/match-tickets/{ticketid}
-func delete_match_ticket(
-	namespace_param: String,
-	ticketid: String
-) -> Dictionary:
+##
+## Deletes an existing matchmaking ticket.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ticketid: ID of the match ticket
+func delete_match_ticket(namespace_param: String, ticketid: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/match-tickets/{ticketid}"
 	# Use namespace parameter with fallback to configured namespace
@@ -753,13 +974,19 @@ func delete_match_ticket(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## List existing rule sets
+
+## Lists rule sets in the namespace
 ## GET /match2/v1/namespaces/{namespace}/rulesets
+##
+## Lists rule sets registered in the namespace. Pagination is offset-based using the limit and offset query parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - name_param: Rule Set name
+## - offset: Number of results to skip for pagination
 func rule_set_list(
-	namespace_param: String,
-	limit: int = -1,
-	name_param: String = "",
-	offset: int = -1
+	namespace_param: String, limit: int = -1, name_param: String = "", offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/rulesets"
@@ -781,12 +1008,21 @@ func rule_set_list(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a match rule set
+
+## Creates a match rule set
 ## POST /match2/v1/namespaces/{namespace}/rulesets
-func create_rule_set(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new rule set.
+##
+## A rule set has a name and contains arbitrary data meaningful to one or more match functions. A match pool uses the name to select the rule set data to send to the match function when matchmaking in that pool.
+##
+## To use a custom rule set, set enable_custom_match_function=true. Default: false.
+##
+## When enable_custom_match_function=true, the rule set only checks whether the rule is valid JSON.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func create_rule_set(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/rulesets"
 	# Use namespace parameter with fallback to configured namespace
@@ -797,12 +1033,16 @@ func create_rule_set(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get details for a specific rule set
+
+## Retrieves details for a rule set
 ## GET /match2/v1/namespaces/{namespace}/rulesets/{ruleset}
-func rule_set_details(
-	namespace_param: String,
-	ruleset: String
-) -> Dictionary:
+##
+## Returns the configuration and details for the specified rule set.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ruleset: Name of the rule set
+func rule_set_details(namespace_param: String, ruleset: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/rulesets/{ruleset}"
 	# Use namespace parameter with fallback to configured namespace
@@ -814,13 +1054,20 @@ func rule_set_details(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update a match rule set
+
+## Updates a match rule set
 ## PUT /match2/v1/namespaces/{namespace}/rulesets/{ruleset}
-func update_rule_set(
-	namespace_param: String,
-	ruleset: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates an existing matchmaking rule set.
+##
+## To use a custom rule set, set enable_custom_match_function=true. Default: false.
+##
+## When enable_custom_match_function=true, the rule set only checks whether the rule is valid JSON.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ruleset: Name of the match rule set
+func update_rule_set(namespace_param: String, ruleset: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/rulesets/{ruleset}"
 	# Use namespace parameter with fallback to configured namespace
@@ -832,12 +1079,16 @@ func update_rule_set(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete a rule set
+
+## Deletes a rule set
 ## DELETE /match2/v1/namespaces/{namespace}/rulesets/{ruleset}
-func delete_rule_set(
-	namespace_param: String,
-	ruleset: String
-) -> Dictionary:
+##
+## Deletes an existing rule set.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - ruleset: Name of the rule set
+func delete_rule_set(namespace_param: String, ruleset: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/namespaces/{namespace}/rulesets/{ruleset}"
 	# Use namespace parameter with fallback to configured namespace
@@ -849,12 +1100,16 @@ func delete_rule_set(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get metrics player for a specific match pool
+
+## Retrieves player metrics for a match pool
 ## GET /match2/v1/public/namespaces/{namespace}/match-pools/{pool}/metrics/player
-func public_get_player_metric(
-	namespace_param: String,
-	pool: String
-) -> Dictionary:
+##
+## Returns player metrics for the specified match pool.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - pool: Name of the match pool
+func public_get_player_metric(namespace_param: String, pool: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/v1/public/namespaces/{namespace}/match-pools/{pool}/metrics/player"
 	# Use namespace parameter with fallback to configured namespace
@@ -866,8 +1121,11 @@ func public_get_player_metric(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## versionCheckHandler
+
+## Checks the service version
 ## GET /match2/version
+##
+## Returns the current version of the Match2 service.
 func version_check_handler() -> Dictionary:
 	# Build URL path
 	var url_path: String = "/match2/version"

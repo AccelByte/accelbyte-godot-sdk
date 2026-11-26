@@ -46,7 +46,9 @@ func _login_with_device() -> void:
 
 	print("Logging in with device ID: ", device_id)
 
-	var result = await iam.platform_token_grant_v4("device", "", "", true, device_id)
+	# Parameters: platform_id, code_challenge, code_challenge_method, additional_data, app_id, client_id, code_verifier,
+	# create_headless, device_id (SDK 0.2 added app_id, so create_headless and device_id are the 8th and 9th).
+	var result = await iam.platform_token_grant_v4("device", "", "", "", "", "", "", true, device_id)
 
 	if result.get("success", false):
 		# Tokens are automatically stored by the SDK

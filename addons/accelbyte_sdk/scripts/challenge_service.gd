@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,8 +82,20 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## List Challenges
+
+## Lists challenges in the namespace
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges
+##
+## Lists available challenges in the namespace, optionally filtered by code keyword, status, or tags. Supports cursor-based pagination via the `paging` field.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - keyword: Filter challenges by code with likes behavior
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort list by attributes. default value: updatedAt:desc.
+## - status: Challenge status
+## - tags: Filter challenges by tags, comma separated value
 func admin_get_challenges(
 	namespace_param: String,
 	keyword: String = "",
@@ -121,12 +131,17 @@ func admin_get_challenges(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create New Challenge
+
+## Creates a new challenge
 ## POST /challenge/v1/admin/namespaces/{namespace}/challenges
-func admin_create_challenge(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new challenge in the namespace. A challenge is a collection of goals that players can complete on a configurable schedule.
+##
+## The code must use only lowercase letters, numbers, and hyphens, starting and ending with a letter. Rotation (DAILY, WEEKLY, MONTHLY, NONE) controls how often the active goal set changes. Assignment rule (FIXED, RANDOMIZED, UNSCHEDULED, CUSTOM) controls how the challenge distributes goals to users. To configure a challenge that never ends, omit both `endDate` and `endAfter`.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_create_challenge(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges"
 	# Use namespace parameter with fallback to configured namespace
@@ -137,12 +152,16 @@ func admin_create_challenge(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get challenge ecommerce item references
+
+## Retrieves challenge references for an ecommerce item
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges/item/references
-func admin_get_item_references(
-	namespace_param: String,
-	item_id: String
-) -> Dictionary:
+##
+## Retrieves challenges that reference a specific ecommerce item by its item ID.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - item_id: The id of the ecommerce item
+func admin_get_item_references(namespace_param: String, item_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/item/references"
 	# Use namespace parameter with fallback to configured namespace
@@ -159,13 +178,19 @@ func admin_get_item_references(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List User's Active Challenges
+
+## Lists a user's active challenges
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges/users/{userId}
+##
+## Lists the active challenges in which the specified user is currently participating. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_get_active_challenges(
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/users/{userId}"
@@ -186,12 +211,16 @@ func admin_get_active_challenges(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get a Challenge
+
+## Retrieves a challenge by code
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}
-func admin_get_challenge(
-	challenge_code: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the details of the specified challenge by its code.
+##
+## Parameters:
+## - challenge_code: The code of the challenge data to get
+## - namespace_param: Game namespace
+func admin_get_challenge(challenge_code: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}"
 	url_path = url_path.replace("{" + "challengeCode" + "}", challenge_code.uri_encode())
@@ -203,12 +232,17 @@ func admin_get_challenge(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update a Challenge
+
+## Updates a challenge
 ## PUT /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}
+##
+## Updates the configuration of an existing challenge. Modifiable fields include name, description, schedule dates, rotation, assignment rule, goal visibility, reset configuration, and tags. The challenge code is immutable.
+##
+## Parameters:
+## - challenge_code: The code of the challenge data to update
+## - namespace_param: Game namespace
 func admin_update_challenge(
-	challenge_code: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	challenge_code: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}"
@@ -221,12 +255,16 @@ func admin_update_challenge(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete a Challenge
+
+## Deletes a challenge
 ## DELETE /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}
-func admin_delete_challenge(
-	challenge_code: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Deletes the specified challenge and all its associated goals and schedules.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge to delete.
+## - namespace_param: Game namespace
+func admin_delete_challenge(challenge_code: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}"
 	url_path = url_path.replace("{" + "challengeCode" + "}", challenge_code.uri_encode())
@@ -238,8 +276,19 @@ func admin_delete_challenge(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## List Goals of a Challenge
+
+## Lists goals of a challenge
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals
+##
+## Lists the goals defined within the specified challenge. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort list by attributes. default value: updatedAt:desc.
+## - tags: Filter list by tags
 func admin_get_goals(
 	challenge_code: String,
 	namespace_param: String,
@@ -271,12 +320,17 @@ func admin_get_goals(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create New Goal
+
+## Creates a new goal
 ## POST /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals
+##
+## Creates a new goal within the specified challenge. Goals define a set of completion criteria players must meet to earn rewards. Each group contains predicates that track player progression by statistic, achievement, account event, or entitlement; groups within a goal use OR logic. A challenge supports up to 100 goals. Adding a goal to a TIED challenge may affect existing user progress.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge to add the goal to.
+## - namespace_param: Game namespace
 func admin_create_goal(
-	challenge_code: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	challenge_code: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals"
@@ -289,13 +343,17 @@ func admin_create_goal(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get Goal
+
+## Retrieves a goal
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}
-func admin_get_goal(
-	challenge_code: String,
-	code: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the details of a specific goal within a challenge.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - code: Goal code
+## - namespace_param: Game namespace
+func admin_get_goal(challenge_code: String, code: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}"
 	url_path = url_path.replace("{" + "challengeCode" + "}", challenge_code.uri_encode())
@@ -308,13 +366,18 @@ func admin_get_goal(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update Goal
+
+## Updates a goal
 ## PUT /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}
+##
+## Updates the configuration of an existing goal within a challenge. Modifiable fields include name, description, schedule, criteria groups, rewards, tags, and active status.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - code: Goal code
+## - namespace_param: Game namespace
 func admin_update_goals(
-	challenge_code: String,
-	code: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	challenge_code: String, code: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}"
@@ -328,13 +391,17 @@ func admin_update_goals(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete Goal
+
+## Deletes a goal
 ## DELETE /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}
-func admin_delete_goal(
-	challenge_code: String,
-	code: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Deletes the specified goal from the challenge. Deleting a goal from a TIED challenge may affect or delete existing user progress data, which takes effect at the next evaluation cycle.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - code: Goal code
+## - namespace_param: Game namespace
+func admin_delete_goal(challenge_code: String, code: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}"
 	url_path = url_path.replace("{" + "challengeCode" + "}", challenge_code.uri_encode())
@@ -347,8 +414,19 @@ func admin_delete_goal(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get goal's schedules
+
+## Lists schedules for a goal
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}/schedules
+##
+## Lists the schedules for a specific goal within a challenge, optionally filtered by user. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - code: Goal code
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - user_id: AccelByte user ID
 func admin_list_schedules_by_goal(
 	challenge_code: String,
 	code: String,
@@ -379,13 +457,51 @@ func admin_list_schedules_by_goal(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get Challenge's Periods
+
+## Move Goal to Another Slot
+## PUT /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}/slots
+##
+## - Required permission: ADMIN:NAMESPACE:{namespace}:CHALLENGE [UPDATE]
+## Moves a goal to a target slot in a FIXED or non-per-rotation RANDOMIZED challenge with repeatAfter set.
+## slotIndex is 0-based and must be in [0, repeatAfter-1].
+## Pass slotIndex = -1 to remove the goal from all slots; it will no longer appear in future rounds.
+## TemplateSlots and all non-finished schedule documents are updated immediately.
+## The currently active schedule document for the affected slot is skipped to avoid
+## disrupting in-progress user progressions; the change takes effect from the next round.
+## Finished (past) schedule documents are never modified.
+##
+## Parameters:
+## - challenge_code: challenge code
+## - code: goal code
+## - namespace_param: Game namespace
+func admin_move_goal_to_slot(
+	challenge_code: String, code: String, namespace_param: String, body: Dictionary = {}
+) -> Dictionary:
+	# Build URL path
+	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}/slots"
+	url_path = url_path.replace("{" + "challengeCode" + "}", challenge_code.uri_encode())
+	url_path = url_path.replace("{" + "code" + "}", code.uri_encode())
+	# Use namespace parameter with fallback to configured namespace
+	var ns = namespace_param if not namespace_param.is_empty() else _namespace
+	url_path = url_path.replace("{namespace}", ns.uri_encode())
+	var url: String = _service_url + url_path
+	var request_body: String = JSON.stringify(body)
+	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
+	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
+
+
+## Lists rotation periods of a challenge
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/periods
+##
+## Lists the rotation periods for the specified challenge. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_get_periods(
-	challenge_code: String,
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	challenge_code: String, namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/periods"
@@ -406,12 +522,16 @@ func admin_get_periods(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Randomize Goals of a Challenge
+
+## Triggers goal randomization for a challenge
 ## POST /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/randomize
-func admin_randomize_challenge(
-	challenge_code: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Executes a randomized goal schedule assignment for a challenge that uses the RANDOMIZED assignment rule with `randomizedPerRotation` set to true.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge to randomize.
+## - namespace_param: Game namespace
+func admin_randomize_challenge(challenge_code: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/randomize"
 	url_path = url_path.replace("{" + "challengeCode" + "}", challenge_code.uri_encode())
@@ -423,8 +543,19 @@ func admin_randomize_challenge(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get Challenge's schedules
+
+## Lists schedules for a challenge
 ## GET /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/schedules
+##
+## Lists the schedules for a challenge, optionally filtered by user and by a date cutoff. Use the `dateTime` parameter to retrieve schedules before a given time. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
+## - date_time: Use RFC3339 format(2006-01-02T15:04:05Z).
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - user_id: AccelByte user ID
 func admin_list_schedules(
 	challenge_code: String,
 	namespace_param: String,
@@ -456,14 +587,24 @@ func admin_list_schedules(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete Tied Challenge
-## DELETE /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/tied
-func admin_delete_tied_challenge(
-	challenge_code: String,
-	namespace_param: String
-) -> Dictionary:
+
+## Get Challenge Slots
+## GET /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/slots
+##
+## - Required permission: ADMIN:NAMESPACE:{namespace}:CHALLENGE [READ]
+## Returns the slot configuration for a FIXED or RANDOMIZED (non-per-rotation) assignment challenge.
+## For repeating challenges (repeatAfter set), the response contains two separate fields:
+## - templateSlots: the authoritative future configuration from TemplateSlots (goals only, no timing).
+## - currentRound: the actual running state of the current (or nearest) round (goals + startTime/endTime from schedule documents).
+## These two may differ when a slot move was deferred because the target slot was active.
+## For non-repeating challenges, only currentRound is returned (templateSlots is absent).
+##
+## Parameters:
+## - challenge_code: challenge code
+## - namespace_param: Game namespace
+func admin_get_challenge_slots(challenge_code: String, namespace_param: String) -> Dictionary:
 	# Build URL path
-	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/tied"
+	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/slots"
 	url_path = url_path.replace("{" + "challengeCode" + "}", challenge_code.uri_encode())
 	# Use namespace parameter with fallback to configured namespace
 	var ns = namespace_param if not namespace_param.is_empty() else _namespace
@@ -471,14 +612,49 @@ func admin_delete_tied_challenge(
 	var url: String = _service_url + url_path
 	var request_body: String = ""
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
+	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
+
+
+## Deletes a tied challenge and all related data
+## DELETE /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/tied
+##
+## Deletes a TIED challenge along with all related data, including goals, schedules, and player progressions.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the tied challenge to delete.
+## - namespace_param: Game namespace
+## - safe_delete: Since the early goal progress data does not include the namespace, it may lead to accidental deletion. If you want to safely delete this data, please set it to true, and it will check whether have conflict data.
+func admin_delete_tied_challenge(
+	challenge_code: String, namespace_param: String, safe_delete: String = ""
+) -> Dictionary:
+	# Build URL path
+	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/tied"
+	url_path = url_path.replace("{" + "challengeCode" + "}", challenge_code.uri_encode())
+	# Use namespace parameter with fallback to configured namespace
+	var ns = namespace_param if not namespace_param.is_empty() else _namespace
+	url_path = url_path.replace("{namespace}", ns.uri_encode())
+	# Build query parameters
+	var query_params: Dictionary = {}
+	if not safe_delete.is_empty():
+		query_params["safeDelete"] = safe_delete
+	if not query_params.is_empty():
+		url_path += "?" + AccelbyteHttp.build_query_string(query_params)
+	var url: String = _service_url + url_path
+	var request_body: String = ""
+	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update Tied Challenge Schedule
+
+## Updates the schedule of a tied challenge
 ## PUT /challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/tied/schedule
+##
+## Updates the schedule for a TIED challenge. Supported actions are STOP (retires the challenge) and `ACCELERATE` (advances the end time; not applicable to challenges with `endAfter` set).
+##
+## Parameters:
+## - challenge_code: Unique code identifying the tied challenge to update.
+## - namespace_param: Game namespace
 func admin_update_tied_challenge_schedule(
-	challenge_code: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	challenge_code: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/challenges/{challengeCode}/tied/schedule"
@@ -491,11 +667,15 @@ func admin_update_tied_challenge_schedule(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Get assignment plugin
+
+## Retrieves the assignment plugin
 ## GET /challenge/v1/admin/namespaces/{namespace}/plugins/assignment
-func admin_get_assignment_plugin(
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the assignment plugin configuration for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_assignment_plugin(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/plugins/assignment"
 	# Use namespace parameter with fallback to configured namespace
@@ -506,12 +686,15 @@ func admin_get_assignment_plugin(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update assignment plugin
+
+## Updates the assignment plugin
 ## PUT /challenge/v1/admin/namespaces/{namespace}/plugins/assignment
-func admin_update_assignment_plugin(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates the assignment plugin configuration for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_update_assignment_plugin(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/plugins/assignment"
 	# Use namespace parameter with fallback to configured namespace
@@ -522,12 +705,15 @@ func admin_update_assignment_plugin(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Create assignment plugin
+
+## Creates an assignment plugin
 ## POST /challenge/v1/admin/namespaces/{namespace}/plugins/assignment
-func admin_create_assignment_plugin(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates an assignment plugin configuration for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_create_assignment_plugin(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/plugins/assignment"
 	# Use namespace parameter with fallback to configured namespace
@@ -538,11 +724,15 @@ func admin_create_assignment_plugin(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Delete assignment plugin
+
+## Deletes the assignment plugin
 ## DELETE /challenge/v1/admin/namespaces/{namespace}/plugins/assignment
-func admin_delete_assignment_plugin(
-	namespace_param: String
-) -> Dictionary:
+##
+## Deletes the configured assignment plugin for the namespace.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_delete_assignment_plugin(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/plugins/assignment"
 	# Use namespace parameter with fallback to configured namespace
@@ -553,8 +743,16 @@ func admin_delete_assignment_plugin(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Evaluate User's Progressions
+
+## Triggers progression evaluation for users
 ## POST /challenge/v1/admin/namespaces/{namespace}/progress/evaluate
+##
+## Evaluates progressions for up to 10 users in the specified challenges. Recalculates goal completion status based on current user statistics and activity.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - challenge_code: Challenge codes to assess, supplied as a comma-separated list.
+## - include_one_time_event: Include one-time events (e.g. user achievement unlocks, platform linking). Normally this flag should be disabled and is only used to recover from failed one-time event processing.
 func admin_evaluate_progress(
 	namespace_param: String,
 	challenge_code: Array = [],
@@ -579,12 +777,15 @@ func admin_evaluate_progress(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Claim  rewards of multiple users
+
+## Claims rewards for a group of users
 ## POST /challenge/v1/admin/namespaces/{namespace}/users/rewards/claim
-func admin_claim_users_rewards(
-	namespace_param: String,
-	body: Array = []
-) -> Dictionary:
+##
+## Claims rewards for a group of users from their completed challenge goals.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_claim_users_rewards(namespace_param: String, body: Array = []) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/users/rewards/claim"
 	# Use namespace parameter with fallback to configured namespace
@@ -595,13 +796,18 @@ func admin_claim_users_rewards(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Claim rewards of a single user by goal code
+
+## Claims rewards for a user by goal code
 ## POST /challenge/v1/admin/namespaces/{namespace}/users/{userId}/challenges/{challengeCode}/rewards/claim
+##
+## Claims rewards for a single user from completed goals within a specific challenge.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_claim_user_rewards_by_goal_code(
-	challenge_code: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	challenge_code: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/users/{userId}/challenges/{challengeCode}/rewards/claim"
@@ -615,8 +821,21 @@ func admin_claim_user_rewards_by_goal_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## List User's Progressions
+
+## Lists a user's goal progressions
 ## GET /challenge/v1/admin/namespaces/{namespace}/users/{userId}/progress/{challengeCode}
+##
+## Lists goal progressions for the specified user within a challenge. Supports filtering by goal code, date, and tags. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - date_time: Specific schedule date time. use RFC3339 format(2006-01-02T15:04:05Z).
+## - goal_code: Unique code of the goal to filter progressions by.
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - tags: Filter goals by tags, comma separated value
 func admin_get_user_progression(
 	challenge_code: String,
 	namespace_param: String,
@@ -653,8 +872,21 @@ func admin_get_user_progression(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List User's Rewards
+
+## Lists a user's earned rewards
 ## GET /challenge/v1/admin/namespaces/{namespace}/users/{userId}/rewards
+##
+## Lists rewards earned by the specified user, optionally filtered by challenge, goal progression, or status. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - challenge_code: Reward's challenge code
+## - goal_progression_id: Reward's goal progression id
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort list by attributes. default value: updatedAt:desc.
+## - status: User reward status
 func admin_get_user_rewards(
 	namespace_param: String,
 	user_id: String,
@@ -692,12 +924,17 @@ func admin_get_user_rewards(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Claim rewards of a single user
+
+## Claims rewards for a user
 ## POST /challenge/v1/admin/namespaces/{namespace}/users/{userId}/rewards/claim
+##
+## Claims pending rewards for the specified user from completed challenge goals.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_claim_user_rewards(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/admin/namespaces/{namespace}/users/{userId}/rewards/claim"
@@ -710,9 +947,21 @@ func admin_claim_user_rewards(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## List Challenges
+
+## Lists challenges in the namespace
 ## GET /challenge/v1/public/namespaces/{namespace}/challenges
-func get_challenges(
+##
+## Lists challenges available in the namespace. Supports filtering by code keyword, status, and tags. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - keyword: Filter challenges by code with likes behavior
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort list by attributes. default value: updatedAt:desc.
+## - status: Challenge status
+## - tags: Filter challenges by tags, comma separated value
+func public_get_challenges(
 	namespace_param: String,
 	keyword: String = "",
 	limit: int = -1,
@@ -747,8 +996,19 @@ func get_challenges(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List Goals of a Challenge
+
+## Lists goals of a challenge
 ## GET /challenge/v1/public/namespaces/{namespace}/challenges/{challengeCode}/goals
+##
+## Lists the goals defined within the specified challenge. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort list by attributes. default value: updatedAt:desc.
+## - tags: Filter list by tags
 func public_get_scheduled_goals(
 	challenge_code: String,
 	namespace_param: String,
@@ -780,14 +1040,20 @@ func public_get_scheduled_goals(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get goal's schedules
+
+## Lists schedules for a goal
 ## GET /challenge/v1/public/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}/schedules
+##
+## Lists the schedules for a specific goal within a challenge for the current user. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - code: Goal code
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func public_list_schedules_by_goal(
-	challenge_code: String,
-	code: String,
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	challenge_code: String, code: String, namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/public/namespaces/{namespace}/challenges/{challengeCode}/goals/{code}/schedules"
@@ -809,8 +1075,18 @@ func public_list_schedules_by_goal(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get Challenge's schedules
+
+## Lists schedules for a challenge
 ## GET /challenge/v1/public/namespaces/{namespace}/challenges/{challengeCode}/schedules
+##
+## Lists the schedules for a challenge for the current user. Use the `dateTime` parameter to retrieve schedules before a given time. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
+## - date_time: Use RFC3339 format(2006-01-02T15:04:05Z).
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func public_list_schedules(
 	challenge_code: String,
 	namespace_param: String,
@@ -839,12 +1115,17 @@ func public_list_schedules(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Claim User's Rewards by Goal Code
+
+## Claims the current user's rewards by goal code
 ## POST /challenge/v1/public/namespaces/{namespace}/users/me/challenges/{challengeCode}/rewards/claim
+##
+## Claims the current user's rewards from completed goals within a specific challenge.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
 func public_claim_user_rewards_by_goal_code(
-	challenge_code: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	challenge_code: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/public/namespaces/{namespace}/users/me/challenges/{challengeCode}/rewards/claim"
@@ -857,12 +1138,18 @@ func public_claim_user_rewards_by_goal_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Evaluate User's Challenge Progressions
+
+## Triggers progression evaluation for the current user
 ## POST /challenge/v1/public/namespaces/{namespace}/users/me/progress/evaluate
-func evaluate_my_progress(
-	namespace_param: String,
-	challenge_code: Array = [],
-	include_one_time_event: String = ""
+##
+## Evaluates the current user's progressions for the specified challenges.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - challenge_code: Challenge codes to assess, supplied as a comma-separated list.
+## - include_one_time_event: Include one-time events (e.g. user achievement unlocks, platform linking). Normally this flag should be disabled and is only used to recover from failed one-time event processing.
+func public_evaluate_my_progress(
+	namespace_param: String, challenge_code: Array = [], include_one_time_event: String = ""
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/public/namespaces/{namespace}/users/me/progress/evaluate"
@@ -882,8 +1169,20 @@ func evaluate_my_progress(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## List User's Progressions
+
+## Lists the current user's goal progressions
 ## GET /challenge/v1/public/namespaces/{namespace}/users/me/progress/{challengeCode}
+##
+## Lists the current user's goal progressions within a challenge. Supports filtering by goal code, date, and tags. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - namespace_param: Game namespace
+## - date_time: Specific schedule date time. use RFC3339 format(2006-01-02T15:04:05Z).
+## - goal_code: Unique code of the goal to filter progressions by.
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - tags: Filter goals by tags, comma separated value
 func public_get_user_progression(
 	challenge_code: String,
 	namespace_param: String,
@@ -918,8 +1217,20 @@ func public_get_user_progression(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List User's Progressions in the previous rotation.
+
+## Lists the current user's progressions in a previous rotation
 ## GET /challenge/v1/public/namespaces/{namespace}/users/me/progress/{challengeCode}/index/{index}
+##
+## Lists the current user's goal progressions from a previous rotation of the challenge. Supports offset/limit pagination.
+##
+## Parameters:
+## - challenge_code: Unique code identifying the challenge.
+## - index: Rotation index. Treat rotation as an array sorted by the start time of a rotation in descending manner. positive integer. 0 indicates current or latest active rotation. increment the value to refer to specific past rotation.
+## - namespace_param: Game namespace
+## - goal_code: Unique code of the goal to filter progressions by.
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - tags: Filter goals by tags, comma separated value
 func public_get_past_user_progression(
 	challenge_code: String,
 	index: int,
@@ -953,8 +1264,20 @@ func public_get_past_user_progression(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List User's Rewards
+
+## Lists the current user's earned rewards
 ## GET /challenge/v1/public/namespaces/{namespace}/users/me/rewards
+##
+## Lists rewards earned by the current user, optionally filtered by challenge, goal progression, or status. Supports offset/limit pagination.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - challenge_code: Reward's challenge code
+## - goal_progression_id: Reward's goal progression id
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort list by attributes. default value: updatedAt:desc.
+## - status: User reward status
 func public_get_user_rewards(
 	namespace_param: String,
 	challenge_code: String = "",
@@ -990,12 +1313,15 @@ func public_get_user_rewards(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Claim User's Rewards
+
+## Claims the current user's rewards
 ## POST /challenge/v1/public/namespaces/{namespace}/users/me/rewards/claim
-func public_claim_user_rewards(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Claims pending rewards for the current user from completed challenge goals.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func public_claim_user_rewards(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/challenge/v1/public/namespaces/{namespace}/users/me/rewards/claim"
 	# Use namespace parameter with fallback to configured namespace

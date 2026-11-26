@@ -5,7 +5,7 @@
 ## differ_service.gd
 ## Generated AccelByte API service (pure GDScript, all platforms)
 ## Service: JusticeDiffer
-## Version: 
+## Version:
 ## DO NOT EDIT - This file is auto-generated from OpenAPI spec
 ## =============================================================================
 ##
@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,12 +82,24 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
+
 ## Perform diff from buildId A to buildId B
 ## POST /differ/namespaces/{namespace}/diff
-func perform_late_diff(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Perform diff calculation from buildA to buildB. The calculation will generate diff cache result that will be stored in the storage provider.
+##
+## Every request is registered into the queue first, and will be processed by the available Differ.
+##
+## The priority flag means that request will be set as priority inside the queue and always served first even if thereâs existing non-priority request(s) beforehand.
+##
+##
+##
+##
+## Scope required: `publishing`
+##
+## Parameters:
+## - namespace_param: namespace of the build
+func perform_late_diff(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/differ/namespaces/{namespace}/diff"
 	# Use namespace parameter with fallback to configured namespace
@@ -100,11 +110,13 @@ func perform_late_diff(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
+
 ## Ping this diff
 ## GET /differ/namespaces/{namespace}/ping
-func ping(
-	namespace_param: String
-) -> Dictionary:
+##
+## Parameters:
+## - namespace_param: namespace of the build
+func ping(namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/differ/namespaces/{namespace}/ping"
 	# Use namespace parameter with fallback to configured namespace
@@ -115,12 +127,24 @@ func ping(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
+
 ## Perform diff from buildId A to buildId B
 ## POST /differ/v2/namespaces/{namespace}/diff
-func perform_late_diff_v2(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Perform diff calculation from buildA to buildB. The calculation will generate diff cache result that will be stored in the storage provider.
+##
+## The Diffs calculation will be parallelized between the available Differ instances.
+##
+## The priority flag means that request will be set as priority inside the queue and always served first even if thereâs existing non-priority request(s) beforehand.
+##
+##
+##
+##
+## Scope required: `publishing`
+##
+## Parameters:
+## - namespace_param: namespace of the build
+func perform_late_diff_v2(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/differ/v2/namespaces/{namespace}/diff"
 	# Use namespace parameter with fallback to configured namespace

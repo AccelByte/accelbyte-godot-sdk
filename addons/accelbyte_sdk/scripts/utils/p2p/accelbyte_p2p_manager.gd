@@ -64,11 +64,11 @@ var ice_servers: Array = []
 # Internal State
 # =============================================================================
 
-const _PollNodeScene = preload("res://addons/accelbyte_sdk/scripts/utils/accelbyte_poll_node.gd")
-const _PeerScene = preload("res://addons/accelbyte_sdk/scripts/utils/p2p/accelbyte_p2p_peer.gd")
+const _PollNodeScene = preload("../accelbyte_poll_node.gd")
+const _PeerScene = preload("accelbyte_p2p_peer.gd")
 
-var _sdk: RefCounted = null       # AccelByteSDKWrapper
-var _lobby: RefCounted = null     # LobbyWsService
+var _sdk: RefCounted = null  # AccelByteSDKWrapper
+var _lobby: RefCounted = null  # LobbyWsService
 var _scene_root: Node = null
 var _poll_node: Node = null
 
@@ -78,6 +78,7 @@ var _peers: Dictionary = {}
 # =============================================================================
 # Initialization
 # =============================================================================
+
 
 ## Set up the manager.
 ##
@@ -114,8 +115,12 @@ func initialize(sdk: RefCounted, lobby_ws: RefCounted, scene_root: Node) -> void
 	if _lobby and _lobby.has_signal("signaling_p2p_notif"):
 		_lobby.signaling_p2p_notif.connect(_on_signaling_received)
 	else:
-		push_error("AccelByteP2PManager: lobby_ws does not have signaling_p2p_notif. "
-			+ "Make sure LobbyWsService is connected.")
+		push_error(
+			(
+				"AccelByteP2PManager: lobby_ws does not have signaling_p2p_notif. "
+				+ "Make sure LobbyWsService is connected."
+			)
+		)
 
 	_attach_poll_node()
 
@@ -137,6 +142,7 @@ func cleanup() -> void:
 # Public API
 # =============================================================================
 
+
 ## Initiate a P2P connection to a remote peer (sends CheckRequest).
 ## Returns OK, ERR_ALREADY_EXISTS, or ERR_UNAVAILABLE.
 func connect_to_peer(remote_user_id: String) -> int:
@@ -150,7 +156,9 @@ func connect_to_peer(remote_user_id: String) -> int:
 
 	# Guard against empty ICE servers when auto-configuration is enabled
 	if ice_servers.is_empty():
-		push_error("AccelByteP2PManager: No ICE servers configured. If using auto-configuration, await ice_servers_configured signal before calling connect_to_peer()")
+		push_error(
+			"AccelByteP2PManager: No ICE servers configured. If using auto-configuration, await ice_servers_configured signal before calling connect_to_peer()"
+		)
 		return ERR_UNCONFIGURED
 
 	var peer: AccelByteP2PPeer = _create_peer(remote_user_id)
@@ -203,6 +211,7 @@ func disconnect_peer(peer_user_id: String) -> void:
 # Internal — incoming lobby signaling
 # =============================================================================
 
+
 ## Called when LobbyWsService emits signaling_p2p_notif.
 ##
 ## IMPORTANT: The lobby server flips destinationId on delivery.
@@ -231,7 +240,9 @@ func _on_signaling_received(destination_id: String, message: String) -> void:
 			# The peer sent its CheckResponse, now wait for the Offer
 			return
 		else:
-			push_warning("AccelByteP2PManager: Ignoring '%s' from unknown peer %s" % [msg_type, sender_id])
+			push_warning(
+				"AccelByteP2PManager: Ignoring '%s' from unknown peer %s" % [msg_type, sender_id]
+			)
 			return
 
 	_peers[sender_id].receive_signaling(message)
@@ -240,6 +251,7 @@ func _on_signaling_received(destination_id: String, message: String) -> void:
 # =============================================================================
 # Internal — outgoing lobby signaling
 # =============================================================================
+
 
 ## Called by AccelByteP2PPeer.signaling_message_ready.
 ## Sends the Base64 message to the lobby WS as "signalingP2PNotif".
@@ -256,15 +268,22 @@ func _on_signaling_message_ready(destination_user_id: String, base64_message: St
 		push_error("AccelByteP2PManager: WS transport missing send_request()")
 		return
 
-	ws.send_request("signalingP2PNotif", {
-		"destinationId": destination_user_id,
-		"message": base64_message,
-	})
+	(
+		ws
+		. send_request(
+			"signalingP2PNotif",
+			{
+				"destinationId": destination_user_id,
+				"message": base64_message,
+			}
+		)
+	)
 
 
 # =============================================================================
 # Internal — peer lifecycle
 # =============================================================================
+
 
 func _create_peer(remote_user_id: String) -> AccelByteP2PPeer:
 	var peer: AccelByteP2PPeer = _PeerScene.new()
@@ -296,6 +315,7 @@ func _on_peer_data_received(peer_user_id: String, data: PackedByteArray) -> void
 # Internal — poll node
 # =============================================================================
 
+
 func _poll() -> void:
 	for uid in _peers.keys():
 		_peers[uid].poll()
@@ -320,13 +340,15 @@ func _detach_poll_node() -> void:
 
 func _push_webrtc_missing_error() -> void:
 	push_error(
-		"AccelByteP2PManager: WebRTC native plugin is not loaded.\n"
-		+ "  ClassDB may report WebRTCPeerConnection as present (built-in stub),\n"
-		+ "  but the stub returns ERR_UNCONFIGURED on initialize().\n"
-		+ "  Install the real plugin:\n"
-		+ "    Godot Asset Library: https://godotengine.org/asset-library/asset/2103\n"
-		+ "    GitHub releases:     https://github.com/godotengine/webrtc-native/releases\n"
-		+ "  On Web/HTML5, WebRTC is built-in — no plugin needed."
+		(
+			"AccelByteP2PManager: WebRTC native plugin is not loaded.\n"
+			+ "  ClassDB may report WebRTCPeerConnection as present (built-in stub),\n"
+			+ "  but the stub returns ERR_UNCONFIGURED on initialize().\n"
+			+ "  Install the real plugin:\n"
+			+ "    Godot Asset Library: https://godotengine.org/asset-library/asset/2103\n"
+			+ "    GitHub releases:     https://github.com/godotengine/webrtc-native/releases\n"
+			+ "  On Web/HTML5, WebRTC is built-in — no plugin needed."
+		)
 	)
 
 
@@ -339,7 +361,9 @@ func _auto_configure_ice_servers() -> void:
 		return
 
 	if not _sdk.is_logged_in() or _sdk.get_token_store().is_expired():
-		push_warning("[AccelByteP2PManager] Cannot auto-configure ICE servers: not logged in or token expired")
+		push_warning(
+			"[AccelByteP2PManager] Cannot auto-configure ICE servers: not logged in or token expired"
+		)
 		ice_servers_configured.emit(0)
 		return
 
@@ -347,7 +371,9 @@ func _auto_configure_ice_servers() -> void:
 
 	# Check if TurnManagerService is available (requires full module SDK)
 	if not AccelByteClassUtils.custom_class_exists("TurnManagerService"):
-		push_error("[AccelByteP2PManager] TurnManagerService not found — auto ICE configuration requires the full AccelByte Godot SDK module (PACKAGE_TYPE=module)")
+		push_error(
+			"[AccelByteP2PManager] TurnManagerService not found — auto ICE configuration requires the full AccelByte Godot SDK module (PACKAGE_TYPE=module)"
+		)
 		ice_servers_configured.emit(0)
 		return
 
@@ -371,7 +397,12 @@ func _auto_configure_ice_servers() -> void:
 		var servers = data.get("servers", [])
 		await _process_turn_servers(turn_service, servers)
 	else:
-		push_warning("[AccelByteP2PManager] Failed to get TURN servers from Turn Manager: %s" % result.get("error", "unknown error"))
+		push_warning(
+			(
+				"[AccelByteP2PManager] Failed to get TURN servers from Turn Manager: %s"
+				% result.get("error", "unknown error")
+			)
+		)
 		ice_servers_configured.emit(0)
 
 
@@ -398,7 +429,12 @@ func _process_turn_servers(turn_service, servers: Array) -> void:
 		if ip.is_empty():
 			continue
 
-		print("[AccelByteP2PManager] Getting credentials for TURN server %s:%s in %s" % [ip, port, region])
+		print(
+			(
+				"[AccelByteP2PManager] Getting credentials for TURN server %s:%s in %s"
+				% [ip, port, region]
+			)
+		)
 
 		# Get credentials for this TURN server
 		var cred_result = await turn_service.generate_username_password(ip, port, region)
@@ -408,12 +444,7 @@ func _process_turn_servers(turn_service, servers: Array) -> void:
 			var password = cred_data.get("password", "")
 
 			# Configure ICE server with credentials
-			var ice_server = {
-				"urls": [
-					"turn:" + ip + ":" + port,
-					"stun:" + ip + ":" + port  # Also add STUN variant
-				]
-			}
+			var ice_server = {"urls": ["turn:" + ip + ":" + port, "stun:" + ip + ":" + port]}  # Also add STUN variant
 
 			if not username.is_empty():
 				ice_server["username"] = username
@@ -423,15 +454,32 @@ func _process_turn_servers(turn_service, servers: Array) -> void:
 			ice_servers.append(ice_server)
 			# Only log credentials if HTTP logging is enabled in settings
 			if _sdk.is_http_logging_enabled():
-				print("[AccelByteP2PManager] Configured ICE server: %s with username: %s" % [ice_server["urls"][0], username])
+				print(
+					(
+						"[AccelByteP2PManager] Configured ICE server: %s with username: %s"
+						% [ice_server["urls"][0], username]
+					)
+				)
 			else:
 				print("[AccelByteP2PManager] Configured ICE server: %s" % ice_server["urls"][0])
 		else:
-			push_warning("[AccelByteP2PManager] Failed to get credentials for TURN server %s:%s: %s" % [ip, port, cred_result.get("error", "unknown")])
+			push_warning(
+				(
+					"[AccelByteP2PManager] Failed to get credentials for TURN server %s:%s: %s"
+					% [ip, port, cred_result.get("error", "unknown")]
+				)
+			)
 
 	if ice_servers.size() > 0:
-		print("[AccelByteP2PManager] Successfully configured %d ICE servers from Turn Manager" % ice_servers.size())
+		print(
+			(
+				"[AccelByteP2PManager] Successfully configured %d ICE servers from Turn Manager"
+				% ice_servers.size()
+			)
+		)
 		ice_servers_configured.emit(ice_servers.size())
 	else:
-		push_warning("[AccelByteP2PManager] No valid TURN servers could be configured with credentials")
+		push_warning(
+			"[AccelByteP2PManager] No valid TURN servers could be configured with credentials"
+		)
 		ice_servers_configured.emit(0)

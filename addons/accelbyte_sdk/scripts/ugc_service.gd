@@ -5,7 +5,7 @@
 ## ugc_service.gd
 ## Generated AccelByte API service (pure GDScript, all platforms)
 ## Service: justice-ugc-service
-## Version: 2.26.0
+## Version: 2.29.1
 ## DO NOT EDIT - This file is auto-generated from OpenAPI spec
 ## =============================================================================
 ##
@@ -70,8 +70,6 @@ func set_client_id(id: String) -> void:
 	_client_id = id
 
 
-
-
 func set_token_callback(cb: Callable) -> void:
 	_token_callback = cb
 
@@ -84,12 +82,18 @@ func set_revoke_callback(cb: Callable) -> void:
 # API Methods
 # =============================================================================
 
-## Get Channels
+
+## Lists channels in the namespace
 ## GET /ugc/v1/admin/namespaces/{namespace}/channels
+##
+## Get official channel paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func single_admin_get_channel(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels"
@@ -109,12 +113,15 @@ func single_admin_get_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create Channel
+
+## Creates a channel in the namespace
 ## POST /ugc/v1/admin/namespaces/{namespace}/channels
-func admin_create_channel(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Create official channel
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_create_channel(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels"
 	# Use namespace parameter with fallback to configured namespace
@@ -125,12 +132,17 @@ func admin_create_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update Channel
+
+## Updates a channel in the namespace
 ## PUT /ugc/v1/admin/namespaces/{namespace}/channels/{channelId}
+##
+## Update official channel
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel to update.
+## - namespace_param: Game namespace
 func single_admin_update_channel(
-	channel_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	channel_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels/{channelId}"
@@ -143,12 +155,16 @@ func single_admin_update_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete Channel
+
+## Deletes a channel from the namespace
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/channels/{channelId}
-func single_admin_delete_channel(
-	channel_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Delete official channel
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel to delete.
+## - namespace_param: Game namespace
+func single_admin_delete_channel(channel_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels/{channelId}"
 	url_path = url_path.replace("{" + "channelId" + "}", channel_id.uri_encode())
@@ -160,31 +176,17 @@ func single_admin_delete_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Upload content to a channel
-## POST /ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents
-## @deprecated
-func admin_upload_content_direct(
-	channel_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
-	# Build URL path
-	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents"
-	url_path = url_path.replace("{" + "channelId" + "}", channel_id.uri_encode())
-	# Use namespace parameter with fallback to configured namespace
-	var ns = namespace_param if not namespace_param.is_empty() else _namespace
-	url_path = url_path.replace("{namespace}", ns.uri_encode())
-	var url: String = _service_url + url_path
-	var request_body: String = JSON.stringify(body)
-	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
-	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Upload content to S3 bucket
+## Uploads UGC content to S3 for a channel
 ## POST /ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/s3
+##
+## Uploads UGC content to S3 for the specified channel and creates the content record. The `contentType` field sets the Content-Type header for the S3 presigned upload URL; if omitted, the service uses `fileExtension` instead. The `shareCode`, if provided, must be 7 characters using only `abcdefhkpqrstuxyz`.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel to upload content to.
+## - namespace_param: Game namespace
 func admin_upload_content_s3(
-	channel_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	channel_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/s3"
@@ -197,13 +199,18 @@ func admin_upload_content_s3(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update content to S3 bucket
+
+## Updates UGC content in S3 for a channel
 ## PUT /ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/s3/{contentId}
+##
+## Updates UGC content in S3 for the specified channel. To replace the content file, set `updateContentFile` to `true` and upload via the URL in `payloadURL.url`. The `contentType` field sets the Content-Type header for the S3 presigned upload URL; if omitted, the service uses `fileExtension`. The `shareCode`, if provided, must be at most 7 characters using only `abcdefhkpqrstuxyz`.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel containing the content.
+## - content_id: Unique identifier of the content to update.
+## - namespace_param: Game namespace
 func single_admin_update_content_s3(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	channel_id: String, content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/s3/{contentId}"
@@ -217,8 +224,27 @@ func single_admin_update_content_s3(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Search contents specific to a channel
+
+## Searches contents within a channel
 ## GET /ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/search
+##
+## Searches UGC content within a channel. Supports advanced tag filtering with `&` (AND) and `|` (OR) operators and parentheses for priority; for example, `tags=red&(animal|wild)`. AND takes precedence over OR when parentheses are absent. Operands may be alphanumeric, underscore `_`, or dash `-`; operators are `&`, `|`, `(`, `)`. Tag values must be URL-encoded. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel to search within.
+## - namespace_param: Game namespace
+## - creator: Creator name
+## - ishidden: Set to true to list only hidden contents, false to list only non-hidden contents
+## - isofficial: Filter only official contents (boolean)
+## - limit: Number of results to return
+## - name_param: Content name
+## - offset: Number of results to skip for pagination
+## - orderby: Sorting order: asc, desc. default=desc
+## - sortby: Sorting criteria: name,download,like,date,updatedTime. default=date
+## - subtype: Content subtype
+## - tags: Content tag
+## - type_param: Content type
+## - user_id: AccelByte user ID
 func admin_search_channel_specific_content(
 	channel_id: String,
 	namespace_param: String,
@@ -274,33 +300,18 @@ func admin_search_channel_specific_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update content to a channel
-## PUT /ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}
-## @deprecated
-func single_admin_update_content_direct(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
-	# Build URL path
-	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}"
-	url_path = url_path.replace("{" + "channelId" + "}", channel_id.uri_encode())
-	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
-	# Use namespace parameter with fallback to configured namespace
-	var ns = namespace_param if not namespace_param.is_empty() else _namespace
-	url_path = url_path.replace("{namespace}", ns.uri_encode())
-	var url: String = _service_url + url_path
-	var request_body: String = JSON.stringify(body)
-	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
-	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete content
+## Deletes a content entry from a channel
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}
+##
+## Deletes a content entry from the specified channel, including its associated likes.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel containing the content.
+## - content_id: Unique identifier of the content to delete.
+## - namespace_param: Game namespace
 func single_admin_delete_content(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String
+	channel_id: String, content_id: String, namespace_param: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}"
@@ -314,12 +325,18 @@ func single_admin_delete_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get user's generated contents
+
+## Lists user-generated contents in a namespace
 ## GET /ugc/v1/admin/namespaces/{namespace}/contents
+##
+## Lists UGC entries in the namespace. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func single_admin_get_content(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents"
@@ -339,12 +356,15 @@ func single_admin_get_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Bulk get content by content IDs
+
+## Retrieves content entries by ID
 ## POST /ugc/v1/admin/namespaces/{namespace}/contents/bulk
-func admin_get_content_bulk(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Retrieves up to 100 content entries by their IDs in a single request.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_get_content_bulk(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/bulk"
 	# Use namespace parameter with fallback to configured namespace
@@ -355,8 +375,26 @@ func admin_get_content_bulk(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Search contents
+
+## Searches contents in a namespace
 ## GET /ugc/v1/admin/namespaces/{namespace}/contents/search
+##
+## Searches UGC content in the namespace. Supports advanced tag filtering with `&` (AND) and `|` (OR) operators and parentheses for priority; for example, `tags=red&(animal|wild)`. AND takes precedence over OR when parentheses are absent. Operands may be alphanumeric, underscore `_`, or dash `-`; operators are `&`, `|`, `(`, `)`. Tag values must be URL-encoded. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - creator: Creator name
+## - ishidden: Set to true to list only hidden contents, false to list only non-hidden contents
+## - isofficial: Filter only official contents (boolean)
+## - limit: Number of results to return
+## - name_param: Content name
+## - offset: Number of results to skip for pagination
+## - orderby: Sorting order: asc, desc. default=desc
+## - sortby: Sorting criteria: name,download,like,date,updatedTime. default=date
+## - subtype: Content subtype
+## - tags: Content tag
+## - type_param: Content type
+## - user_id: AccelByte user ID
 func admin_search_content(
 	namespace_param: String,
 	creator: String = "",
@@ -410,11 +448,16 @@ func admin_search_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Bulk get content by content sharecodes
+
+## Retrieves content entries by share code
 ## POST /ugc/v1/admin/namespaces/{namespace}/contents/sharecodes/bulk
+##
+## Retrieves up to 100 content entries by their sharecodes in a single request.
+##
+## Parameters:
+## - namespace_param: Game namespace
 func admin_get_content_bulk_by_share_codes(
-	namespace_param: String,
-	body: Dictionary = {}
+	namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/sharecodes/bulk"
@@ -426,11 +469,17 @@ func admin_get_content_bulk_by_share_codes(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get content by sharecode
+
+## Retrieves a content entry by its sharecode
 ## GET /ugc/v1/admin/namespaces/{namespace}/contents/sharecodes/{shareCode}
+##
+## Retrieves a UGC content entry using its sharecode.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - share_code: Content sharecode
 func admin_get_user_content_by_share_code(
-	namespace_param: String,
-	share_code: String
+	namespace_param: String, share_code: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/sharecodes/{shareCode}"
@@ -443,12 +492,16 @@ func admin_get_user_content_by_share_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get user specific content
+
+## Retrieves a content entry by ID
 ## GET /ugc/v1/admin/namespaces/{namespace}/contents/{contentId}
-func admin_get_specific_content(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves a UGC content entry by its ID.
+##
+## Parameters:
+## - content_id: Unique identifier of the content to retrieve.
+## - namespace_param: Game namespace
+func admin_get_specific_content(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/{contentId}"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -460,12 +513,16 @@ func admin_get_specific_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get content preview
+
+## Retrieves the preview for a content entry
 ## GET /ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/preview
-func admin_download_content_preview(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the preview for a UGC content entry. Preview is a legacy feature; use Screenshots for a better content preview experience.
+##
+## Parameters:
+## - content_id: Unique identifier of the content.
+## - namespace_param: Game namespace
+func admin_download_content_preview(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/preview"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -477,12 +534,18 @@ func admin_download_content_preview(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Rollback content's payload version
+
+## Restores a content entry to a previous file version
 ## PUT /ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/rollback/{versionId}
+##
+## Rolls back a content entry's file to the specified previous version.
+##
+## Parameters:
+## - content_id: Unique identifier of the content to roll back.
+## - namespace_param: Game namespace
+## - version_id: Unique identifier of the version to restore.
 func rollback_content_version(
-	content_id: String,
-	namespace_param: String,
-	version_id: String
+	content_id: String, namespace_param: String, version_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/rollback/{versionId}"
@@ -496,12 +559,17 @@ func rollback_content_version(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Update screenshot of content
+
+## Updates screenshots for a content entry
 ## PUT /ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/screenshots
+##
+## Updates screenshots for the specified content. Screenshot descriptions must not exceed 1024 characters.
+##
+## Parameters:
+## - content_id: Unique identifier of the content.
+## - namespace_param: Game namespace
 func admin_update_screenshots(
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/screenshots"
@@ -514,12 +582,17 @@ func admin_update_screenshots(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Upload screenshots for official content
+
+## Uploads screenshots for a content entry
 ## POST /ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/screenshots
+##
+## Uploads screenshots for the specified content. Provide all fields except `contentType`, which sets the Content-Type header for the presigned upload URL; if omitted, the service uses `fileExtension`. Supported file extensions: `pjp`, `jpg`, `jpeg`, `jfif`, `bmp`, `png`. Screenshot descriptions must not exceed 1024 characters.
+##
+## Parameters:
+## - content_id: Unique identifier of the content to add screenshots to.
+## - namespace_param: Game namespace
 func admin_upload_content_screenshot(
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/screenshots"
@@ -532,12 +605,18 @@ func admin_upload_content_screenshot(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Delete content's screenshot
+
+## Deletes a screenshot from a content entry
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/screenshots/{screenshotId}
+##
+## Delete existing screenshot from a content
+##
+## Parameters:
+## - content_id: Unique identifier of the content.
+## - namespace_param: Game namespace
+## - screenshot_id: Unique identifier of the screenshot to delete.
 func admin_delete_content_screenshot(
-	content_id: String,
-	namespace_param: String,
-	screenshot_id: String
+	content_id: String, namespace_param: String, screenshot_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/screenshots/{screenshotId}"
@@ -551,12 +630,16 @@ func admin_delete_content_screenshot(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## List content's payload versions
+
+## Lists file versions for a content entry
 ## GET /ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/versions
-func list_content_versions(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Lists file versions for the specified content. The service creates a version on content creation and on each update where `updateContentFile` is `true`. Returns only the 10 most recent versions.
+##
+## Parameters:
+## - content_id: Unique identifier of the content.
+## - namespace_param: Game namespace
+func list_content_versions(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/contents/{contentId}/versions"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -568,12 +651,18 @@ func list_content_versions(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get all user groups
+
+## Lists all user groups in a namespace
 ## GET /ugc/v1/admin/namespaces/{namespace}/groups
+##
+## Get user group paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func single_admin_get_all_groups(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/groups"
@@ -593,12 +682,15 @@ func single_admin_get_all_groups(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create groups
+
+## Creates a group in the namespace
 ## POST /ugc/v1/admin/namespaces/{namespace}/groups
-func admin_create_group(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Create group
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_create_group(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/groups"
 	# Use namespace parameter with fallback to configured namespace
@@ -609,12 +701,16 @@ func admin_create_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get specific user group
+
+## Retrieves a specific user group by ID
 ## GET /ugc/v1/admin/namespaces/{namespace}/groups/{groupId}
-func single_admin_get_group(
-	group_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Get user group by group ID
+##
+## Parameters:
+## - group_id: Unique identifier of the group.
+## - namespace_param: Game namespace
+func single_admin_get_group(group_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/groups/{groupId}"
 	url_path = url_path.replace("{" + "groupId" + "}", group_id.uri_encode())
@@ -626,12 +722,17 @@ func single_admin_get_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update group
+
+## Updates a group by replacing its name and contents
 ## PUT /ugc/v1/admin/namespaces/{namespace}/groups/{groupId}
+##
+## Replace group name and contents with new ones.
+##
+## Parameters:
+## - group_id: Unique identifier of the group to update.
+## - namespace_param: Game namespace
 func single_admin_update_group(
-	group_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	group_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/groups/{groupId}"
@@ -644,12 +745,16 @@ func single_admin_update_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete group
+
+## Deletes a group by ID
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/groups/{groupId}
-func single_admin_delete_group(
-	group_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Delete group by group ID
+##
+## Parameters:
+## - group_id: Unique identifier of the group to delete.
+## - namespace_param: Game namespace
+func single_admin_delete_group(group_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/groups/{groupId}"
 	url_path = url_path.replace("{" + "groupId" + "}", group_id.uri_encode())
@@ -661,13 +766,19 @@ func single_admin_delete_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## (Legacy) Get contents belong to a group
+
+## Lists contents belonging to a group (legacy)
 ## GET /ugc/v1/admin/namespaces/{namespace}/groups/{groupId}/contents
+##
+## Lists contents belonging to the specified group. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - group_id: Unique identifier of the group.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func single_admin_get_group_contents(
-	group_id: String,
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	group_id: String, namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/groups/{groupId}/contents"
@@ -688,13 +799,17 @@ func single_admin_get_group_contents(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get tags
+
+## Lists available tags in a namespace
 ## GET /ugc/v1/admin/namespaces/{namespace}/tags
-func admin_get_tag(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
-) -> Dictionary:
+##
+## Get available tags paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+func admin_get_tag(namespace_param: String, limit: int = -1, offset: int = -1) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/tags"
 	# Use namespace parameter with fallback to configured namespace
@@ -713,12 +828,15 @@ func admin_get_tag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create tags
+
+## Creates a tag in the namespace
 ## POST /ugc/v1/admin/namespaces/{namespace}/tags
-func admin_create_tag(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new tag
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_create_tag(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/tags"
 	# Use namespace parameter with fallback to configured namespace
@@ -729,13 +847,16 @@ func admin_create_tag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update tag
+
+## Updates an existing tag
 ## PUT /ugc/v1/admin/namespaces/{namespace}/tags/{tagId}
-func admin_update_tag(
-	namespace_param: String,
-	tag_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Update existing tag
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - tag_id: Unique identifier of the tag to update.
+func admin_update_tag(namespace_param: String, tag_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/tags/{tagId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -747,12 +868,16 @@ func admin_update_tag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete tags
+
+## Deletes a tag by ID
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/tags/{tagId}
-func admin_delete_tag(
-	namespace_param: String,
-	tag_id: String
-) -> Dictionary:
+##
+## Delete existing tag
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - tag_id: Unique identifier of the tag to delete.
+func admin_delete_tag(namespace_param: String, tag_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/tags/{tagId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -764,13 +889,17 @@ func admin_delete_tag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get types
+
+## Lists available content types in a namespace
 ## GET /ugc/v1/admin/namespaces/{namespace}/types
-func admin_get_type(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
-) -> Dictionary:
+##
+## Get available types paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+func admin_get_type(namespace_param: String, limit: int = -1, offset: int = -1) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/types"
 	# Use namespace parameter with fallback to configured namespace
@@ -789,12 +918,15 @@ func admin_get_type(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create types
+
+## Creates a type and subtype in the namespace
 ## POST /ugc/v1/admin/namespaces/{namespace}/types
-func admin_create_type(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Creates a new type and subtype
+##
+## Parameters:
+## - namespace_param: Game namespace
+func admin_create_type(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/types"
 	# Use namespace parameter with fallback to configured namespace
@@ -805,12 +937,17 @@ func admin_create_type(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update types
+
+## Updates a type and its subtypes
 ## PUT /ugc/v1/admin/namespaces/{namespace}/types/{typeId}
+##
+## Updates a type and subtype
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - type_id: Unique identifier of the type to update.
 func admin_update_type(
-	namespace_param: String,
-	type_id: String,
-	body: Dictionary = {}
+	namespace_param: String, type_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/types/{typeId}"
@@ -823,12 +960,16 @@ func admin_update_type(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete type
+
+## Deletes a type by ID
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/types/{typeId}
-func admin_delete_type(
-	namespace_param: String,
-	type_id: String
-) -> Dictionary:
+##
+## Delete existing type
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - type_id: Unique identifier of the type to delete.
+func admin_delete_type(namespace_param: String, type_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/types/{typeId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -840,8 +981,18 @@ func admin_delete_type(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get Channels
+
+## Lists channels for a user
 ## GET /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels
+##
+## Get user channel paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - name_param: Likes filter by channel name
+## - offset: Number of results to skip for pagination
 func admin_get_channel(
 	namespace_param: String,
 	user_id: String,
@@ -870,12 +1021,16 @@ func admin_get_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete all user channel
+
+## Deletes all channels for a user
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels
-func admin_delete_all_user_channels(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Delete all user channel
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func admin_delete_all_user_channels(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels"
 	# Use namespace parameter with fallback to configured namespace
@@ -887,13 +1042,18 @@ func admin_delete_all_user_channels(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update Channel
+
+## Updates a user's channel
 ## PUT /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}
+##
+## Update user channel
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel to update.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_update_channel(
-	channel_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	channel_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}"
@@ -907,12 +1067,18 @@ func admin_update_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete Channel
+
+## Deletes a channel for a user
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}
+##
+## Delete user channel
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel to delete.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_delete_channel(
-	channel_id: String,
-	namespace_param: String,
-	user_id: String
+	channel_id: String, namespace_param: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}"
@@ -926,8 +1092,17 @@ func admin_delete_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update content to S3 bucket by share code
+
+## Updates UGC content in S3 by sharecode
 ## PUT /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/s3/sharecodes/{shareCode}
+##
+## Updates UGC content in S3 identified by its share code. To replace the content file, set `updateContentFile` to `true` and upload via the URL in `payloadURL.url`. The `contentType` field sets the Content-Type header for the S3 presigned upload URL; if omitted, the service uses `fileExtension`.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel containing the content.
+## - namespace_param: Game namespace
+## - share_code: Sharecode identifying the content to update.
+## - user_id: AccelByte user ID
 func admin_update_content_s3_by_share_code(
 	channel_id: String,
 	namespace_param: String,
@@ -948,8 +1123,17 @@ func admin_update_content_s3_by_share_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Update content to S3 bucket
+
+## Updates UGC content in S3 for a user's channel
 ## PUT /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/s3/{contentId}
+##
+## Updates UGC content in S3 for the specified user's channel. To replace the content file, set `updateContentFile` to `true` and upload via the URL in `payloadURL.url`. The `contentType` field sets the Content-Type header for the S3 presigned upload URL; if omitted, the service uses `fileExtension`. The `shareCode`, if provided, must be at most 7 characters using only `abcdefhkpqrstuxyz`.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel containing the content.
+## - content_id: Unique identifier of the content to update.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_update_content_s3(
 	channel_id: String,
 	content_id: String,
@@ -970,13 +1154,19 @@ func admin_update_content_s3(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete content by share code
+
+## Deletes a content entry by sharecode
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/sharecodes/{shareCode}
+##
+## Deletes a content entry identified by its sharecode, including its associated likes.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel containing the content.
+## - namespace_param: Game namespace
+## - share_code: Sharecode of the content to delete.
+## - user_id: AccelByte user ID
 func delete_content_by_share_code(
-	channel_id: String,
-	namespace_param: String,
-	share_code: String,
-	user_id: String
+	channel_id: String, namespace_param: String, share_code: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/sharecodes/{shareCode}"
@@ -991,36 +1181,19 @@ func delete_content_by_share_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update content to a channel
-## PUT /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}
-## @deprecated
-func admin_update_content_direct(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
-	# Build URL path
-	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}"
-	url_path = url_path.replace("{" + "channelId" + "}", channel_id.uri_encode())
-	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
-	# Use namespace parameter with fallback to configured namespace
-	var ns = namespace_param if not namespace_param.is_empty() else _namespace
-	url_path = url_path.replace("{namespace}", ns.uri_encode())
-	url_path = url_path.replace("{" + "userId" + "}", user_id.uri_encode())
-	var url: String = _service_url + url_path
-	var request_body: String = JSON.stringify(body)
-	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
-	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete content
+## Deletes a content entry by ID
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}
+##
+## Deletes a content entry by its ID, including its associated likes.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel containing the content.
+## - content_id: Unique identifier of the content to delete.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_delete_content(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	user_id: String
+	channel_id: String, content_id: String, namespace_param: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}"
@@ -1035,13 +1208,19 @@ func admin_delete_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get user's generated contents
+
+## Lists user-generated contents for a specific user
 ## GET /ugc/v1/admin/namespaces/{namespace}/users/{userId}/contents
+##
+## Lists UGC entries for the specified user. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_get_content(
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/contents"
@@ -1062,12 +1241,16 @@ func admin_get_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete all user content
+
+## Deletes all content entries for a user
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/users/{userId}/contents
-func admin_delete_all_user_contents(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Deletes all content entries for the specified user.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func admin_delete_all_user_contents(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/contents"
 	# Use namespace parameter with fallback to configured namespace
@@ -1079,13 +1262,18 @@ func admin_delete_all_user_contents(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Hide/Unhide user's generated contents
+
+## Updates the hidden status of a user's content
 ## PUT /ugc/v1/admin/namespaces/{namespace}/users/{userId}/contents/{contentId}/hide
+##
+## Updates the hidden status of the specified content, toggling its visibility in listings.
+##
+## Parameters:
+## - content_id: Unique identifier of the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_hide_user_content(
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/contents/{contentId}/hide"
@@ -1099,13 +1287,19 @@ func admin_hide_user_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Get all user groups
+
+## Lists all groups for a user
 ## GET /ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups
+##
+## Get user group paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_get_all_groups(
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups"
@@ -1126,12 +1320,16 @@ func admin_get_all_groups(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete all user group
+
+## Deletes all groups for a user
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups
-func admin_delete_all_user_group(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Delete all user group
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func admin_delete_all_user_group(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups"
 	# Use namespace parameter with fallback to configured namespace
@@ -1143,13 +1341,17 @@ func admin_delete_all_user_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get specific user group
+
+## Retrieves a specific group for a user
 ## GET /ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}
-func admin_get_group(
-	group_id: String,
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Get user group by group ID
+##
+## Parameters:
+## - group_id: Unique identifier of the group.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func admin_get_group(group_id: String, namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}"
 	url_path = url_path.replace("{" + "groupId" + "}", group_id.uri_encode())
@@ -1162,13 +1364,18 @@ func admin_get_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update group
+
+## Updates a group for a user
 ## PUT /ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}
+##
+## Replace group name and contents with new ones.
+##
+## Parameters:
+## - group_id: Unique identifier of the group to update.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_update_group(
-	group_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	group_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}"
@@ -1182,13 +1389,17 @@ func admin_update_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete group
+
+## Deletes a group for a user
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}
-func admin_delete_group(
-	group_id: String,
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Delete group
+##
+## Parameters:
+## - group_id: Unique identifier of the group to delete.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func admin_delete_group(group_id: String, namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}"
 	url_path = url_path.replace("{" + "groupId" + "}", group_id.uri_encode())
@@ -1201,14 +1412,20 @@ func admin_delete_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## (Legacy) Get contents belong to a group
+
+## Lists contents belonging to a group for a user (legacy)
 ## GET /ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}/contents
+##
+## Lists contents belonging to the specified group for a user. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - group_id: Unique identifier of the group.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_get_group_contents(
-	group_id: String,
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	group_id: String, namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}/contents"
@@ -1230,12 +1447,16 @@ func admin_get_group_contents(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Remove all user related state: likes, downloads, followers, following
+
+## Removes all user state including likes, downloads, and follows
 ## DELETE /ugc/v1/admin/namespaces/{namespace}/users/{userId}/states
-func admin_delete_all_user_states(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Removes all state for the specified user, including likes, downloads, followers, and following relationships.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func admin_delete_all_user_states(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/admin/namespaces/{namespace}/users/{userId}/states"
 	# Use namespace parameter with fallback to configured namespace
@@ -1247,8 +1468,27 @@ func admin_delete_all_user_states(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Search contents specific to a channel
+
+## Searches contents within a channel
 ## GET /ugc/v1/public/namespaces/{namespace}/channels/{channelId}/contents
+##
+## Lists UGC content in the specified channel. Supports advanced tag filtering with `&` (AND) and `|` (OR) operators and parentheses for priority; for example, `tags=red&(animal|wild)`. AND takes precedence over OR when parentheses are absent. Operands may be alphanumeric, underscore `_`, or dash `-`; operators are `&`, `|`, `(`, `)`. Tag values must be URL-encoded. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - channel_id: Unique identifier of the channel to search within.
+## - namespace_param: Game namespace
+## - creator: Creator name
+## - ishidden: Set to true to list only hidden contents, false to list only non-hidden contents
+## - isofficial: Filter only official contents (boolean)
+## - limit: Number of results to return
+## - name_param: Content name
+## - offset: Number of results to skip for pagination
+## - orderby: Sorting order: asc, desc. default=desc
+## - sortby: Sorting criteria: name,download,like,date,updatedTime. default=date
+## - subtype: Content subtype
+## - tags: Content tag. max number of tags: -1 tags (-1 means unlimited).
+## - type_param: Content type
+## - user_id: AccelByte user ID
 func search_channel_specific_content(
 	channel_id: String,
 	namespace_param: String,
@@ -1304,8 +1544,26 @@ func search_channel_specific_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Search contents
+
+## Searches contents in a namespace
 ## GET /ugc/v1/public/namespaces/{namespace}/contents
+##
+## Lists UGC content in the namespace. Accessible without a token or with a valid user token. Supports advanced tag filtering with `&` (AND) and `|` (OR) operators and parentheses for priority; for example, `tags=red&(animal|wild)`. AND takes precedence over OR when parentheses are absent. Operands may be alphanumeric, underscore `_`, or dash `-`; operators are `&`, `|`, `(`, `)`. Tag values must be URL-encoded. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - creator: Creator name
+## - ishidden: Set to true to list only hidden contents, false to list only non-hidden contents
+## - isofficial: Filter only official contents (boolean)
+## - limit: Number of results to return
+## - name_param: Content name
+## - offset: Number of results to skip for pagination
+## - orderby: Sorting order: asc, desc. default=desc
+## - sortby: Sorting criteria: name,download,like,date,updatedTime. default=date
+## - subtype: Content subtype
+## - tags: Content tag. max number of tags: -1 tags (-1 means unlimited).
+## - type_param: Content type
+## - user_id: AccelByte user ID
 func public_search_content(
 	namespace_param: String,
 	creator: String = "",
@@ -1359,12 +1617,15 @@ func public_search_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get contents by content Ids 
+
+## Retrieves content entries by ID
 ## POST /ugc/v1/public/namespaces/{namespace}/contents/bulk
-func public_get_content_bulk(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Retrieves up to 100 content entries by content ID. Accessible without a token or with a valid user token.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func public_get_content_bulk(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/contents/bulk"
 	# Use namespace parameter with fallback to configured namespace
@@ -1375,13 +1636,17 @@ func public_get_content_bulk(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get contents from followed creators
+
+## Lists contents from followed creators
 ## GET /ugc/v1/public/namespaces/{namespace}/contents/followed
-func get_followed_content(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
-) -> Dictionary:
+##
+## Lists content from users the current user follows. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+func get_followed_content(namespace_param: String, limit: int = -1, offset: int = -1) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/contents/followed"
 	# Use namespace parameter with fallback to configured namespace
@@ -1400,8 +1665,23 @@ func get_followed_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get liked contents
+
+## Lists liked contents
 ## GET /ugc/v1/public/namespaces/{namespace}/contents/liked
+##
+## Lists UGC content liked by the current user. Supports advanced tag filtering with `&` (AND) and `|` (OR) operators and parentheses for priority; for example, `tags=red&(animal|wild)`. AND takes precedence over OR when parentheses are absent. Operands may be alphanumeric, underscore `_`, or dash `-`; operators are `&`, `|`, `(`, `)`. Tag values must be URL-encoded. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - isofficial: Filter content by official or community
+## - limit: Number of results to return
+## - name_param: Content name
+## - offset: Number of results to skip for pagination
+## - orderby: Sorting order: asc, desc. default=desc
+## - sortby: Sorting criteria: name,download,like,date. default=date
+## - subtype: Content subtype to filter by.
+## - tags: Content tags to filter by.
+## - type_param: Content type to filter by.
 func get_liked_content(
 	namespace_param: String,
 	isofficial: bool = false,
@@ -1445,11 +1725,16 @@ func get_liked_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Bulk get content by content sharecodes
+
+## Retrieves content entries by share code
 ## POST /ugc/v1/public/namespaces/{namespace}/contents/sharecodes/bulk
+##
+## Retrieves up to 100 content entries by share code. Requires a valid user token.
+##
+## Parameters:
+## - namespace_param: Game namespace
 func public_get_content_bulk_by_share_codes(
-	namespace_param: String,
-	body: Dictionary = {}
+	namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/contents/sharecodes/bulk"
@@ -1461,11 +1746,17 @@ func public_get_content_bulk_by_share_codes(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get content by sharecode
+
+## Retrieves a content entry by its sharecode
 ## GET /ugc/v1/public/namespaces/{namespace}/contents/sharecodes/{shareCode}
+##
+## Public user can access without token or if token specified, requires valid user token
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - share_code: Content sharecode
 func public_download_content_by_share_code(
-	namespace_param: String,
-	share_code: String
+	namespace_param: String, share_code: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/contents/sharecodes/{shareCode}"
@@ -1478,11 +1769,17 @@ func public_download_content_by_share_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get user specific content
+
+## Retrieves a content entry by ID
 ## GET /ugc/v1/public/namespaces/{namespace}/contents/{contentId}
+##
+## Public user can access without token or if token specified, requires valid user token
+##
+## Parameters:
+## - content_id: Unique identifier of the content to retrieve.
+## - namespace_param: Game namespace
 func public_download_content_by_content_id(
-	content_id: String,
-	namespace_param: String
+	content_id: String, namespace_param: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/contents/{contentId}"
@@ -1495,12 +1792,16 @@ func public_download_content_by_content_id(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Add unique download count to a content
+
+## Adds a unique download count to a content entry
 ## POST /ugc/v1/public/namespaces/{namespace}/contents/{contentId}/downloadcount
-func add_download_count(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Records a unique download event for the specified content.
+##
+## Parameters:
+## - content_id: Unique identifier of the content.
+## - namespace_param: Game namespace
+func add_download_count(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/contents/{contentId}/downloadcount"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -1512,12 +1813,17 @@ func add_download_count(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update like/unlike status to a content
+
+## Updates the like status for a content entry
 ## PUT /ugc/v1/public/namespaces/{namespace}/contents/{contentId}/like
+##
+## Updates the like or unlike state for the specified content.
+##
+## Parameters:
+## - content_id: Unique identifier of the content.
+## - namespace_param: Game namespace
 func update_content_like_status(
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/contents/{contentId}/like"
@@ -1530,12 +1836,16 @@ func update_content_like_status(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Get content preview
+
+## Retrieves the preview for a content entry
 ## GET /ugc/v1/public/namespaces/{namespace}/contents/{contentId}/preview
-func public_download_content_preview(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Retrieves the preview for a UGC content entry. Preview is a legacy feature; use Screenshots for a better content preview experience.
+##
+## Parameters:
+## - content_id: Unique identifier of the content.
+## - namespace_param: Game namespace
+func public_download_content_preview(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/contents/{contentId}/preview"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -1547,13 +1857,17 @@ func public_download_content_preview(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get tags
+
+## Lists available tags in a namespace
 ## GET /ugc/v1/public/namespaces/{namespace}/tags
-func get_tag(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
-) -> Dictionary:
+##
+## Get available tags paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+func get_tag(namespace_param: String, limit: int = -1, offset: int = -1) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/tags"
 	# Use namespace parameter with fallback to configured namespace
@@ -1572,13 +1886,17 @@ func get_tag(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get types
+
+## Lists available content types in a namespace
 ## GET /ugc/v1/public/namespaces/{namespace}/types
-func get_type(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
-) -> Dictionary:
+##
+## Get available types paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+func get_type(namespace_param: String, limit: int = -1, offset: int = -1) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/types"
 	# Use namespace parameter with fallback to configured namespace
@@ -1597,8 +1915,18 @@ func get_type(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Search creator
+
+## Searches for creators in a namespace
 ## GET /ugc/v1/public/namespaces/{namespace}/users
+##
+## Searches for creators in the namespace. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - orderby: Sorting order: asc, desc. default=desc
+## - sortby: Sorting criteria: followCount, totalLikedContent. default=object id
 func public_search_creator(
 	namespace_param: String,
 	limit: int = -1,
@@ -1628,13 +1956,17 @@ func public_search_creator(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get followed creators
+
+## Lists followed creators
 ## GET /ugc/v1/public/namespaces/{namespace}/users/followed
-func get_followed_users(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
-) -> Dictionary:
+##
+## Lists users followed by the current user. Use `limit` and `offset` to paginate results.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+func get_followed_users(namespace_param: String, limit: int = -1, offset: int = -1) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/followed"
 	# Use namespace parameter with fallback to configured namespace
@@ -1653,12 +1985,16 @@ func get_followed_users(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get creator stats: number of total like by other user, number of...
+
+## Retrieves stats for a creator including likes, followers, and following counts
 ## GET /ugc/v1/public/namespaces/{namespace}/users/{userId}
-func public_get_creator(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Public user can access without token or if token specified, requires valid user token
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func public_get_creator(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}"
 	# Use namespace parameter with fallback to configured namespace
@@ -1670,8 +2006,18 @@ func public_get_creator(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get Channels
+
+## Lists channels for a user
 ## GET /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels
+##
+## Get user channel paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - name_param: Likes filter by channel name
+## - offset: Number of results to skip for pagination
 func get_channels(
 	namespace_param: String,
 	user_id: String,
@@ -1700,12 +2046,17 @@ func get_channels(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create Channel
+
+## Creates a channel for a user
 ## POST /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels
+##
+## Create user channel
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func public_create_channel(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels"
@@ -1718,12 +2069,16 @@ func public_create_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Delete all user channel
+
+## Deletes all channels for a user
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels
-func delete_all_user_channel(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Delete all user channel
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func delete_all_user_channel(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels"
 	# Use namespace parameter with fallback to configured namespace
@@ -1735,13 +2090,18 @@ func delete_all_user_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update Channel
+
+## Updates a user's channel
 ## PUT /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}
+##
+## Update user channel
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_channel(
-	channel_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	channel_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}"
@@ -1755,13 +2115,17 @@ func update_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete Channel
+
+## Deletes a channel for a user
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}
-func delete_channel(
-	channel_id: String,
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Delete user channel
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func delete_channel(channel_id: String, namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}"
 	url_path = url_path.replace("{" + "channelId" + "}", channel_id.uri_encode())
@@ -1774,34 +2138,18 @@ func delete_channel(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Upload content to a channel
-## POST /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents
-## @deprecated
-func create_content_direct(
-	channel_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
-	# Build URL path
-	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents"
-	url_path = url_path.replace("{" + "channelId" + "}", channel_id.uri_encode())
-	# Use namespace parameter with fallback to configured namespace
-	var ns = namespace_param if not namespace_param.is_empty() else _namespace
-	url_path = url_path.replace("{namespace}", ns.uri_encode())
-	url_path = url_path.replace("{" + "userId" + "}", user_id.uri_encode())
-	var url: String = _service_url + url_path
-	var request_body: String = JSON.stringify(body)
-	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
-	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Upload content to S3 bucket
+## Uploads UGC content to S3 for a user's channel
 ## POST /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/s3
+##
+## Uploads UGC content to S3 for a user's channel. All fields except `payload`, `preview`, `tags`, `contentType`, and `customAttributes` are mandatory. The `contentType` field sets the Content-Type header for the S3 pre-signed URL upload; if omitted, the service uses `fileExtension`.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func create_content_s3(
-	channel_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	channel_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/s3"
@@ -1815,8 +2163,17 @@ func create_content_s3(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update content to S3 bucket by share code
+
+## Updates UGC content in S3 by sharecode
 ## PUT /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/s3/sharecodes/{shareCode}
+##
+## Updates UGC content in S3 for a user's channel, identified by share code. All fields except `payload`, `preview`, `tags`, `contentType`, `updateContentFile`, `customAttributes`, and `shareCode` are mandatory. The `contentType` field sets the Content-Type header for the S3 pre-signed URL upload; if omitted, the service uses `fileExtension`. To update the content file, set `updateContentFile` to `true` and use the URL in `payloadURL.url` from the response.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - share_code: Share code identifying the content to update.
+## - user_id: AccelByte user ID
 func public_update_content_by_share_code(
 	channel_id: String,
 	namespace_param: String,
@@ -1837,8 +2194,17 @@ func public_update_content_by_share_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Update content to S3 bucket
+
+## Updates UGC content in S3 for a user's channel
 ## PUT /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/s3/{contentId}
+##
+## Updates UGC content in S3 for a user's channel, identified by content ID. All fields except `payload`, `preview`, `tags`, `contentType`, `updateContentFile`, and `customAttributes` are mandatory. The `contentType` field sets the Content-Type header for the S3 pre-signed URL upload; if omitted, the service uses `fileExtension`. To update the content file, set `updateContentFile` to `true` and use the URL in `payloadURL.url` from the response.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_content_s3(
 	channel_id: String,
 	content_id: String,
@@ -1859,13 +2225,19 @@ func update_content_s3(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete content by share code
+
+## Deletes a content entry by sharecode
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/sharecodes/{shareCode}
+##
+## Deletes a content entry for a user, identified by share code.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - share_code: Share code identifying the content to delete.
+## - user_id: AccelByte user ID
 func public_delete_content_by_share_code(
-	channel_id: String,
-	namespace_param: String,
-	share_code: String,
-	user_id: String
+	channel_id: String, namespace_param: String, share_code: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/sharecodes/{shareCode}"
@@ -1880,36 +2252,19 @@ func public_delete_content_by_share_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update content to a channel
-## PUT /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}
-## @deprecated
-func update_content_direct(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
-	# Build URL path
-	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}"
-	url_path = url_path.replace("{" + "channelId" + "}", channel_id.uri_encode())
-	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
-	# Use namespace parameter with fallback to configured namespace
-	var ns = namespace_param if not namespace_param.is_empty() else _namespace
-	url_path = url_path.replace("{namespace}", ns.uri_encode())
-	url_path = url_path.replace("{" + "userId" + "}", user_id.uri_encode())
-	var url: String = _service_url + url_path
-	var request_body: String = JSON.stringify(body)
-	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
-	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete content
+## Deletes a content entry for a user
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}
+##
+## Deletes a content entry for a user, identified by content ID.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func delete_content(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	user_id: String
+	channel_id: String, content_id: String, namespace_param: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}"
@@ -1924,8 +2279,17 @@ func delete_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update content sharecode
+
+## Updates the sharecode for a content entry
 ## PATCH /ugc/v1/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}/sharecode
+##
+## Modifies the sharecode of a content entry. The shareCode must be at most 7 characters and may only contain: abcdefhkpqrstuxyz.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_content_share_code(
 	channel_id: String,
 	content_id: String,
@@ -1946,13 +2310,19 @@ func update_content_share_code(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Get user's generated contents
+
+## Lists content created by a user
 ## GET /ugc/v1/public/namespaces/{namespace}/users/{userId}/contents
+##
+## Lists UGC contents created by a user. Supports offset-based pagination using the offset and limit parameters. Accessible without a token; authenticated requests require read permission.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func public_get_user_content(
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/contents"
@@ -1973,12 +2343,16 @@ func public_get_user_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Delete all user content
+
+## Deletes all content entries for a user
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/contents
-func delete_all_user_contents(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Deletes all content entries for a user.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func delete_all_user_contents(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/contents"
 	# Use namespace parameter with fallback to configured namespace
@@ -1990,13 +2364,18 @@ func delete_all_user_contents(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update screenshot of content
+
+## Updates screenshots for a content entry
 ## PUT /ugc/v1/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots
+##
+## Updates screenshots for a content entry. Screenshot descriptions must not exceed 1024 characters.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_screenshots(
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots"
@@ -2010,13 +2389,18 @@ func update_screenshots(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Upload screenshots for content
+
+## Uploads screenshots for a content entry
 ## POST /ugc/v1/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots
+##
+## Uploads screenshots for a content entry. All fields except `contentType` are mandatory. The `contentType` field sets the Content-Type header for the pre-signed URL upload; if omitted, the service uses `fileExtension`. Supported file extensions: `pjp`, `jpg`, `jpeg`, `jfif`, `bmp`, `png`. Screenshot descriptions must not exceed 1024 characters.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func upload_content_screenshot(
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots"
@@ -2030,13 +2414,19 @@ func upload_content_screenshot(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Delete content's screenshot
+
+## Deletes a screenshot from a content entry
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots/{screenshotId}
+##
+## Delete existing screenshot from a content
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - screenshot_id: Unique identifier for the screenshot.
+## - user_id: AccelByte user ID
 func delete_content_screenshot(
-	content_id: String,
-	namespace_param: String,
-	screenshot_id: String,
-	user_id: String
+	content_id: String, namespace_param: String, screenshot_id: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots/{screenshotId}"
@@ -2051,12 +2441,17 @@ func delete_content_screenshot(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update follow/unfollow status to a user
+
+## Updates the follow status for a user
 ## PUT /ugc/v1/public/namespaces/{namespace}/users/{userId}/follow
+##
+## Requires valid user token
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_user_follow_status(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/follow"
@@ -2069,13 +2464,19 @@ func update_user_follow_status(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Get list of followers
+
+## Lists followers of a user
 ## GET /ugc/v1/public/namespaces/{namespace}/users/{userId}/followers
+##
+## Lists users who follow the specified creator. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func get_public_followers(
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/followers"
@@ -2096,13 +2497,19 @@ func get_public_followers(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get list of following
+
+## Lists users followed by a user
 ## GET /ugc/v1/public/namespaces/{namespace}/users/{userId}/following
+##
+## Lists users that the specified user follows. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func get_public_following(
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/following"
@@ -2123,13 +2530,19 @@ func get_public_following(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get all user groups
+
+## Lists all groups for a user
 ## GET /ugc/v1/public/namespaces/{namespace}/users/{userId}/groups
+##
+## Get user groups paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func get_groups(
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/groups"
@@ -2150,13 +2563,16 @@ func get_groups(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create groups
+
+## Creates a content group for a user
 ## POST /ugc/v1/public/namespaces/{namespace}/users/{userId}/groups
-func create_group(
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Create group
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func create_group(namespace_param: String, user_id: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/groups"
 	# Use namespace parameter with fallback to configured namespace
@@ -2168,12 +2584,16 @@ func create_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Delete all user group
+
+## Deletes all groups for a user
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/groups
-func delete_all_user_group(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Delete all user group
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func delete_all_user_group(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/groups"
 	# Use namespace parameter with fallback to configured namespace
@@ -2185,13 +2605,17 @@ func delete_all_user_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get user's groups
+
+## Retrieves a content group for a user
 ## GET /ugc/v1/public/namespaces/{namespace}/users/{userId}/groups/{groupId}
-func get_group(
-	group_id: String,
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Get user groups by group ID
+##
+## Parameters:
+## - group_id: Unique identifier for the group.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func get_group(group_id: String, namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/groups/{groupId}"
 	url_path = url_path.replace("{" + "groupId" + "}", group_id.uri_encode())
@@ -2204,13 +2628,18 @@ func get_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update group
+
+## Updates a content group for a user
 ## PUT /ugc/v1/public/namespaces/{namespace}/users/{userId}/groups/{groupId}
+##
+## Replace group name and contents with new ones
+##
+## Parameters:
+## - group_id: Unique identifier for the group.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_group(
-	group_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	group_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/groups/{groupId}"
@@ -2224,13 +2653,17 @@ func update_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete group
+
+## Deletes a content group for a user
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/groups/{groupId}
-func delete_group(
-	group_id: String,
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Delete user group by group ID
+##
+## Parameters:
+## - group_id: Unique identifier for the group.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func delete_group(group_id: String, namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/groups/{groupId}"
 	url_path = url_path.replace("{" + "groupId" + "}", group_id.uri_encode())
@@ -2243,14 +2676,20 @@ func delete_group(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## (Legacy) Get contents belong to a group
+
+## Lists content in a group (legacy)
 ## GET /ugc/v1/public/namespaces/{namespace}/users/{userId}/groups/{groupId}/contents
+##
+## Lists content entries belonging to a group. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - group_id: Unique identifier for the group.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func get_group_content(
-	group_id: String,
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	group_id: String, namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/groups/{groupId}/contents"
@@ -2272,12 +2711,16 @@ func get_group_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Remove all user related state: likes, downloads, followers, following
+
+## Removes all activity state for a user, including likes, downloads, followers, and follows
 ## DELETE /ugc/v1/public/namespaces/{namespace}/users/{userId}/states
-func delete_all_user_states(
-	namespace_param: String,
-	user_id: String
-) -> Dictionary:
+##
+## Required permission NAMESPACE:{namespace}:USER:{userId}" [DELETE]
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+func delete_all_user_states(namespace_param: String, user_id: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v1/public/namespaces/{namespace}/users/{userId}/states"
 	# Use namespace parameter with fallback to configured namespace
@@ -2289,8 +2732,19 @@ func delete_all_user_states(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## List contents specific to a channel
+
+## Lists official content in a channel
 ## GET /ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents
+##
+## Lists official content entries in a channel. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - name_param: Content name
+## - offset: Number of results to skip for pagination
+## - sort_by: Available values: - *createdTime* - *createdTime:desc* - *createdTime:asc* - *updatedTime* - *updatedTime:desc* - *updatedTime:asc*
 func admin_get_content_by_channel_idv2(
 	channel_id: String,
 	namespace_param: String,
@@ -2322,12 +2776,17 @@ func admin_get_content_by_channel_idv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Create a content
+
+## Creates official content in a channel
 ## POST /ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents
+##
+## Create official content
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
 func admin_create_content_v2(
-	channel_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	channel_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents"
@@ -2340,12 +2799,18 @@ func admin_create_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Delete official content
+
+## Deletes an official content entry
 ## DELETE /ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}
+##
+## Delete existing official content
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
 func admin_delete_official_content_v2(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String
+	channel_id: String, content_id: String, namespace_param: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}"
@@ -2359,13 +2824,18 @@ func admin_delete_official_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update official content
+
+## Updates an official content entry
 ## PATCH /ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}
+##
+## Update existing official content
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
 func admin_update_official_content_v2(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	channel_id: String, content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}"
@@ -2379,13 +2849,18 @@ func admin_update_official_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Copy contents from a channel to another
+
+## Copies a content entry to another channel
 ## POST /ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}/copy
+##
+## Copy existing content from source channel to target channel.
+##
+## Parameters:
+## - channel_id: Source channel id
+## - content_id: Source content id
+## - namespace_param: Game namespace
 func admin_copy_content(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	channel_id: String, content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}/copy"
@@ -2399,13 +2874,18 @@ func admin_copy_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update content file location
+
+## Updates the file location for an official content entry
 ## PATCH /ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}/fileLocation
+##
+## Commits the file location for an official content entry after uploading via the generated upload URL.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
 func admin_update_official_content_file_location(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	channel_id: String, content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}/fileLocation"
@@ -2419,13 +2899,18 @@ func admin_update_official_content_file_location(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Generate official content upload URL
+
+## Generates an upload URL for an official content entry
 ## PATCH /ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}/uploadUrl
+##
+## Generate official content upload URL
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
 func admin_generate_official_content_upload_urlv2(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	channel_id: String, content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/channels/{channelId}/contents/{contentId}/uploadUrl"
@@ -2439,13 +2924,17 @@ func admin_generate_official_content_upload_urlv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Get configs
+
+## Retrieves configuration settings paginated
 ## GET /ugc/v2/admin/namespaces/{namespace}/configs
-func admin_get_configs(
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
-) -> Dictionary:
+##
+## Get config paginated
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+func admin_get_configs(namespace_param: String, limit: int = -1, offset: int = -1) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/configs"
 	# Use namespace parameter with fallback to configured namespace
@@ -2464,13 +2953,16 @@ func admin_get_configs(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update config
+
+## Updates a configuration value
 ## PATCH /ugc/v2/admin/namespaces/{namespace}/configs/{key}
-func admin_update_config(
-	key: String,
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Updates a configuration value, creating the key if it does not exist. Allowed keys: contentReview (values: enabled, disabled).
+##
+## Parameters:
+## - key: Configuration key to update.
+## - namespace_param: Game namespace
+func admin_update_config(key: String, namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/configs/{key}"
 	url_path = url_path.replace("{" + "key" + "}", key.uri_encode())
@@ -2482,8 +2974,22 @@ func admin_update_config(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## List contents
+
+## Lists official content in the namespace
 ## GET /ugc/v2/admin/namespaces/{namespace}/contents
+##
+## Lists all official content across the namespace. Supports offset-based pagination using offset and limit. For advanced tag filtering, use & for AND, | for OR, and ( ) for grouping. Operator precedence: AND > OR. Allowed operand characters: alphanumeric, underscore, and dash. Tag values must be URL-encoded.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - is_official: Filter by is official
+## - limit: Number of results to return
+## - name_param: Filter by content name
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort order of query result available value: - *createdTime* - *createdTime:desc* - *createdTime:asc* - *download* - *download:desc* - *download:asc* - *name* - *name:desc* - *name:asc* - *updatedTime* - *updatedTime:desc* - *updatedTime:asc*
+## - sub_type: Filter by content subType
+## - tags: Content tag
+## - type_param: Filter by content type
 func admin_list_content_v2(
 	namespace_param: String,
 	is_official: bool = false,
@@ -2524,11 +3030,16 @@ func admin_list_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Bulk get content by content IDs
+
+## Retrieves content entries by ID
 ## POST /ugc/v2/admin/namespaces/{namespace}/contents/bulk
+##
+## Retrieves up to 100 content entries per request.
+##
+## Parameters:
+## - namespace_param: Game namespace
 func admin_bulk_get_content_by_i_ds_v2(
-	namespace_param: String,
-	body: Dictionary = {}
+	namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/bulk"
@@ -2540,11 +3051,16 @@ func admin_bulk_get_content_by_i_ds_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Bulk get content by content sharecodes
+
+## Retrieves content entries by share code
 ## POST /ugc/v2/admin/namespaces/{namespace}/contents/sharecodes/bulk
+##
+## Retrieves up to 100 content entries per request.
+##
+## Parameters:
+## - namespace_param: Game namespace
 func admin_get_content_bulk_by_share_codes_v2(
-	namespace_param: String,
-	body: Dictionary = {}
+	namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/sharecodes/bulk"
@@ -2556,12 +3072,16 @@ func admin_get_content_bulk_by_share_codes_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get content by sharecode
+
+## Retrieves content by sharecode
 ## GET /ugc/v2/admin/namespaces/{namespace}/contents/sharecodes/{shareCode}
-func admin_get_content_by_share_code_v2(
-	namespace_param: String,
-	share_code: String
-) -> Dictionary:
+##
+## Get content by share code
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - share_code: Content sharecode
+func admin_get_content_by_share_code_v2(namespace_param: String, share_code: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/sharecodes/{shareCode}"
 	# Use namespace parameter with fallback to configured namespace
@@ -2573,12 +3093,16 @@ func admin_get_content_by_share_code_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get content by content ID
+
+## Retrieves a content entry by ID
 ## GET /ugc/v2/admin/namespaces/{namespace}/contents/{contentId}
-func admin_get_content_by_content_idv2(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Get content by content ID
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+func admin_get_content_by_content_idv2(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/{contentId}"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -2590,12 +3114,18 @@ func admin_get_content_by_content_idv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Rollback content's payload version
+
+## Restores a content entry to a specific file version
 ## PUT /ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/rollback/{versionId}
+##
+## Restores a content entry to a specified file version.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - version_id: Unique identifier for the file version to restore.
 func rollback_content_version_v2(
-	content_id: String,
-	namespace_param: String,
-	version_id: String
+	content_id: String, namespace_param: String, version_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/rollback/{versionId}"
@@ -2609,12 +3139,17 @@ func rollback_content_version_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Update screenshot of content
+
+## Updates screenshots for an official content entry
 ## PUT /ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/screenshots
+##
+## Updates screenshots for an official content entry. Screenshot descriptions must not exceed 1024 characters.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
 func admin_update_screenshots_v2(
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/screenshots"
@@ -2627,12 +3162,17 @@ func admin_update_screenshots_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Upload screenshots for content
+
+## Uploads screenshots for an official content entry
 ## POST /ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/screenshots
+##
+## Uploads screenshots for an official content entry. The `contentType` field sets the Content-Type header for upload; if omitted, the service uses `fileExtension`. Supported file extensions: `pjp`, `jpg`, `jpeg`, `jfif`, `bmp`, `png`. Screenshot descriptions must not exceed 1024 characters.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
 func admin_upload_content_screenshot_v2(
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/screenshots"
@@ -2645,12 +3185,18 @@ func admin_upload_content_screenshot_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Delete screenshots content
+
+## Deletes a screenshot from a content entry
 ## DELETE /ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/screenshots/{screenshotId}
+##
+## Delete screenshot from a content
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - screenshot_id: Unique identifier for the screenshot.
 func admin_delete_content_screenshot_v2(
-	content_id: String,
-	namespace_param: String,
-	screenshot_id: String
+	content_id: String, namespace_param: String, screenshot_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/screenshots/{screenshotId}"
@@ -2664,12 +3210,16 @@ func admin_delete_content_screenshot_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## List content's payload versions
+
+## Lists file versions for a content entry
 ## GET /ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/versions
-func list_content_versions_v2(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Lists file versions for a content entry. The service creates a version each time a user uploads content with `updateContentFile` set to `true`. Returns up to the 10 most recent versions.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+func list_content_versions_v2(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/contents/{contentId}/versions"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -2681,13 +3231,19 @@ func list_content_versions_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get contents belong to a group
+
+## Lists content in a group
 ## GET /ugc/v2/admin/namespaces/{namespace}/groups/{groupId}/contents
+##
+## Lists content entries belonging to a group. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - group_id: Unique identifier for the group.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_get_official_group_contents_v2(
-	group_id: String,
-	namespace_param: String,
-	limit: int = -1,
-	offset: int = -1
+	group_id: String, namespace_param: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/groups/{groupId}/contents"
@@ -2708,8 +3264,18 @@ func admin_get_official_group_contents_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List staging contents
+
+## Lists staging content pending approval
 ## GET /ugc/v2/admin/namespaces/{namespace}/staging-contents
+##
+## Lists staging content that requires admin approval. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort query result available value: - createdTime - createdTime:desc - createdTime:asc - updatedTime - updatedTime:desc - updatedTime:asc
+## - status: Filter by content status [*PENDING*, *REJECTED*]
 func admin_list_staging_contents(
 	namespace_param: String,
 	limit: int = -1,
@@ -2739,12 +3305,16 @@ func admin_list_staging_contents(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get staging content by id
+
+## Retrieves a staging content entry by ID
 ## GET /ugc/v2/admin/namespaces/{namespace}/staging-contents/{contentId}
-func admin_get_staging_content_by_id(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Get staging content by ID
+##
+## Parameters:
+## - content_id: Unique identifier for the staging content.
+## - namespace_param: Game namespace
+func admin_get_staging_content_by_id(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/staging-contents/{contentId}"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -2756,12 +3326,17 @@ func admin_get_staging_content_by_id(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Approve or reject content
+
+## Approves or rejects a staging content entry
 ## POST /ugc/v2/admin/namespaces/{namespace}/staging-contents/{contentId}/approve
+##
+## Approves or rejects a staging content entry. Approved content is visible to all players; rejected content remains in the staging area.
+##
+## Parameters:
+## - content_id: Unique identifier for the staging content.
+## - namespace_param: Game namespace
 func admin_approve_staging_content(
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/staging-contents/{contentId}/approve"
@@ -2774,8 +3349,20 @@ func admin_approve_staging_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update content to S3 bucket by share code
+
+## Updates official content in S3 by sharecode
 ## PUT /ugc/v2/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/s3/sharecodes/{shareCode}
+##
+## *shareCode* format should follows:
+##
+## "Max length: 7
+## "Available characters: abcdefhkpqrstuxyz
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - share_code: Share code identifying the content to update.
+## - user_id: AccelByte user ID
 func admin_update_content_by_share_code_v2(
 	channel_id: String,
 	namespace_param: String,
@@ -2796,13 +3383,19 @@ func admin_update_content_by_share_code_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete content by share code
+
+## Deletes an official content entry by sharecode
 ## DELETE /ugc/v2/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/sharecodes/{shareCode}
+##
+## Delete content by share code
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - share_code: Share code identifying the content to delete.
+## - user_id: AccelByte user ID
 func admin_delete_content_by_share_code_v2(
-	channel_id: String,
-	namespace_param: String,
-	share_code: String,
-	user_id: String
+	channel_id: String, namespace_param: String, share_code: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/sharecodes/{shareCode}"
@@ -2817,13 +3410,19 @@ func admin_delete_content_by_share_code_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Delete user content
+
+## Deletes a user content entry
 ## DELETE /ugc/v2/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}
+##
+## Delete user content by content ID
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_delete_user_content_v2(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	user_id: String
+	channel_id: String, content_id: String, namespace_param: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}"
@@ -2838,8 +3437,17 @@ func admin_delete_user_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update user content
+
+## Updates a user content entry
 ## PATCH /ugc/v2/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}
+##
+## Update existing user content
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_update_user_content_v2(
 	channel_id: String,
 	content_id: String,
@@ -2860,8 +3468,17 @@ func admin_update_user_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Update user content file location
+
+## Updates the file location for a user content entry
 ## PATCH /ugc/v2/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}/fileLocation
+##
+## Commits the file location for a user content entry after uploading via the generated upload URL.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_update_user_content_file_location(
 	channel_id: String,
 	content_id: String,
@@ -2882,8 +3499,17 @@ func admin_update_user_content_file_location(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Generate user content upload URL
+
+## Generates an upload URL for a user content entry
 ## PATCH /ugc/v2/admin/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}/uploadUrl
+##
+## Generate user content upload URL
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_generate_user_content_upload_urlv2(
 	channel_id: String,
 	content_id: String,
@@ -2904,8 +3530,18 @@ func admin_generate_user_content_upload_urlv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Get user's generated contents
+
+## Lists content created by a user
 ## GET /ugc/v2/admin/namespaces/{namespace}/users/{userId}/contents
+##
+## Lists content entries created by a user. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Available values: - *createdTime* - *createdTime:desc* - *createdTime:asc*
 func admin_get_content_by_user_idv2(
 	namespace_param: String,
 	user_id: String,
@@ -2934,13 +3570,18 @@ func admin_get_content_by_user_idv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Hide/Unhide user's generated contents
+
+## Sets the visibility of a user content entry
 ## PUT /ugc/v2/admin/namespaces/{namespace}/users/{userId}/contents/{contentId}/hide
+##
+## Hide/Unhide user's generated contents
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func admin_update_content_hide_status_v2(
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/users/{userId}/contents/{contentId}/hide"
@@ -2954,14 +3595,20 @@ func admin_update_content_hide_status_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Get contents belong to a group
+
+## Lists content in a group for a user
 ## GET /ugc/v2/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}/contents
+##
+## Lists content entries belonging to a group. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - group_id: Unique identifier for the group.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func admin_get_user_group_contents_v2(
-	group_id: String,
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	group_id: String, namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/admin/namespaces/{namespace}/users/{userId}/groups/{groupId}/contents"
@@ -2983,8 +3630,19 @@ func admin_get_user_group_contents_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List user staging contents
+
+## Lists staging content for a user pending approval
 ## GET /ugc/v2/admin/namespaces/{namespace}/users/{userId}/staging-contents
+##
+## Lists a user's staging content that requires admin approval. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort query result available value: - createdTime - createdTime:desc - createdTime:asc - updatedTime - updatedTime:desc - updatedTime:asc
+## - status: Filter by content status [*PENDING*, *REJECTED*]
 func admin_list_user_staging_contents(
 	namespace_param: String,
 	user_id: String,
@@ -3016,8 +3674,19 @@ func admin_list_user_staging_contents(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List contents specific to a channel
+
+## Lists content in a channel
 ## GET /ugc/v2/public/namespaces/{namespace}/channels/{channelId}/contents
+##
+## Lists content entries in a channel. Supports offset-based pagination using the offset and limit parameters. Accessible without a token; authenticated requests require a valid user token.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - name_param: Content name
+## - offset: Number of results to skip for pagination
+## - sort_by: Available values: - *createdTime* - *createdTime:desc* - *createdTime:asc* - *updatedTime* - *updatedTime:desc* - *updatedTime:asc*
 func public_get_content_by_channel_idv2(
 	channel_id: String,
 	namespace_param: String,
@@ -3049,8 +3718,22 @@ func public_get_content_by_channel_idv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List contents
+
+## Lists public content in the namespace
 ## GET /ugc/v2/public/namespaces/{namespace}/contents
+##
+## Lists public content across the namespace. Supports offset-based pagination using offset and limit. For advanced tag filtering, use & for AND, | for OR, and ( ) for grouping. Operator precedence: AND > OR. Allowed operand characters: alphanumeric, underscore, and dash. Tag values must be URL-encoded.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - is_official: Filter by is official
+## - limit: Number of results to return
+## - name_param: Filter by content name
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort order of query result available value: - *createdTime* - *createdTime:desc* - *createdTime:asc* - *download* - *download:desc* - *download:asc* - *name* - *name:desc* - *name:asc* - *updatedTime* - *updatedTime:desc* - *updatedTime:asc*
+## - sub_type: Filter by content subType
+## - tags: Content tag. max number of tags: -1 tags (-1 means unlimited).
+## - type_param: Filter by content type
 func public_list_content_v2(
 	namespace_param: String,
 	is_official: bool = false,
@@ -3091,12 +3774,15 @@ func public_list_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get contents by content Ids 
+
+## Retrieves content entries by ID
 ## POST /ugc/v2/public/namespaces/{namespace}/contents/bulk
-func public_bulk_get_content_by_idv2(
-	namespace_param: String,
-	body: Dictionary = {}
-) -> Dictionary:
+##
+## Retrieves up to 100 content entries per request. Accessible without authentication; authenticated requests require a valid user token.
+##
+## Parameters:
+## - namespace_param: Game namespace
+func public_bulk_get_content_by_idv2(namespace_param: String, body: Dictionary = {}) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/contents/bulk"
 	# Use namespace parameter with fallback to configured namespace
@@ -3107,11 +3793,16 @@ func public_bulk_get_content_by_idv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Bulk get content by content sharecodes
+
+## Retrieves content entries by share code
 ## POST /ugc/v2/public/namespaces/{namespace}/contents/sharecodes/bulk
+##
+## Retrieves up to 100 content entries by sharecode per request. Requires a valid user token.
+##
+## Parameters:
+## - namespace_param: Game namespace
 func public_get_content_bulk_by_share_codes_v2(
-	namespace_param: String,
-	body: Dictionary = {}
+	namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/contents/sharecodes/bulk"
@@ -3123,12 +3814,16 @@ func public_get_content_bulk_by_share_codes_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Get content by sharecode
+
+## Retrieves content by sharecode
 ## GET /ugc/v2/public/namespaces/{namespace}/contents/sharecodes/{shareCode}
-func public_get_content_by_share_code_v2(
-	namespace_param: String,
-	share_code: String
-) -> Dictionary:
+##
+## Public user can access without token or if token specified, requires valid user token
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - share_code: Content sharecode
+func public_get_content_by_share_code_v2(namespace_param: String, share_code: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/contents/sharecodes/{shareCode}"
 	# Use namespace parameter with fallback to configured namespace
@@ -3140,12 +3835,16 @@ func public_get_content_by_share_code_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get content by content ID
+
+## Retrieves a content entry by ID
 ## GET /ugc/v2/public/namespaces/{namespace}/contents/{contentId}
-func public_get_content_by_idv2(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Public user can access without token or if token specified, requires valid user token
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+func public_get_content_by_idv2(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/contents/{contentId}"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -3157,12 +3856,16 @@ func public_get_content_by_idv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Add unique download count to a content
+
+## Adds a download count to a content entry
 ## POST /ugc/v2/public/namespaces/{namespace}/contents/{contentId}/downloadcount
-func public_add_download_count_v2(
-	content_id: String,
-	namespace_param: String
-) -> Dictionary:
+##
+## Increments the download count for a content entry.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+func public_add_download_count_v2(content_id: String, namespace_param: String) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/contents/{contentId}/downloadcount"
 	url_path = url_path.replace("{" + "contentId" + "}", content_id.uri_encode())
@@ -3174,8 +3877,19 @@ func public_add_download_count_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## List content downloader
+
+## Lists users who downloaded a content entry
 ## GET /ugc/v2/public/namespaces/{namespace}/contents/{contentId}/downloader
+##
+## Lists users who have downloaded the content using the v2 operation. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort the result.  available value: - *createdTime* - *createdTime:desc* - *createdTime:asc*
+## - user_id: AccelByte user ID
 func public_list_content_downloader_v2(
 	content_id: String,
 	namespace_param: String,
@@ -3207,8 +3921,18 @@ func public_list_content_downloader_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Retrieve list of user that like specified content.
+
+## Lists users who have liked a content entry
 ## GET /ugc/v2/public/namespaces/{namespace}/contents/{contentId}/like
+##
+## Lists users who have liked the content using the v2 operation. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort order of query result available value: - *createdTime* - *createdTime:desc* - *createdTime:asc*
 func public_list_content_like_v2(
 	content_id: String,
 	namespace_param: String,
@@ -3237,12 +3961,17 @@ func public_list_content_like_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update like/unlike status to a content
+
+## Updates the like status for a content entry
 ## PUT /ugc/v2/public/namespaces/{namespace}/contents/{contentId}/like
+##
+## Updates the like status for a content entry. Set to true to like or false to unlike.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
 func update_content_like_status_v2(
-	content_id: String,
-	namespace_param: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/contents/{contentId}/like"
@@ -3255,13 +3984,18 @@ func update_content_like_status_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Create a content
+
+## Creates content in a user's channel
 ## POST /ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents
+##
+## Create a new content
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func public_create_content_v2(
-	channel_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	channel_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents"
@@ -3275,8 +4009,17 @@ func public_create_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Update content to S3 bucket by share code
+
+## Updates UGC content in S3 by sharecode
 ## PUT /ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/s3/sharecodes/{shareCode}
+##
+## Update content by share code
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - share_code: Share code identifying the content to update.
+## - user_id: AccelByte user ID
 func public_update_content_by_share_code_v2(
 	channel_id: String,
 	namespace_param: String,
@@ -3297,13 +4040,19 @@ func public_update_content_by_share_code_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete content by share code
+
+## Deletes content by sharecode
 ## DELETE /ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/sharecodes/{shareCode}
+##
+## Delete existing content by share code
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - namespace_param: Game namespace
+## - share_code: Share code identifying the content to delete.
+## - user_id: AccelByte user ID
 func public_delete_content_by_share_code_v2(
-	channel_id: String,
-	namespace_param: String,
-	share_code: String,
-	user_id: String
+	channel_id: String, namespace_param: String, share_code: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/sharecodes/{shareCode}"
@@ -3318,13 +4067,19 @@ func public_delete_content_by_share_code_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Delete content
+
+## Deletes a content entry
 ## DELETE /ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}
+##
+## Delete existing content
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func public_delete_content_v2(
-	channel_id: String,
-	content_id: String,
-	namespace_param: String,
-	user_id: String
+	channel_id: String, content_id: String, namespace_param: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}"
@@ -3339,8 +4094,17 @@ func public_delete_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Update content
+
+## Updates a content entry
 ## PATCH /ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}
+##
+## Update existing content
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func public_update_content_v2(
 	channel_id: String,
 	content_id: String,
@@ -3361,8 +4125,17 @@ func public_update_content_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Update content file location
+
+## Updates the file location for a content entry
 ## PATCH /ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}/fileLocation
+##
+## Commits the content file upload after generating an upload URL, updating the file location for the content entry.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func public_update_content_file_location(
 	channel_id: String,
 	content_id: String,
@@ -3383,8 +4156,17 @@ func public_update_content_file_location(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Update content share code
+
+## Updates the sharecode for a content entry
 ## PATCH /ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}/sharecode
+##
+## Modifies the share code for a content entry. The operation requires explicit permission and defaults to disabled. The share code must be at most 7 characters, using only: abcdefhkpqrstuxyz.
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_content_share_code_v2(
 	channel_id: String,
 	content_id: String,
@@ -3405,8 +4187,17 @@ func update_content_share_code_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Generate content upload URL
+
+## Generates an upload URL for a content entry
 ## PATCH /ugc/v2/public/namespaces/{namespace}/users/{userId}/channels/{channelId}/contents/{contentId}/uploadUrl
+##
+## Generate content upload URL
+##
+## Parameters:
+## - channel_id: Unique identifier for the channel.
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func public_generate_content_upload_urlv2(
 	channel_id: String,
 	content_id: String,
@@ -3427,8 +4218,18 @@ func public_generate_content_upload_urlv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PATCH, headers, request_body)
 
-## Get content by user ID
+
+## Lists content created by a user
 ## GET /ugc/v2/public/namespaces/{namespace}/users/{userId}/contents
+##
+## Lists content created by a user. Accessible without authentication; authenticated requests require a valid user token. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Available values: - *createdTime* - *createdTime:desc* - *createdTime:asc*
 func public_get_content_by_user_idv2(
 	namespace_param: String,
 	user_id: String,
@@ -3457,13 +4258,18 @@ func public_get_content_by_user_idv2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update screenshot of content
+
+## Updates screenshots for a content entry
 ## PUT /ugc/v2/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots
+##
+## Updates the screenshot metadata for a content entry. The description field accepts up to 1024 characters.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_screenshots_v2(
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots"
@@ -3477,13 +4283,18 @@ func update_screenshots_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Upload screenshots for content
+
+## Creates screenshot upload URLs for a content entry
 ## POST /ugc/v2/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots
+##
+## Creates upload URLs for screenshots of a content entry. Omit *contentType* to let *fileExtension* determine the format. Supported extensions: pjp, jpg, jpeg, jfif, bmp, png. The description field accepts up to 1024 characters.
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func upload_content_screenshot_v2(
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots"
@@ -3497,13 +4308,19 @@ func upload_content_screenshot_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.POST, headers, request_body)
 
-## Delete screenshots content
+
+## Deletes a screenshot from a content entry
 ## DELETE /ugc/v2/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots/{screenshotId}
+##
+## Delete screenshot from a content
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - screenshot_id: Unique identifier for the screenshot.
+## - user_id: AccelByte user ID
 func delete_content_screenshot_v2(
-	content_id: String,
-	namespace_param: String,
-	screenshot_id: String,
-	user_id: String
+	content_id: String, namespace_param: String, screenshot_id: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/contents/{contentId}/screenshots/{screenshotId}"
@@ -3518,14 +4335,20 @@ func delete_content_screenshot_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.DELETE, headers, request_body)
 
-## Get contents belong to a group
+
+## Lists content entries belonging to a group
 ## GET /ugc/v2/public/namespaces/{namespace}/users/{userId}/groups/{groupId}/contents
+##
+## Lists content entries belonging to a group. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - group_id: Unique identifier for the group.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
 func public_get_group_contents_v2(
-	group_id: String,
-	namespace_param: String,
-	user_id: String,
-	limit: int = -1,
-	offset: int = -1
+	group_id: String, namespace_param: String, user_id: String, limit: int = -1, offset: int = -1
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/groups/{groupId}/contents"
@@ -3547,8 +4370,19 @@ func public_get_group_contents_v2(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## List user staging contents
+
+## Lists staging content for a user
 ## GET /ugc/v2/public/namespaces/{namespace}/users/{userId}/staging-contents
+##
+## Lists staging content for a user. Supports offset-based pagination using the offset and limit parameters.
+##
+## Parameters:
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
+## - limit: Number of results to return
+## - offset: Number of results to skip for pagination
+## - sort_by: Sort query result available value: - createdTime - createdTime:desc - createdTime:asc - updatedTime - updatedTime:desc - updatedTime:asc
+## - status: Filter by content status [*PENDING*, *REJECTED*]
 func list_user_staging_contents(
 	namespace_param: String,
 	user_id: String,
@@ -3580,12 +4414,18 @@ func list_user_staging_contents(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Get user staging content by id
+
+## Retrieves a staging content entry by ID
 ## GET /ugc/v2/public/namespaces/{namespace}/users/{userId}/staging-contents/{contentId}
+##
+## Get user staging content by ID
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func get_user_staging_content_by_id(
-	content_id: String,
-	namespace_param: String,
-	user_id: String
+	content_id: String, namespace_param: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/staging-contents/{contentId}"
@@ -3599,13 +4439,18 @@ func get_user_staging_content_by_id(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.GET, headers, request_body)
 
-## Update staging content
+
+## Updates a staging content entry
 ## PUT /ugc/v2/public/namespaces/{namespace}/users/{userId}/staging-contents/{contentId}
+##
+## Update staging content
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func update_staging_content(
-	content_id: String,
-	namespace_param: String,
-	user_id: String,
-	body: Dictionary = {}
+	content_id: String, namespace_param: String, user_id: String, body: Dictionary = {}
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/staging-contents/{contentId}"
@@ -3619,12 +4464,18 @@ func update_staging_content(
 	var headers: PackedStringArray = AccelbyteHttp.get_bearer_headers(_auth_token)
 	return await _http.request(url, AccelbyteHttp.Method.PUT, headers, request_body)
 
-## Delete user staging content by id
+
+## Deletes a user staging content entry by ID
 ## DELETE /ugc/v2/public/namespaces/{namespace}/users/{userId}/staging-contents/{contentId}
+##
+## Delete user staging content by ID
+##
+## Parameters:
+## - content_id: Unique identifier for the content.
+## - namespace_param: Game namespace
+## - user_id: AccelByte user ID
 func delete_user_staging_content_by_id(
-	content_id: String,
-	namespace_param: String,
-	user_id: String
+	content_id: String, namespace_param: String, user_id: String
 ) -> Dictionary:
 	# Build URL path
 	var url_path: String = "/ugc/v2/public/namespaces/{namespace}/users/{userId}/staging-contents/{contentId}"
